@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:fragment="encabezado(titulo)">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title th:text="${titulo} + ' | ITCH'">Tutorías ITCH</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+            body { font-family: 'Plus Jakarta Sans', sans-serif; }
+            .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+            .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+        </style>
+    </th:block>
+</head>
+<body>
+
+    <aside th:fragment="sidebarCoordinador" class="w-80 bg-[#0f172a] text-white flex flex-col h-screen sticky top-0 p-6 shadow-2xl z-50">
+        <div class="flex items-center gap-4 px-2 mb-12">
+            <div class="h-12 w-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 rotate-3">
+                <i class="fa-solid fa-shield-halved text-2xl text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-extrabold tracking-tight">ITCH Portal</h2>
+                <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Coordinación</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 space-y-1.5 custom-scrollbar overflow-y-auto pr-2">
+            <a th:href="@{/coordinador/panel}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-chart-pie text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Resumen General</span>
+            </a>
+            <a th:href="@{/coordinador/tutores}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-chalkboard-user text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Gestión de Tutores</span>
+            </a>
+            <a th:href="@{/coordinador/estudiantes}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-user-graduate text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Control Alumnos</span>
+            </a>
+            <a th:href="@{/coordinador/carreras}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-book-bookmark text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Programas / Carreras</span>
+            </a>
+            <a th:href="@{/coordinador/asignacion}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-link text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Nueva Asignación</span>
+            </a>
+            <a th:href="@{/coordinador/pat}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-calendar-check text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Planes PAT</span>
+            </a>
+            <a th:href="@{/coordinador/busquedas}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-magnifying-glass text-slate-500 group-hover:text-emerald-400"></i>
+                <span class="text-sm font-semibold">Centro Consultas</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto bg-white/5 rounded-3xl p-5">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="w-full flex items-center justify-center gap-3 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-black tracking-widest transition-all">
+                    <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
+                </button>
+            </form>
+        </div>
+    </aside>
+    
+    <aside th:fragment="sidebarTutor" class="w-80 bg-[#0f172a] text-white flex flex-col h-screen sticky top-0 p-6 shadow-2xl z-50">
+        <div class="flex items-center gap-4 px-2 mb-12">
+            <div class="h-12 w-12 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/20 rotate-3">
+                <i class="fa-solid fa-user-tie text-2xl text-white"></i>
+            </div>
+            <div>
+                <h2 class="text-lg font-extrabold tracking-tight">ITCH Portal</h2>
+                <span class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Panel Docente</span>
+            </div>
+        </div>
+        
+        <nav class="flex-1 space-y-1.5 custom-scrollbar overflow-y-auto pr-2">
+            <a th:href="@{/tutor/panel}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-house text-slate-500 group-hover:text-blue-400"></i>
+                <span class="text-sm font-semibold">Inicio</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-users text-slate-500 group-hover:text-blue-400"></i>
+                <span class="text-sm font-semibold">Mis Tutorados</span>
+            </a>
+            <a href="#" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl hover:bg-white/5 transition-all group">
+                <i class="fa-solid fa-file-invoice text-slate-500 group-hover:text-blue-400"></i>
+                <span class="text-sm font-semibold">Generar Reportes</span>
+            </a>
+            <a th:href="@{/tutor/perfil}" class="flex items-center gap-4 px-4 py-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/20 mt-4">
+                <i class="fa-solid fa-user-gear text-blue-400"></i>
+                <span class="text-sm font-bold text-white">Mi Perfil</span>
+            </a>
+        </nav>
+
+        <div class="mt-auto bg-white/5 rounded-3xl p-5">
+            <form th:action="@{/logout}" method="POST">
+                <button type="submit" class="w-full flex items-center justify-center gap-3 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-black tracking-widest transition-all">
+                    <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <footer th:fragment="footer" class="py-10 text-center border-t border-slate-100 bg-white/50 backdrop-blur-md">
+        <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">
+            &copy; 2026 Instituto Tecnológico de Chilpancingo<span class="text-emerald-500/50"></span>
+        </p>
+    </footer>
+
+</body>
+</html>

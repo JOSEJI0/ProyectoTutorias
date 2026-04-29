@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout :: encabezado('Historial de Alumno')}"></th:block>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
+
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="h-20 bg-white/50 backdrop-blur-xl flex items-center justify-between px-12 border-b border-slate-200/60 sticky top-0 z-50">
+            <div class="flex items-center gap-2 text-slate-400 text-sm font-bold">
+                <a th:href="@{/coordinador/busquedas}" class="hover:text-emerald-600 transition-colors uppercase tracking-tighter text-xs">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Volver a Búsquedas
+                </a>
+            </div>
+            <div class="bg-emerald-500/10 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                Expediente Digital
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-12 custom-scrollbar">
+            <div class="max-w-5xl mx-auto w-full">
+                
+                <div class="mb-12">
+                    <p class="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-2">Trazabilidad del Estudiante</p>
+                    <h1 class="text-4xl font-[800] text-slate-900 tracking-tight" th:text="'Historial Académico ID: ' + ${estudianteId}"></h1>
+                    <p class="text-slate-500 mt-2 font-medium italic">Cronología de grupos y tutores asignados durante la formación del alumno.</p>
+                </div>
+
+                <div th:if="${#lists.isEmpty(resultados)}" class="glass-card p-20 text-center rounded-[3rem] border-2 border-dashed border-slate-200">
+                    <div class="h-16 w-16 bg-slate-100 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fa-solid fa-user-clock text-2xl"></i>
+                    </div>
+                    <h4 class="text-slate-400 font-bold text-sm uppercase tracking-widest">Sin actividad registrada</h4>
+                    <p class="text-slate-300 text-xs mt-2 font-medium">Este alumno no cuenta con historial de tutorías en el sistema.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div th:each="g : ${resultados}" class="glass-card p-8 rounded-[2.5rem] shadow-sm border border-slate-100 hover:border-emerald-200 transition-all group relative overflow-hidden">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="h-12 w-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-sm">
+                                <i class="fa-solid fa-users-rectangle text-xl"></i>
+                            </div>
+                            <span class="bg-slate-100 text-slate-500 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" th:text="${g.periodo.nombrePeriodo}"></span>
+                        </div>
+
+                        <h3 class="text-xl font-[800] text-slate-800 tracking-tight mb-4" th:text="${g.nombreGrupo}"></h3>
+                        
+                        <div class="pt-6 border-t border-slate-50 flex items-center gap-4">
+                            <div class="h-10 w-10 bg-slate-50 rounded-xl flex items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-colors">
+                                <i class="fa-solid fa-chalkboard-user"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tutor Académico</p>
+                                <span class="text-sm font-bold text-slate-700" th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></span>
+                            </div>
+                        </div>
+
+                        <i class="fa-solid fa-graduation-cap absolute -bottom-4 -right-4 text-8xl text-slate-50/50 -rotate-12 group-hover:text-emerald-50 transition-colors"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <div th:replace="~{fragments/layout :: footer}"></div>
+    </main>
+
+</body>
+</html>
