@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import itch.tspw.ProyectoTutorias.model.Carrera;
 import itch.tspw.ProyectoTutorias.service.CarreraService;
+import itch.tspw.ProyectoTutorias.service.EstudianteService;
 
 @Controller
 @RequestMapping("/coordinador/carreras")
@@ -15,6 +16,9 @@ public class CarreraCrudController {
 
     @Autowired
     private CarreraService carreraService;
+
+    @Autowired
+    private EstudianteService estudianteService;
 
     @GetMapping
     public String listar(Model model) {
@@ -46,11 +50,15 @@ public class CarreraCrudController {
     public String actualizar(@RequestParam("idCarrera") Integer id,
                              @RequestParam("nombre") String nombre,
                              @RequestParam("clave") String clave) {
-        Carrera carrera = carreraService.obtenerPorId(id);
-        carrera.setNombreCarrera(nombre);
-        carrera.setClaveOficial(clave);
-        carreraService.guardar(carrera);
-        return "redirect:/coordinador/carreras?exito=actualizado";
+        try {
+            Carrera carrera = carreraService.obtenerPorId(id);
+            carrera.setNombreCarrera(nombre);
+            carrera.setClaveOficial(clave);
+            carreraService.guardar(carrera);
+            return "redirect:/coordinador/carreras?exito=actualizado";
+        } catch (DataIntegrityViolationException e) {
+            return "redirect:/coordinador/carreras/editar/" + id + "?error=duplicado";
+        }
     }
 
     @GetMapping("/eliminar/{id}")
@@ -59,8 +67,17 @@ public class CarreraCrudController {
             carreraService.eliminar(id);
             return "redirect:/coordinador/carreras?exito=eliminado";
         } catch (Exception e) {
-
-        	return "redirect:/coordinador/carreras?error=vinculado";
+            return "redirect:/coordinador/carreras?error=vinculado";
         }
+    }
+
+    @GetMapping("/detalle/{id}")
+    public String verDetalle(@PathVariable("id") Integer id, Model model) {
+        Carrera carrera = carreraService.obtenerPorId(id);
+        model.addAttribute("carrera", carrera);
+        
+        model.addAttribute("estudiantes", estudianteService.listarEstudiantes(null, id));
+        
+        return "coordinador/carreras-detalle";
     }
 }

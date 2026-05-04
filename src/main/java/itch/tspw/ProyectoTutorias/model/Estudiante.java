@@ -18,12 +18,27 @@ public class Estudiante {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_carrera", nullable = false)
     private Carrera carrera;
+    
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_grupo")
+    private GrupoTutoria grupo;
 
     @Column(name = "numero_control", length = 15, unique = true, nullable = false)
     private String numeroControl;
 
     @Column(name = "semestre_actual", nullable = false)
     private Integer semestreActual;
+    
+    @Column(name = "activo", columnDefinition = "boolean default true")
+    private Boolean activo = true;
+
+	public Boolean getActivo() {
+		return activo;
+	}
+
+	public void setActivo(Boolean activo) {
+		this.activo = activo;
+	}
 
 	public Integer getIdEstudiante() {
 		return idEstudiante;
@@ -64,5 +79,7 @@ public class Estudiante {
 	public void setSemestreActual(Integer semestreActual) {
 		this.semestreActual = semestreActual;
 	}
+	public GrupoTutoria getGrupo() { return grupo; }
+    public void setGrupo(GrupoTutoria grupo) { this.grupo = grupo; }
     
 }

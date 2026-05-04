@@ -34,9 +34,7 @@ public class Usuario {
     
     @Column(name = "foto_perfil")
     private String fotoPerfil = "default.png";
-    
-    @Column(name = "rol")
-    private String rol;
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -51,10 +49,12 @@ public class Usuario {
         fechaCreacion = LocalDateTime.now();
     }
 
+    // Método de ayuda para asignar roles fácilmente
     public void agregarPerfil(Perfil perfil) {
         this.perfiles.add(perfil);
     }
 
+    // === Getters y setters ===
     public Integer getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
 
@@ -86,13 +86,4 @@ public class Usuario {
 	public void setFotoPerfil(String fotoPerfil) {
 		this.fotoPerfil = fotoPerfil;
 	}
-
-	public String getRol() {
-		return rol;
-	}
-
-	public void setRol(String rol) {
-		this.rol = rol;
-	}
-	
 }

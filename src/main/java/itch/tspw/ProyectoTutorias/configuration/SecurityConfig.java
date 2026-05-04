@@ -15,30 +15,36 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-	    return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
-	}
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    // Filtro de Rutas y Permisos
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, 
             CustomAuthenticationProvider customAuthenticationProvider,
             CustomSuccessHandler customSuccessHandler) throws Exception {
         
-        // http.authenticationProvider(customAuthenticationProvider);
+        http.authenticationProvider(customAuthenticationProvider);
 
         http
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             .authorizeHttpRequests(configurer ->
-            configurer.anyRequest().permitAll() // Esto abre todas las rutas del sistema
-        )
+                configurer
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/coordinador/**").hasAuthority("ROLE_COORDINADOR")
+                        .requestMatchers("/tutor/**").hasAuthority("ROLE_TUTOR")
+                        .requestMatchers("/estudiante/**").hasAuthority("ROLE_ESTUDIANTE")
+                        .anyRequest().authenticated()
+            ) 
             .formLogin(form ->
                 form
                     .loginPage("/login")

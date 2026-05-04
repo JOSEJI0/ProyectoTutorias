@@ -80,10 +80,12 @@ public class TutorController {
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
             if (foto != null && !foto.isEmpty()) {
+                // Si ya tenía una foto vieja, la eliminamos para no llenar el disco
                 if (!usuario.getFotoPerfil().equals("default.png")) {
                     uploadFileService.eliminarImagen(usuario.getFotoPerfil());
                 }
                 
+                // Guardamos la nueva foto
                 String nombreFoto = uploadFileService.guardarImagen(foto);
                 usuario.setFotoPerfil(nombreFoto);
                 usuarioRepository.save(usuario);

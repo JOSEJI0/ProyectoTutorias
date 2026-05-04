@@ -21,6 +21,9 @@ public class ActividadPat {
     @ManyToOne
     @JoinColumn(name = "id_pat", nullable = false)
     private PatInstitucional pat;
+    
+    @Column(name = "activo", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean activo = true;
 
 	public Integer getIdActividad() {
 		return idActividad;
@@ -61,5 +64,14 @@ public class ActividadPat {
 	public void setPat(PatInstitucional pat) {
 		this.pat = pat;
 	}
+
+	public Boolean getActivo() {
+		return activo;
+	}
+
+	public void setActivo(Boolean activo) {
+		this.activo = activo;
+	}
+	
    
 }

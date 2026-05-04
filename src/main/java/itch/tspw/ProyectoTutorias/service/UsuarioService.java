@@ -15,11 +15,13 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    // Autentica usuario por correo y contraseña (retorna null si falla)
     public Usuario autenticarUsuario(String correo, String passwordPlanText) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoInstitucional(correo);
         
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
+            // Comparación null-safe y comprobación de activo null-safe
             if (Objects.equals(usuario.getPasswordHash(), passwordPlanText)
                     && Boolean.TRUE.equals(usuario.getActivo())) {
                 return usuario;

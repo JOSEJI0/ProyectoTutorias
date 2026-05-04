@@ -18,8 +18,15 @@ public class PeriodoEscolarService {
         return periodoRepository.findAll();
     }
 
-    public PeriodoEscolar obtenerActivo() {
-        return periodoRepository.findByEstatusActivoTrue()
-                .orElseThrow(() -> new RuntimeException("No hay un periodo escolar activo configurado."));
+    // AGREGAR O CORREGIR ESTE MÉTODO:
+    public PeriodoEscolar obtenerPorId(Integer id) {
+        return periodoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
     }
+    	//Obtener periodos activos
+	public PeriodoEscolar obtenerActivo() {
+		
+		return periodoRepository.findByEstatusActivoTrue()
+				.orElseThrow(() -> new IllegalArgumentException("No hay periodos activos"));
+	}
 }

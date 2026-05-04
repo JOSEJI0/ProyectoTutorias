@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class LoginController {
 
+    // Mostrar la pantalla de login
     @GetMapping("/login")
     public String mostrarPantallaLogin(@RequestParam(value = "error", required = false) String error,
                                       Model model) {

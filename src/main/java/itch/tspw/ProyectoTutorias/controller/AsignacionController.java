@@ -6,11 +6,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
-import itch.tspw.ProyectoTutorias.service.CarreraService;
 import itch.tspw.ProyectoTutorias.service.EstudianteService;
 import itch.tspw.ProyectoTutorias.service.GrupoTutoriaService;
 import itch.tspw.ProyectoTutorias.service.PeriodoEscolarService;
-import itch.tspw.ProyectoTutorias.service.TutorService;
 
 import java.util.List;
 
@@ -20,33 +18,39 @@ public class AsignacionController {
 
     @Autowired
     private GrupoTutoriaService grupoService;
-    @Autowired
-    private TutorService tutorService;
+    
     @Autowired
     private EstudianteService estudianteService;
-    @Autowired
-    private CarreraService carreraService;
+    
     @Autowired
     private PeriodoEscolarService periodoService;
 
     @GetMapping
     public String mostrarFormulario(Model model) {
-        model.addAttribute("tutores", tutorService.listarTodos());
-        model.addAttribute("estudiantes", estudianteService.listarTodos());
-        model.addAttribute("carreras", carreraService.listarTodas());
-        model.addAttribute("periodos", periodoService.listarTodos());
+        model.addAttribute("gruposDisponibles", grupoService.listarGruposPorEstatus(true));
         
-        model.addAttribute("nuevoGrupo", new GrupoTutoria());
+        model.addAttribute("estudiantes", estudianteService.listarSinGrupo());
+        
+        model.addAttribute("asignacion", new GrupoTutoria());
+        
         return "coordinador/asignacion-grupos";
     }
 
     @PostMapping("/guardar")
-    public String guardarAsignacion(@ModelAttribute GrupoTutoria grupo,
+    public String guardarAsignacion(@RequestParam(value = "idGrupo", required = false) Integer idGrupo,
                                     @RequestParam(value = "idEstudiantes", required = false) List<Integer> idEstudiantes) {
         
-        grupo.setPeriodo(periodoService.obtenerActivo());
+        if (idGrupo == null || idEstudiantes == null || idEstudiantes.isEmpty()) {
+            return "redirect:/coordinador/asignacion?error=debe_seleccionar_grupo_y_alumnos";
+        }
+
+        GrupoTutoria grupo = grupoService.obtenerPorId(idGrupo);
         
-        grupoService.asignarGrupo(grupo, idEstudiantes);
-        return "redirect:/coordinador/panel?exito=asignacion_completa";
+        if(grupo != null) {
+            grupoService.asignarGrupo(grupo, idEstudiantes);
+            return "redirect:/coordinador/grupos?exito=asignacion_correcta";
+        } else {
+            return "redirect:/coordinador/asignacion?error=grupo_no_encontrado";
+        }
     }
 }

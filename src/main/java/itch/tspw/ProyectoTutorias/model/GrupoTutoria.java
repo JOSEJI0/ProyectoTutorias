@@ -1,17 +1,16 @@
- package itch.tspw.ProyectoTutorias.model;
+package itch.tspw.ProyectoTutorias.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -38,62 +37,90 @@ public class GrupoTutoria {
     @Column(name = "nombre_grupo", length = 50, nullable = false)
     private String nombreGrupo;
 
-    @ManyToMany
-    @JoinTable(
-      name = "grupo_estudiante",
-      joinColumns = @JoinColumn(name = "id_grupo"), 
-      inverseJoinColumns = @JoinColumn(name = "id_estudiante")
-    )
+    // Nuevo campo para el borrado lógico
+    @Column(name = "activo", columnDefinition = "boolean default true")
+    private Boolean activo = true;
+    
+    @Column(name = "semestre", nullable = false)
+    private Integer semestre;
+
+    @Column(name = "horario", length = 50, nullable = false)
+    private String horario;
+
+    @OneToMany(mappedBy = "grupo", cascade = CascadeType.ALL)
     private List<Estudiante> estudiantes;
 
-	public Integer getIdGrupo() {
-		return idGrupo;
+    public Integer getIdGrupo() {
+        return idGrupo;
+    }
+
+    public void setIdGrupo(Integer idGrupo) {
+        this.idGrupo = idGrupo;
+    }
+
+    public Tutor getTutor() {
+        return tutor;
+    }
+
+    public void setTutor(Tutor tutor) {
+        this.tutor = tutor;
+    }
+
+    public PeriodoEscolar getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(PeriodoEscolar periodo) {
+        this.periodo = periodo;
+    }
+
+    public Carrera getCarrera() {
+        return carrera;
+    }
+
+    public void setCarrera(Carrera carrera) {
+        this.carrera = carrera;
+    }
+
+    public String getNombreGrupo() {
+        return nombreGrupo;
+    }
+
+    public void setNombreGrupo(String nombreGrupo) {
+        this.nombreGrupo = nombreGrupo;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
+    }
+
+    public List<Estudiante> getEstudiantes() {
+        return estudiantes;
+    }
+
+    public void setEstudiantes(List<Estudiante> estudiantes) {
+        this.estudiantes = estudiantes;
+    }
+
+	public Integer getSemestre() {
+		return semestre;
 	}
 
-	public void setIdGrupo(Integer idGrupo) {
-		this.idGrupo = idGrupo;
+	public void setSemestre(Integer semestre) {
+		this.semestre = semestre;
 	}
 
-	public Tutor getTutor() {
-		return tutor;
+	public String getHorario() {
+		return horario;
 	}
 
-	public void setTutor(Tutor tutor) {
-		this.tutor = tutor;
+	public void setHorario(String horario) {
+		this.horario = horario;
 	}
-
-	public PeriodoEscolar getPeriodo() {
-		return periodo;
-	}
-
-	public void setPeriodo(PeriodoEscolar periodo) {
-		this.periodo = periodo;
-	}
-
-	public Carrera getCarrera() {
-		return carrera;
-	}
-
-	public void setCarrera(Carrera carrera) {
-		this.carrera = carrera;
-	}
-
-	public String getNombreGrupo() {
-		return nombreGrupo;
-	}
-
-	public void setNombreGrupo(String nombreGrupo) {
-		this.nombreGrupo = nombreGrupo;
-	}
-
-	public List<Estudiante> getEstudiantes() {
-		return estudiantes;
-	}
-
-	public void setEstudiantes(List<Estudiante> estudiantes) {
-		this.estudiantes = estudiantes;
-	}
-    
     
 
 }

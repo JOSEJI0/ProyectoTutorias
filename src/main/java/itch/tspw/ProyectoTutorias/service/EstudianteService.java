@@ -13,7 +13,6 @@ import itch.tspw.ProyectoTutorias.repository.PerfilRepository;
 import itch.tspw.ProyectoTutorias.repository.UsuarioRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class EstudianteService {
@@ -30,10 +29,15 @@ public class EstudianteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public List<Estudiante> listarTodos() {
-        return estudianteRepository.findAll().stream()
-                .filter(est -> est.getUsuario() != null && est.getUsuario().getActivo())
-                .collect(Collectors.toList());
+    public List<Estudiante> listarEstudiantes(Integer semestre, Integer idCarrera) {
+        if (semestre != null && idCarrera != null) {
+            return estudianteRepository.findBySemestreActualAndCarrera_IdCarreraAndActivoTrue(semestre, idCarrera);
+        } else if (semestre != null) {
+            return estudianteRepository.findBySemestreActualAndActivoTrue(semestre);
+        } else if (idCarrera != null) {
+            return estudianteRepository.findByCarrera_IdCarreraAndActivoTrue(idCarrera);
+        }
+        return estudianteRepository.findByActivoTrue();
     }
 
     public Estudiante obtenerPorId(Integer id) {
@@ -46,23 +50,39 @@ public class EstudianteService {
         Usuario usuario = estudiante.getUsuario();
 
         if (usuario.getIdUsuario() == null) {
-            String hash = passwordEncoder.encode(usuario.getPasswordHash());
+            String pwdRaw = usuario.getPasswordHash() != null ? usuario.getPasswordHash() : estudiante.getNumeroControl();
+            String hash = passwordEncoder.encode(pwdRaw);
             usuario.setPasswordHash(hash);
+            
             Perfil perfilEstudiante = perfilRepository.findByNombre("ROLE_ESTUDIANTE")
                     .orElseThrow(() -> new RuntimeException("El perfil ROLE_ESTUDIANTE no existe en la BD"));
             usuario.agregarPerfil(perfilEstudiante);
+            usuario.setActivo(true);
         }
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
         estudiante.setUsuario(usuarioGuardado);
+        estudiante.setActivo(true);
         estudianteRepository.save(estudiante);
     }
 
     @Transactional
-    public void eliminarEstudiante(Integer id) {
-        Estudiante est = obtenerPorId(id);
-        Usuario usuario = est.getUsuario();
-        usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+    public void eliminarEstudianteLogico(Integer idEstudiante) {
+        Estudiante estudiante = obtenerPorId(idEstudiante);
+        
+        estudiante.setGrupo(null);
+        
+        estudiante.setActivo(false);
+        
+        if (estudiante.getUsuario() != null) {
+            estudiante.getUsuario().setActivo(false);
+            usuarioRepository.save(estudiante.getUsuario());
+        }
+        
+        estudianteRepository.save(estudiante);
+    }
+
+    public List<Estudiante> listarSinGrupo() {
+        return estudianteRepository.findByGrupoIsNullAndActivoTrue();
     }
 }

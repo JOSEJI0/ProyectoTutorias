@@ -1,7 +1,6 @@
 package itch.tspw.ProyectoTutorias.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +17,18 @@ public class EstudianteCrudController {
 
     @Autowired
     private EstudianteService estudianteService;
+    
     @Autowired
     private CarreraService carreraService;
 
     @GetMapping
-    public String listarEstudiantes(Model model) {
-        model.addAttribute("estudiantes", estudianteService.listarTodos());
+    public String listarEstudiantes(@RequestParam(value = "semestre", required = false) Integer semestre,
+                                    @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+                                    Model model) {
+        model.addAttribute("estudiantes", estudianteService.listarEstudiantes(semestre, idCarrera));
         model.addAttribute("carreras", carreraService.listarTodas()); 
+        model.addAttribute("semestreFiltro", semestre);
+        model.addAttribute("carreraFiltro", idCarrera);
         return "coordinador/estudiantes-lista";
     }
 
@@ -36,26 +40,24 @@ public class EstudianteCrudController {
                                     @RequestParam("semestre") Integer semestre,
                                     @RequestParam("idCarrera") Integer idCarrera) {
         try {
-            Usuario nuevoUsuario = new Usuario();
-            nuevoUsuario.setNombre(nombre);
-            nuevoUsuario.setApellidos(apellidos);
-            nuevoUsuario.setCorreoInstitucional(correo);
-            nuevoUsuario.setPasswordHash("1234");
-            nuevoUsuario.setActivo(true);
-
-            Estudiante nuevoEst = new Estudiante();
-            nuevoEst.setNumeroControl(numControl);
-            nuevoEst.setSemestreActual(semestre);
+            Estudiante estudiante = new Estudiante();
+            estudiante.setNumeroControl(numControl);
+            estudiante.setSemestreActual(semestre);
             
-            Carrera carrera = new Carrera();
-            carrera.setIdCarrera(idCarrera);
-            nuevoEst.setCarrera(carrera);
-            
-            nuevoEst.setUsuario(nuevoUsuario);
+            Carrera carrera = carreraService.obtenerPorId(idCarrera);
+            estudiante.setCarrera(carrera);
 
-            estudianteService.guardarEstudiante(nuevoEst);
+            Usuario usuario = new Usuario();
+            usuario.setNombre(nombre);
+            usuario.setApellidos(apellidos);
+            usuario.setCorreoInstitucional(correo);
+            
+            estudiante.setUsuario(usuario);
+
+            estudianteService.guardarEstudiante(estudiante);
             return "redirect:/coordinador/estudiantes?exito=guardado";
-        } catch (DataIntegrityViolationException e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             return "redirect:/coordinador/estudiantes?error=duplicado";
         }
     }
@@ -73,11 +75,17 @@ public class EstudianteCrudController {
                                        @RequestParam("nombre") String nombre,
                                        @RequestParam("apellidos") String apellidos,
                                        @RequestParam("correo") String correo,
-                                       @RequestParam("semestre") Integer semestre) {
+                                       @RequestParam("semestre") Integer semestre,
+                                       @RequestParam("idCarrera") Integer idCarrera,
+                                       @RequestParam(value = "activo", defaultValue = "true") Boolean activo) {
         try {
             Estudiante est = estudianteService.obtenerPorId(idEstudiante);
             est.setNumeroControl(numControl);
             est.setSemestreActual(semestre);
+            est.setActivo(activo);
+            
+            Carrera carrera = carreraService.obtenerPorId(idCarrera);
+            est.setCarrera(carrera);
             
             Usuario usr = est.getUsuario();
             usr.setNombre(nombre);
@@ -86,14 +94,18 @@ public class EstudianteCrudController {
             
             estudianteService.guardarEstudiante(est);
             return "redirect:/coordinador/estudiantes?exito=actualizado";
-        } catch (DataIntegrityViolationException e) {
+        } catch (Exception e) {
             return "redirect:/coordinador/estudiantes/editar/" + idEstudiante + "?error=duplicado";
         }
     }
 
     @GetMapping("/eliminar/{id}")
     public String eliminarEstudiante(@PathVariable("id") Integer id) {
-        estudianteService.eliminarEstudiante(id);
-        return "redirect:/coordinador/estudiantes?exito=eliminado";
+        try {
+            estudianteService.eliminarEstudianteLogico(id);
+            return "redirect:/coordinador/estudiantes?exito=eliminado";
+        } catch (Exception e) {
+            return "redirect:/coordinador/estudiantes?error=no_eliminado";
+        }
     }
 }
