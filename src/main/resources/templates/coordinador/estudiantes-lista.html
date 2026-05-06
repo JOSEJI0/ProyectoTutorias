@@ -2,139 +2,116 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Gestión de Estudiantes')}"></th:block>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
+<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="h-20 bg-white/50 backdrop-blur-xl flex items-center justify-between px-12 border-b border-slate-200/60">
-            <div class="flex items-center gap-2 text-slate-400 text-sm">
-                <span class="hover:text-emerald-600 transition-colors uppercase font-bold tracking-tighter text-xs">Control Escolar</span>
-                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                <span class="text-slate-900 font-bold uppercase tracking-tighter text-xs">Gestión de Estudiantes</span>
-            </div>
-            <div class="bg-emerald-500/10 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                Padrón Activo
-            </div>
-        </header>
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-6xl mx-auto w-full flex-1">
+<header class="mb-8 mt-2 flex justify-between items-end">
+    <div>
+        <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-user-graduate mr-2"></i> Gestión de Estudiantes</h1>
+    </div>
+    
+    <form th:action="@{/coordinador/estudiantes}" method="GET" class="flex gap-2 bg-white p-2 rounded-xl shadow-sm border">
+        <select name="semestre" class="bg-slate-50 border-none rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="">Todos los Semestres</option>
+            <option th:each="i : ${#numbers.sequence(1, 2)}" th:value="${i}" th:text="${i + '° Semestre'}" th:selected="${semestreFiltro == i}"></option>
+        </select>
 
-        <div class="flex-1 overflow-y-auto p-12 custom-scrollbar">
-            <div class="max-w-7xl mx-auto">
-                <div class="mb-10">
-                    <h1 class="text-4xl font-[800] text-slate-900 tracking-tight">Estudiantes</h1>
-                    <p class="text-slate-500 mt-2 font-medium">Administra el ingreso y la información académica de los tutorados.</p>
-                </div>
+        <select name="idCarrera" class="bg-slate-50 border-none rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-blue-500">
+            <option value="">Todas las Carreras</option>
+            <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}" th:selected="${carreraFiltro == c.idCarrera}"></option>
+        </select>
 
-                <div th:if="${param.exito != null}" class="mb-8 bg-emerald-50 border-l-4 border-emerald-500 p-5 rounded-r-2xl text-emerald-800 shadow-sm flex items-center gap-4">
-                    <div class="h-10 w-10 bg-emerald-500 text-white rounded-xl flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-check-circle"></i>
+        <button type="submit" class="bg-[#0B2A4A] text-white px-4 py-2 rounded-lg font-bold hover:bg-[#1a3a5a] transition-all text-sm">
+            <i class="fa-solid fa-filter mr-1"></i> Filtrar
+        </button>
+        <a th:href="@{/coordinador/estudiantes}" class="bg-slate-100 text-slate-500 px-4 py-2 rounded-lg font-bold hover:bg-slate-200 transition-all text-sm flex items-center">
+            Limpiar
+        </a>
+    </form>
+</header>
+
+            <div th:if="${param.exito != null}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 text-green-700 rounded shadow-sm">Operación exitosa.</div>
+            <div th:if="${param.error != null}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">Error en la operación. Verifica que los datos no estén duplicados.</div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <h3 class="font-bold text-[#0B2A4A] mb-4 border-b pb-2">Registro Rápido</h3>
+                <form th:action="@{/coordinador/estudiantes/guardar}" method="POST" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">No. Control <span class="text-red-500">*</span></label>
+                        <input type="text" name="numControl" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
-                    <p class="text-sm font-bold">Operación completada con éxito.</p>
-                </div>
-
-                <div th:if="${param.error != null}" class="mb-8 bg-red-50 border-l-4 border-red-500 p-5 rounded-r-2xl text-red-800 shadow-sm flex items-center gap-4">
-                    <div class="h-10 w-10 bg-red-500 text-white rounded-xl flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-circle-xmark"></i>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Nombre <span class="text-red-500">*</span></label>
+                        <input type="text" name="nombre" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
-                    <p class="text-sm font-bold">Error: El Número de Control o Correo ya se encuentra registrado.</p>
-                </div>
-
-                <div class="glass-card p-10 rounded-[2.5rem] shadow-sm border border-slate-100 mb-10">
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-8 px-1">Registrar Nuevo Alumno</h2>
-                    <form th:action="@{/coordinador/estudiantes/guardar}" method="POST" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end">
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">No. Control</label>
-                            <input type="text" name="numControl" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Nombre</label>
-                            <input type="text" name="nombre" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Apellidos</label>
-                            <input type="text" name="apellidos" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Correo</label>
-                            <input type="email" name="correo" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Semestre</label>
-                            <input type="number" name="semestre" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                        </div>
-                        <div class="lg:col-span-1">
-                            <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Carrera</label>
-                            <select name="idCarrera" required class="w-full bg-slate-100/50 border-none rounded-xl px-4 py-3 text-xs font-bold text-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none">
-                                <option value="" disabled selected>Carrera...</option>
-                                <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}">Ingeniería...</option>
-                            </select>
-                        </div>
-                        <div class="lg:col-span-1">
-                            <button type="submit" class="w-full bg-slate-900 hover:bg-emerald-600 text-white h-[44px] rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-slate-900/10">
-                                Guardar <i class="fa-solid fa-plus-circle ml-1"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="glass-card rounded-[3rem] shadow-xl overflow-hidden border border-slate-100">
-                    <div class="p-8 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center border-b border-slate-100">
-                        <h3 class="text-lg font-extrabold text-slate-800">Listado Maestro de Alumnos</h3>
-                        <div class="bg-white px-4 py-2 rounded-xl border border-slate-100">
-                            <span class="text-[10px] font-black text-emerald-600 uppercase" th:text="${#lists.size(estudiantes)} + ' Registrados'"></span>
-                        </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Apellidos <span class="text-red-500">*</span></label>
+                        <input type="text" name="apellidos" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Correo <span class="text-red-500">*</span></label>
+                        <input type="email" name="correo" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
                     
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50/50">
-                                    <th class="py-6 px-10">Matrícula</th>
-                                    <th class="py-6 px-10">Estudiante</th>
-                                    <th class="py-6 px-10">Semestre Actual</th>
-                                    <th class="py-6 px-10 text-center">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                <tr th:each="e : ${estudiantes}" class="hover:bg-emerald-50/30 transition-all group">
-                                    <td class="py-6 px-10">
-                                        <span class="text-xs font-black px-3 py-1 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-500 group-hover:text-white transition-all" th:text="${e.numeroControl}"></span>
-                                    </td>
-                                    <td class="py-6 px-10">
-                                        <div class="flex items-center gap-4">
-                                            <div class="h-10 w-10 bg-slate-200 rounded-2xl flex items-center justify-center text-xs font-black text-white shadow-sm" th:text="${#strings.substring(e.usuario.nombre,0,1)}"></div>
-                                            <span class="text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></span>
-                                        </div>
-                                    </td>
-                                    <td class="py-6 px-10">
-                                        <span class="text-xs font-bold text-slate-500" th:text="${e.semestreActual + '° Semestre'}"></span>
-                                    </td>
-                                    <td class="py-6 px-10 text-center">
-                                        <div class="flex items-center justify-center gap-4">
-                                            <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${e.idEstudiante})}" class="h-9 w-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm">
-                                                <i class="fa-solid fa-user-pen text-xs"></i>
-                                            </a>
-                                            <a th:href="@{/coordinador/estudiantes/eliminar/{id}(id=${e.idEstudiante})}" class="h-9 w-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm" onclick="return confirm('¿Seguro que desea eliminar este registro?');">
-                                                <i class="fa-solid fa-trash-can text-xs"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Semestre <span class="text-red-500">*</span></label>
+                        <input type="number" min="1" max="12" name="semestre" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
-                </div>
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Carrera <span class="text-red-500">*</span></label>
+                        <select name="idCarrera" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="" disabled selected>Seleccionar...</option>
+                            <option th:each="c : ${carreras}" 
+                                    th:value="${c.idCarrera}" 
+                                    th:text="${c.nombreCarrera}">Ingeniería...</option>
+                        </select>
+                    </div>
+                    <div class="md:col-span-6 flex justify-end mt-2">
+                        <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-2 rounded-lg font-bold hover:bg-[#1a3a5a] transition-colors shadow-sm">Guardar Estudiante</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4">No. Control</th>
+                            <th class="px-6 py-4">Nombre Completo</th>
+                            <th class="px-6 py-4">Semestre</th>
+                            <th class="px-6 py-4">Carrera</th>
+                            <th class="px-6 py-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:each="e : ${estudiantes}" class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-mono text-slate-500" th:text="${e.numeroControl}"></td>
+                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></td>
+                            <td class="px-6 py-4 text-slate-500 text-center" th:text="${e.semestreActual + '°'}"></td>
+                            <td class="px-6 py-4 text-slate-500" th:text="${e.carrera.nombreCarrera}"></td>
+                            <td class="px-6 py-4 text-center space-x-4">
+								<a th:href="@{/coordinador/estudiantes/detalle/{id}(id=${e.idEstudiante})}" title="Ver Detalle" class="text-emerald-500 hover:text-emerald-700">
+								    <i class="fa-solid fa-eye text-lg"></i>
+								</a>
+                                <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${e.idEstudiante})}" title="Editar Datos" class="text-blue-500 hover:text-blue-700">
+                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                </a>
+                                <a th:href="@{/coordinador/estudiantes/eliminar/{id}(id=${e.idEstudiante})}" title="Dar de baja" class="text-red-400 hover:text-red-600" onclick="return confirm('¿Estás seguro de dar de baja a este estudiante? Se desvinculará de su grupo actual.');">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(estudiantes)}">
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-400 italic">No se encontraron estudiantes registrados en este semestre.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

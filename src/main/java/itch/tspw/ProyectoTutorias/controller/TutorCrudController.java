@@ -6,11 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import itch.tspw.ProyectoTutorias.model.Tutor;
-import itch.tspw.ProyectoTutorias.model.Usuario;
-import itch.tspw.ProyectoTutorias.service.GrupoTutoriaService;
-import itch.tspw.ProyectoTutorias.service.TutorService;
-import itch.tspw.ProyectoTutorias.service.UploadFileService;
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/tutores")

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reporte PAT</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 20mm;
+            @bottom-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Arial, sans-serif;
+                font-size: 9pt;
+                color: #666;
+            }
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.5;
+        }
+        .cabecera {
+            border-bottom: 2px solid #0B2A4A;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        .titulo-institucion {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #0B2A4A;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        .subtitulo {
+            font-size: 12pt;
+            color: #666;
+            margin: 5px 0 0 0;
+        }
+        .datos-cuadro {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        .datos-cuadro p { margin: 5px 0; font-size: 10pt; }
+        .resumen {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .caja-estadistica {
+            display: inline-block;
+            width: 30%;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #0B2A4A;
+            background-color: #fff;
+        }
+        .numero { font-size: 24pt; font-weight: bold; color: #0B2A4A; display: block;}
+        .etiqueta { font-size: 9pt; color: #666; text-transform: uppercase;}
+        
+        .firmas {
+            margin-top: 80px;
+            width: 100%;
+            text-align: center;
+        }
+        .linea-firma {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 0 auto;
+            padding-top: 5px;
+            font-weight: bold;
+            font-size: 10pt;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cabecera">
+        <h1 class="titulo-institucion">Instituto Tecnológico de Chilpancingo</h1>
+        <p class="subtitulo">Reporte Semestral de Acción Tutorial (PAT)</p>
+    </div>
+
+    <div class="datos-cuadro">
+        <p><strong>Periodo Escolar:</strong> <span th:text="${periodo}">Enero - Junio</span></p>
+        <p><strong>Fecha de Emisión:</strong> <span th:text="${#dates.format(#dates.createNow(), 'dd/MMM/yyyy')}"></span></p>
+    </div>
+
+    <h2 style="color: #0B2A4A; font-size: 14pt;">Resumen de Cobertura</h2>
+    <p style="font-size: 10pt;">Este documento certifica el alcance del programa de tutorías en el periodo especificado, reflejando el compromiso docente con el acompañamiento estudiantil.</p>
+
+    <div class="resumen">
+        <div class="caja-estadistica" style="margin-right: 3%;">
+            <span class="numero" th:text="${totalTutores}">0</span>
+            <span class="etiqueta">Tutores Activos</span>
+        </div>
+        <div class="caja-estadistica">
+            <span class="numero" th:text="${alumnosAtendidos}">0</span>
+            <span class="etiqueta">Alumnos Atendidos</span>
+        </div>
+    </div>
+    
+    <h2 style="color: #0B2A4A; font-size: 14pt; margin-top: 20px;">Distribución por Programa Educativo</h2>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+    <thead>
+        <tr style="background-color: #0B2A4A; color: white;">
+            <th style="padding: 10px; text-align: left;">Carrera / Ingeniería</th>
+            <th style="padding: 10px; text-align: center;">Total Estudiantes</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="c : ${carreras}" style="border-bottom: 1px solid #eee;">
+            <td style="padding: 8px;" th:text="${c.nombre}">Ingeniería en Sistemas</td>
+            <td style="padding: 8px; text-align: center;" th:text="${c.alumnos}">0</td>
+        </tr>
+    </tbody>
+</table>
+
+    <div class="firmas">
+        <div class="linea-firma">
+            Coordinación de Tutorías<br/>
+            <span style="font-weight: normal; color: #666;">Firma y Sello</span>
+        </div>
+    </div>
+
+</body>
+</html>

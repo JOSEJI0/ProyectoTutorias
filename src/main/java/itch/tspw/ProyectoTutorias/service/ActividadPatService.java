@@ -1,11 +1,11 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import itch.tspw.ProyectoTutorias.model.ActividadPat;
-import itch.tspw.ProyectoTutorias.repository.ActividadPatRepository;
-
 import java.util.List;
 
 @Service

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout :: encabezado('Detalle del Grupo')}"></th:block>
+</head>
+<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-[#8A8E8E]">
+
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-6xl mx-auto w-full flex-1">
+            
+            <div class="flex justify-between items-center mb-8 mt-2">
+                <div>
+                    <h1 class="text-3xl font-bold text-[#2A4F73]" th:text="${grupo.nombreGrupo}">Nombre del Grupo</h1>
+                    <p class="text-[#689BBE] font-medium" th:text="${grupo.carrera.nombreCarrera}">Carrera</p>
+                </div>
+                <a th:href="@{/coordinador/grupos}" class="px-6 py-2 bg-white text-[#2A4F73] rounded-full shadow-sm hover:bg-gray-50 transition-all font-bold">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Volver al Listado
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-white">
+                    <p class="text-sm uppercase tracking-wider mb-1">Tutor Asignado</p>
+                    <h3 class="text-xl font-bold text-[#2A4F73]" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre Tutor</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-white">
+                    <p class="text-sm uppercase tracking-wider mb-1">Periodo Escolar</p>
+                    <h3 class="text-xl font-bold text-[#2A4F73]" th:text="${grupo.periodo.nombrePeriodo}">Ene-Jun 2026</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-white">
+                    <p class="text-sm uppercase tracking-wider mb-1">Total de Estudiantes</p>
+                    <h3 class="text-xl font-bold text-[#2A4F73]" th:text="${totalEstudiantes + ' Alumnos'}">0 Alumnos</h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <div class="bg-white p-8 rounded-3xl shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-[#2A4F73]">Lista de Estudiantes</h2>
+                        <span class="px-4 py-1 bg-[#A4CFF0]/20 text-[#2A4F73] rounded-full text-sm font-bold">Activos</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="text-[#2A4F73] border-b border-gray-100">
+                                    <th class="pb-3 font-semibold">No. Control</th>
+                                    <th class="pb-3 font-semibold">Nombre</th>
+                                    <th class="pb-3 font-semibold text-right">Semestre</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr th:each="estudiante : ${grupo.estudiantes}" class="hover:bg-[#EDF1F4]/50 transition-colors">
+                                    <td class="py-4 text-[#689BBE] font-mono" th:text="${estudiante.numeroControl}">00000000</td>
+                                    <td class="py-4 font-medium text-[#2A4F73]" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Estudiante</td>
+                                    <td class="py-4 text-right" th:text="${estudiante.semestreActual + '°'}">1°</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div th:if="${#lists.isEmpty(grupo.estudiantes)}" class="py-8 text-center italic">
+                            No hay estudiantes asignados a este grupo aún.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-sm">
+                    <h2 class="text-2xl font-bold text-[#2A4F73] mb-6">Cronograma de Actividades (PAT)</h2>
+                    
+                    <!-- Bloque que muestra el PAT Institucional Activo -->
+                    <div th:if="${patInstitucional != null}" class="mb-8 bg-[#EDF1F4]/50 p-5 rounded-2xl border border-[#A4CFF0]/50">
+                        <h4 class="text-sm font-bold text-[#2A4F73] mb-1">
+                            <i class="fa-solid fa-file-contract mr-1 text-[#689BBE]"></i> PAT Institucional Asignado
+                        </h4>
+                        <div class="flex justify-between items-center mt-3">
+                            <p class="text-sm">Versión: <span class="font-bold text-[#689BBE]" th:text="${patInstitucional.version}">V1.0</span></p>
+                            <p class="text-xs">Publicado: <span class="font-bold text-[#689BBE]" th:text="${patInstitucional.fechaPublicacion}">2026-05-01</span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Alerta si el grupo no tiene PAT asignado de la carrera -->
+                    <div th:unless="${patInstitucional != null}" class="mb-8 bg-red-50 p-5 rounded-2xl border border-red-200">
+                        <p class="text-sm text-red-600 font-bold">
+                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Este grupo no tiene un PAT Institucional activo asignado para su carrera y periodo.
+                        </p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Iteramos sobre las actividades del PAT del Grupo, NO sobre las sesiones -->
+                        <div th:each="act : ${actividadesGrupo}" class="relative pl-8 border-l-2 border-[#A4CFF0]">
+                            <div class="absolute -left-[9px] top-0 w-4 h-4 bg-[#689BBE] rounded-full border-4 border-white shadow-sm"></div>
+                            
+                            <div class="mb-1 flex justify-between items-start">
+                                <h4 class="font-bold text-[#2A4F73]" th:text="${'Semana ' + act.semanaProgramada + ': ' + act.titulo}">Título Actividad</h4>
+                                
+                                <!-- Estatus con colores dinámicos idénticos a los del Tutor -->
+                                <span class="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border" 
+                                      th:classappend="${act.estatus == 'Completado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : (act.estatus == 'En Proceso' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-yellow-50 text-yellow-600 border-yellow-200')}"
+                                      th:text="${act.estatus}">Estado</span>
+                            </div>
+                            
+                            <p class="text-sm mb-2 text-[#8A8E8E]" th:text="${act.descripcion}">Descripción de la actividad del PAT.</p>
+                        </div>
+
+                        <!-- Mensaje si el tutor aún no ha clonado el PAT para este grupo -->
+                        <div th:if="${actividadesGrupo == null || #lists.isEmpty(actividadesGrupo)}" class="py-8 text-center italic text-[#689BBE]">
+                            El tutor responsable aún no ha adaptado el plan de trabajo para este grupo.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/layout :: footer}"></div>
+    </main>
+
+</body>
+</html>

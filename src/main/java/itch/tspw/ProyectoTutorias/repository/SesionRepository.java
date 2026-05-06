@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 public interface SesionRepository extends JpaRepository<Sesion, Integer> {
     
-    // Sesiones de un grupo (CORRECTO)
+    // Sesiones de un grupo
     List<Sesion> findByGrupo_IdGrupo(Integer idGrupo);
     
     // Sesiones impartidas por un tutor
@@ -20,8 +20,13 @@ public interface SesionRepository extends JpaRepository<Sesion, Integer> {
     
     // Sesiones por fecha
     List<Sesion> findByFechaImparticion(LocalDate fechaImparticion);
-    
-    // (ELIMINADA LA LÍNEA QUE ROMPÍA EL PROGRAMA: findByGrupoTutoria_IdGrupo)
 
     long countByGrupo_IdGrupo(Integer idGrupo);
+    
+    // --> NUEVA LÍNEA: Cuenta las sesiones de un tutor directamente <--
+    long countByGrupo_Tutor_IdTutor(Integer idTutor);
+ // Para saber cuántas sesiones YA se dieron en ese grupo
+    List<Sesion> findByGrupo_IdGrupoAndEstatusRegistro(Integer idGrupo, String estatus);
+    
+    
 }

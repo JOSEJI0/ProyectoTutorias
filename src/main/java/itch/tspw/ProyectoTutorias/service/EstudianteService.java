@@ -1,16 +1,11 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import itch.tspw.ProyectoTutorias.model.Estudiante;
-import itch.tspw.ProyectoTutorias.model.Perfil;
-import itch.tspw.ProyectoTutorias.model.Usuario;
-import itch.tspw.ProyectoTutorias.repository.EstudianteRepository;
-import itch.tspw.ProyectoTutorias.repository.PerfilRepository;
-import itch.tspw.ProyectoTutorias.repository.UsuarioRepository;
 
 import java.util.List;
 
@@ -29,6 +24,7 @@ public class EstudianteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    // Listar filtrando por semestre y que estén activos
     public List<Estudiante> listarEstudiantes(Integer semestre, Integer idCarrera) {
         if (semestre != null && idCarrera != null) {
             return estudianteRepository.findBySemestreActualAndCarrera_IdCarreraAndActivoTrue(semestre, idCarrera);
@@ -49,7 +45,9 @@ public class EstudianteService {
     public void guardarEstudiante(Estudiante estudiante) {
         Usuario usuario = estudiante.getUsuario();
 
+        // Configuración si es un usuario completamente nuevo
         if (usuario.getIdUsuario() == null) {
+            // Si no tiene password asignado, usamos el número de control por defecto
             String pwdRaw = usuario.getPasswordHash() != null ? usuario.getPasswordHash() : estudiante.getNumeroControl();
             String hash = passwordEncoder.encode(pwdRaw);
             usuario.setPasswordHash(hash);
@@ -66,14 +64,18 @@ public class EstudianteService {
         estudianteRepository.save(estudiante);
     }
 
+    // ELIMINACIÓN LÓGICA
     @Transactional
     public void eliminarEstudianteLogico(Integer idEstudiante) {
         Estudiante estudiante = obtenerPorId(idEstudiante);
         
+        // 1. Desvincular de su grupo actual (si tiene)
         estudiante.setGrupo(null);
         
+        // 2. Borrado lógico del estudiante
         estudiante.setActivo(false);
         
+        // 3. Borrado lógico de las credenciales de usuario (opcional pero recomendado)
         if (estudiante.getUsuario() != null) {
             estudiante.getUsuario().setActivo(false);
             usuarioRepository.save(estudiante.getUsuario());

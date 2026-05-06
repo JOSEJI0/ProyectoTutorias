@@ -5,11 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.Carrera;
-import itch.tspw.ProyectoTutorias.model.Estudiante;
-import itch.tspw.ProyectoTutorias.model.Usuario;
-import itch.tspw.ProyectoTutorias.service.CarreraService;
-import itch.tspw.ProyectoTutorias.service.EstudianteService;
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/estudiantes")
@@ -21,6 +18,7 @@ public class EstudianteCrudController {
     @Autowired
     private CarreraService carreraService;
 
+    // 1. LISTAR CON FILTRO DE SEMESTRE
     @GetMapping
     public String listarEstudiantes(@RequestParam(value = "semestre", required = false) Integer semestre,
                                     @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
@@ -32,6 +30,7 @@ public class EstudianteCrudController {
         return "coordinador/estudiantes-lista";
     }
 
+    // 2. GUARDAR NUEVO ESTUDIANTE
     @PostMapping("/guardar")
     public String guardarEstudiante(@RequestParam("nombre") String nombre,
                                     @RequestParam("apellidos") String apellidos,
@@ -44,6 +43,7 @@ public class EstudianteCrudController {
             estudiante.setNumeroControl(numControl);
             estudiante.setSemestreActual(semestre);
             
+            // Asignar carrera real desde la base de datos
             Carrera carrera = carreraService.obtenerPorId(idCarrera);
             estudiante.setCarrera(carrera);
 
@@ -51,6 +51,7 @@ public class EstudianteCrudController {
             usuario.setNombre(nombre);
             usuario.setApellidos(apellidos);
             usuario.setCorreoInstitucional(correo);
+            // El hash de contraseña y los perfiles se manejan automáticamente en EstudianteService
             
             estudiante.setUsuario(usuario);
 
@@ -62,6 +63,7 @@ public class EstudianteCrudController {
         }
     }
 
+    // 3. MOSTRAR FORMULARIO DE EDICIÓN
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("estudiante", estudianteService.obtenerPorId(id));
@@ -69,6 +71,7 @@ public class EstudianteCrudController {
         return "coordinador/estudiantes-editar";
     }
 
+    // 4. ACTUALIZAR ESTUDIANTE EXISTENTE
     @PostMapping("/actualizar")
     public String actualizarEstudiante(@RequestParam("idEstudiante") Integer idEstudiante,
                                        @RequestParam("numControl") String numControl,
@@ -79,6 +82,7 @@ public class EstudianteCrudController {
                                        @RequestParam("idCarrera") Integer idCarrera,
                                        @RequestParam(value = "activo", defaultValue = "true") Boolean activo) {
         try {
+            // Recuperamos los datos que ya existen
             Estudiante est = estudianteService.obtenerPorId(idEstudiante);
             est.setNumeroControl(numControl);
             est.setSemestreActual(semestre);
@@ -99,9 +103,11 @@ public class EstudianteCrudController {
         }
     }
 
+    // 5. ELIMINAR (BORRADO LÓGICO)
     @GetMapping("/eliminar/{id}")
     public String eliminarEstudiante(@PathVariable("id") Integer id) {
         try {
+            // Llamamos al método de borrado lógico en el Service
             estudianteService.eliminarEstudianteLogico(id);
             return "redirect:/coordinador/estudiantes?exito=eliminado";
         } catch (Exception e) {

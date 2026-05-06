@@ -1,9 +1,7 @@
 package itch.tspw.ProyectoTutorias.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-
 import itch.tspw.ProyectoTutorias.model.Asistencia;
-
 import java.util.List;
 
 public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer> {
@@ -16,4 +14,13 @@ public interface AsistenciaRepository extends JpaRepository<Asistencia, Integer>
     
     // Conteo de ausencias
     long countByEstudiante_IdEstudianteAndPresenteFalse(Integer idEstudiante);
+    
+    //Buscar asistencias por sesión
+    List<Asistencia> findBySesion_IdSesion(Integer idSesion);
+	
+	 // Buscar asistencias por grupo
+    List<Asistencia> findBySesion_Grupo_IdGrupo(Integer idGrupo);
+    
+
+
 }

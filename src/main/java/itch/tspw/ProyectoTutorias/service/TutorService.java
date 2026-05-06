@@ -1,16 +1,11 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import itch.tspw.ProyectoTutorias.model.Perfil;
-import itch.tspw.ProyectoTutorias.model.Tutor;
-import itch.tspw.ProyectoTutorias.model.Usuario;
-import itch.tspw.ProyectoTutorias.repository.PerfilRepository;
-import itch.tspw.ProyectoTutorias.repository.TutorRepository;
-import itch.tspw.ProyectoTutorias.repository.UsuarioRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;

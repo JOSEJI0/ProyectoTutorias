@@ -1,16 +1,11 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
 import jakarta.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import itch.tspw.ProyectoTutorias.model.Estudiante;
-import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
-import itch.tspw.ProyectoTutorias.model.Sesion;
-import itch.tspw.ProyectoTutorias.repository.EstudianteRepository;
-import itch.tspw.ProyectoTutorias.repository.GrupoTutoriaRepository;
-import itch.tspw.ProyectoTutorias.repository.SesionRepository;
 
 import java.util.List;
 
@@ -31,18 +26,22 @@ public class GrupoTutoriaService {
     }
 
     @Transactional
-    public void asignarGrupo(GrupoTutoria grupo, List<Integer> idEstudiantes) {
+    public GrupoTutoria asignarGrupo(GrupoTutoria grupo, List<Integer> idEstudiantes) {
         GrupoTutoria grupoGuardado;
 
-        // Si el grupo trae un ID, significa que ya existe, lo buscamos para actualizarlo
         if (grupo.getIdGrupo() != null) {
             grupoGuardado = grupoTutoriaRepository.findById(grupo.getIdGrupo()).orElse(grupo);
+            // Actualizamos los campos vitales por si es una edición
+            grupoGuardado.setNombreGrupo(grupo.getNombreGrupo());
+            grupoGuardado.setCarrera(grupo.getCarrera());
+            grupoGuardado.setSemestre(grupo.getSemestre());
+            grupoGuardado.setHorario(grupo.getHorario());
+            grupoGuardado.setTutor(grupo.getTutor());
+            grupoGuardado = grupoTutoriaRepository.save(grupoGuardado);
         } else {
-            // Si no trae ID, es un grupo totalmente nuevo
             grupoGuardado = grupoTutoriaRepository.save(grupo);
         }
 
-        // Asignamos los estudiantes seleccionados a este grupo (nuevo o existente)
         if (idEstudiantes != null && !idEstudiantes.isEmpty()) {
             List<Estudiante> estudiantesSeleccionados = estudianteRepository.findAllById(idEstudiantes);
             for (Estudiante estudiante : estudiantesSeleccionados) {
@@ -50,6 +49,8 @@ public class GrupoTutoriaService {
             }
             estudianteRepository.saveAll(estudiantesSeleccionados);
         }
+        
+        return grupoGuardado; // Devolvemos el objeto con su ID real de la BD
     }
     
     @Transactional

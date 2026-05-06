@@ -1,5 +1,6 @@
 package itch.tspw.ProyectoTutorias.service;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,6 @@ public class PatService {
     @Autowired
     private PatRepository patRepository;
 
-    public PatInstitucional obtenerPorId(Integer id) {
-        return patRepository.findById(id).orElseThrow(() -> new RuntimeException("PAT no encontrado"));
-    }
 
     public PatInstitucional guardar(PatInstitucional pat) {
         return patRepository.save(pat);
@@ -25,9 +23,12 @@ public class PatService {
         patRepository.deleteById(idPat);
     }
     
- // 1. Actualiza el listar para usar el nuevo método
     public List<PatInstitucional> listarTodos() {
-        return patRepository.findByActivoTrue(); 
+        return patRepository.findByActivoTrueOrderByIdPatDesc();
+    }
+    
+    public PatInstitucional obtenerPorId(Integer idPat) {
+        return patRepository.findById(idPat).orElseThrow(() -> new RuntimeException("PAT no encontrado"));
     }
 
     // 2. Actualiza la verificación de duplicados

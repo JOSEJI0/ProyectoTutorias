@@ -1,18 +1,11 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.transaction.annotation.Transactional;
-
-import itch.tspw.ProyectoTutorias.model.ActividadPat;
-import itch.tspw.ProyectoTutorias.model.Asistencia;
-import itch.tspw.ProyectoTutorias.model.Estudiante;
-import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
-import itch.tspw.ProyectoTutorias.model.Sesion;
-import itch.tspw.ProyectoTutorias.repository.ActividadPatRepository;
-import itch.tspw.ProyectoTutorias.repository.AsistenciaRepository;
-import itch.tspw.ProyectoTutorias.repository.GrupoTutoriaRepository;
-import itch.tspw.ProyectoTutorias.repository.SesionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,25 +24,20 @@ public class SesionService {
     @Autowired
     private ActividadPatRepository actividadPatRepository;
 
-    // Obtener sesiones de un grupo
     public List<Sesion> obtenerSesionesPorGrupo(Integer idGrupo) {
         return sesionRepository.findByGrupo_IdGrupo(idGrupo);
     }
     
-    // Obtener sesiones de un tutor
     public List<Sesion> obtenerSesionesPorTutor(Integer idTutor) {
         return sesionRepository.findByGrupo_Tutor_IdTutor(idTutor);
     }
 
-    // Buscar actividades por fecha
     public List<Sesion> buscarActividadesPorFecha(LocalDate fecha) {
         return sesionRepository.findByFechaImparticion(fecha);
     }
 
-    // Registra asistencias para todos los alumnos de un grupo en una sesión
     @Transactional
-    public void registrarAsistenciaCompleta(Integer idGrupo, Integer semana, Integer idActividad, List<Integer> idEstudiantesPresentes) {
-        
+    public Sesion registrarAsistenciaCompleta(Integer idGrupo, Integer semana, Integer idActividad, List<Integer> idEstudiantesPresentes) {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo)
                 .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
                 
@@ -63,6 +51,7 @@ public class SesionService {
         nuevaSesion.setGrupo(grupo);
         nuevaSesion.setActividad(actividad);
         
+        // Guardamos y recuperamos el ID
         nuevaSesion = sesionRepository.save(nuevaSesion);
 
         for (Estudiante estudiante : grupo.getEstudiantes()) {
@@ -75,5 +64,12 @@ public class SesionService {
             
             asistenciaRepository.save(registro);
         }
+        
+        return nuevaSesion;
+    }
+
+    public long contarSesionesPorTutor(Integer idTutor) {
+        if (idTutor == null) return 0;
+        return sesionRepository.countByGrupo_Tutor_IdTutor(idTutor);
     }
 }

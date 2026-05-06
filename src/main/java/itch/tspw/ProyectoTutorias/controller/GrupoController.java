@@ -5,14 +5,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.Carrera;
-import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
-import itch.tspw.ProyectoTutorias.repository.GrupoTutoriaRepository;
-import itch.tspw.ProyectoTutorias.service.CarreraService;
-import itch.tspw.ProyectoTutorias.service.GrupoTutoriaService;
-import itch.tspw.ProyectoTutorias.service.PatGrupoService;
-import itch.tspw.ProyectoTutorias.service.PeriodoEscolarService;
-import itch.tspw.ProyectoTutorias.service.TutorService;
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/grupos")
@@ -53,41 +48,43 @@ public class GrupoController {
         return "coordinador/grupos-crear";
     }
 
-    // NUEVO: MÉTODO PARA EDITAR GRUPO
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEdicion(@PathVariable Integer id, Model model) {
         GrupoTutoria grupo = grupoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado: " + id));
         
-        model.addAttribute("nuevoGrupo", grupo); // Usamos el mismo nombre de objeto para reutilizar lógica
+        model.addAttribute("nuevoGrupo", grupo); 
         model.addAttribute("esEdicion", true);
         cargarCatalogos(model);
         
-        return "coordinador/grupos-crear"; // Reutilizaremos el HTML de creación
+        return "coordinador/grupos-crear"; 
     }
 
     @PostMapping("/guardar")
     public String guardarGrupo(@ModelAttribute GrupoTutoria grupo) {
-        Carrera carreraSeleccionada = carreraService.obtenerPorId(grupo.getCarrera().getIdCarrera());
         
-        // Regeneramos el nombre por si cambió el semestre, carrera u horario
-        if (carreraSeleccionada != null) {
-            String nombreGenerado = carreraSeleccionada.getNombreCarrera() + 
-                                    " - " + grupo.getSemestre() + "° Semestre " + 
-                                    " (" + grupo.getHorario() + ")";
-            grupo.setNombreGrupo(nombreGenerado);
-        }
-
-        // Si es edición, mantenemos el periodo original; si es nuevo, el activo
         if (grupo.getIdGrupo() == null) {
             grupo.setPeriodo(periodoService.obtenerActivo());
+            grupo.setActivo(true); 
         } else {
-            // Recuperamos el periodo actual de la BD para no perderlo
-            GrupoTutoria grupoDb = grupoRepository.findById(grupo.getIdGrupo()).get();
+            GrupoTutoria grupoDb = grupoRepository.findById(grupo.getIdGrupo()).orElseThrow();
             grupo.setPeriodo(grupoDb.getPeriodo());
+            grupo.setActivo(grupoDb.getActivo()); 
+            
+            if(grupo.getSemestre() == null || grupo.getSemestre() == 0) {
+                 grupo.setSemestre(grupoDb.getSemestre());
+            }
+            if(grupo.getHorario() == null || grupo.getHorario().isEmpty()) {
+                 grupo.setHorario(grupoDb.getHorario());
+            }
         }
-        patGrupoService.asignarPatAutomatico(grupo);
-        grupoTutoriaService.asignarGrupo(grupo, null);
+        
+        // CAMBIO CLAVE: Atrapamos el grupo ya guardado (con su ID generado)
+        GrupoTutoria grupoGuardado = grupoTutoriaService.asignarGrupo(grupo, null);
+        
+        // Le mandamos el grupoGuardado a la lógica del PAT para evitar el error nulo
+        patGrupoService.asignarPatAutomatico(grupoGuardado);
+        
         return "redirect:/coordinador/grupos?exito=grupo_actualizado";
     }
 

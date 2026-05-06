@@ -1,89 +1,104 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Gestión de PAT')}"></th:block>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .pat-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pat-card:hover { transform: scale(1.01); border-color: rgba(16, 185, 129, 0.2); }
-    </style>
+    <th:block th:replace="~{fragments/layout :: encabezado('Gestión de PAT Institucional')}"></th:block>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
+<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="h-20 bg-white/50 backdrop-blur-xl flex items-center justify-between px-12 border-b border-slate-200/60 sticky top-0 z-50">
-            <div class="flex items-center gap-2 text-slate-400 text-sm">
-                <span class="hover:text-emerald-600 transition-colors uppercase font-bold tracking-tighter text-xs">Académico</span>
-                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                <span class="text-slate-900 font-bold uppercase tracking-tighter text-xs">Planes de Acción</span>
-            </div>
-            <div class="bg-emerald-500/10 text-emerald-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                Estructura Institucional
-            </div>
-        </header>
+    <main class="flex-1 p-10 overflow-y-auto">
+        <div class="max-w-6xl mx-auto">
+            
+            <header class="mb-8 mt-2">
+                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-book mr-2"></i> Planes de Acción Tutorial (Por Carrera)</h1>
+                <p class="text-slate-500 mt-2">Crea los temarios base. Al crear un grupo de una carrera, el sistema le asignará automáticamente su PAT correspondiente.</p>
+            </header>
 
-        <div class="flex-1 overflow-y-auto p-12">
-            <div class="max-w-4xl mx-auto w-full">
-                
-                <div class="mb-12">
-                    <h1 class="text-4xl font-[800] text-slate-900 tracking-tight">Planes de Acción Tutorial</h1>
-                    <p class="text-slate-500 mt-2 font-medium">Administra el temario institucional y vincula las actividades a cada periodo escolar.</p>
+            <div th:if="${param.exito != null}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 text-green-700 rounded shadow-sm">Operación exitosa.</div>
+            
+            <!-- Bloque de errores específicos -->
+            <div th:if="${param.error != null}">
+                <div th:if="${param.error[0] == 'duplicado_carrera'}" class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 text-yellow-700 rounded shadow-sm">
+                    <strong>Atención:</strong> Ya existe un PAT institucional registrado para esta Carrera en este Periodo.
                 </div>
-
-                <div class="glass-card p-10 rounded-[2.5rem] shadow-sm border border-slate-100 mb-12">
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 px-1">Vincular Nuevo Periodo</h2>
-                    <form th:action="@{/coordinador/pat/guardar}" method="POST" class="flex flex-col md:flex-row gap-6 items-end">
-                        <div class="flex-1 w-full">
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2 px-1">Seleccionar Periodo Escolar</label>
-                            <select name="idPeriodo" required 
-                                    class="w-full bg-slate-100/50 border-2 border-transparent focus:border-emerald-500/20 rounded-2xl px-5 py-4 text-sm font-bold text-slate-700 outline-none cursor-pointer transition-all appearance-none">
-                                <option th:each="p : ${periodos}" th:value="${p.idPeriodo}" th:text="${p.nombrePeriodo}"></option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full md:w-auto bg-slate-900 hover:bg-emerald-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-slate-900/10 transition-all flex items-center justify-center gap-3 group">
-                            Crear PAT <i class="fa-solid fa-plus-circle transition-transform group-hover:scale-110"></i>
-                        </button>
-                    </form>
+                <div th:if="${param.error[0] == 'bd_constraint'}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                    <strong>Error de Datos:</strong> Violación de integridad en la base de datos (Ej. datos incompletos o referencias inválidas).
                 </div>
+                <div th:if="${param.error[0] == 'interno'}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                    <strong>Error Interno:</strong> Ocurrió un problema inesperado. Revisa la consola del servidor (Spring Boot) para ver el detalle técnico.
+                </div>
+                <div th:if="${param.error[0] == 'vinculado'}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                    <strong>No se puede eliminar:</strong> El plan ya está asignado a grupos de tutoría.
+                </div>
+            </div>
 
-                <div class="space-y-6 pb-12">
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-1">Planes Registrados</h2>
-                    
-                    <div th:each="pat : ${pats}" class="glass-card p-8 rounded-[2.5rem] shadow-sm border border-slate-100 pat-card flex flex-col md:flex-row justify-between items-center gap-6 group">
-                        <div class="flex items-center gap-6">
-                            <div class="h-14 w-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/5 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-                                <i class="fa-solid fa-book-bookmark text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-[800] text-slate-800 tracking-tight" th:text="'Plan Institucional ' + ${pat.periodo.nombrePeriodo}"></h3>
-                                <p class="text-xs text-slate-400 font-medium mt-1">Configuración de temario semanal y actividades programadas.</p>
-                            </div>
-                        </div>
-                        
-                        <a th:href="@{/coordinador/pat/{id}/actividades(id=${pat.idPat})}" 
-                           class="w-full md:w-auto bg-white border border-slate-200 text-slate-900 px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all flex items-center justify-center gap-3 shadow-sm">
-                            Gestionar Temas <i class="fa-solid fa-arrow-right-long text-[10px]"></i>
-                        </a>
+            <!-- Formulario de Creación -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <form th:action="@{/coordinador/pat/guardar}" method="POST" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Periodo Escolar <span class="text-red-500">*</span></label>
+                        <select name="idPeriodo" required class="w-full mt-1 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A]">
+                            <option th:each="p : ${periodos}" th:value="${p.idPeriodo}" th:text="${p.nombrePeriodo}"></option>
+                        </select>
                     </div>
-
-                    <div th:if="${#lists.isEmpty(pats)}" class="glass-card p-20 text-center rounded-[3rem] border-2 border-dashed border-slate-200">
-                        <div class="h-16 w-16 bg-slate-100 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fa-solid fa-folder-open text-2xl"></i>
-                        </div>
-                        <h4 class="text-slate-400 font-bold text-sm uppercase tracking-widest">No hay planes registrados</h4>
-                        <p class="text-slate-300 text-xs mt-2 font-medium">Vincula un periodo escolar para comenzar con la planeación.</p>
+                    <div class="md:col-span-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Carrera Asignada <span class="text-red-500">*</span></label>
+                        <select name="idCarrera" required class="w-full mt-1 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A]">
+                            <option value="" disabled selected>Selecciona una carrera...</option>
+                            <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}"></option>
+                        </select>
                     </div>
-                </div>
-
+                    <div>
+                        <label class="text-xs font-bold text-slate-400 uppercase">Versión <span class="text-red-500">*</span></label>
+                        <input type="text" name="version" placeholder="Ej. V1.2026" required class="w-full mt-1 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A]">
+                    </div>
+                    <div class="md:col-span-4 flex justify-end mt-2">
+                        <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-2 rounded-lg font-bold shadow-md hover:bg-[#1a3a5a]"><i class="fa-solid fa-plus mr-1"></i> Crear Molde</button>
+                    </div>
+                </form>
             </div>
+
+            <!-- Tabla de Catálogo -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4">Carrera</th>
+                            <th class="px-6 py-4">Periodo Escolar</th>
+                            <th class="px-6 py-4">Versión</th>
+                            <th class="px-6 py-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:each="pat : ${pats}" class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${pat.carrera.nombreCarrera}"></td>
+                            <td class="px-6 py-4 text-slate-500" th:text="${pat.periodo.nombrePeriodo}"></td>
+                            <td class="px-6 py-4 text-slate-500 font-mono" th:text="${pat.version}"></td>
+                            <td class="px-6 py-4 text-center space-x-4">
+                                <!-- Botón Detalle / Asignar Actividades -->
+                                <a th:href="@{/coordinador/pat/{id}/actividades(id=${pat.idPat})}" title="Asignar Actividades / Detalles" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+                                    <i class="fa-solid fa-list-check text-lg"></i>
+                                </a>
+                                <!-- Botón Editar -->
+                                <a th:href="@{/coordinador/pat/editar/{id}(id=${pat.idPat})}" title="Editar Molde" class="text-blue-500 hover:text-blue-700 transition-colors">
+                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                </a>
+                                <!-- Botón Eliminar -->
+                                <a th:href="@{/coordinador/pat/eliminar/{id}(id=${pat.idPat})}" title="Eliminar Plan" class="text-red-400 hover:text-red-600 transition-colors" onclick="return confirm('¿Seguro que deseas eliminar este plan maestro?');">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(pats)}">
+                            <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">No hay planes registrados.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
         </div>
-        
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
-
 </body>
 </html>

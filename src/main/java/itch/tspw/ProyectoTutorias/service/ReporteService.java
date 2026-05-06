@@ -1,4 +1,5 @@
 package itch.tspw.ProyectoTutorias.service;
+
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class ReporteService {
         Context context = new Context();
         context.setVariables(datos);
         
+        // Generamos el HTML usando una vista dedicada (ej. templates/reportes/template-pat.html)
         String htmlContent = templateEngine.process("reportes/template-pat", context);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

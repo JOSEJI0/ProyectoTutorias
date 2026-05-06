@@ -6,9 +6,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.Carrera;
-import itch.tspw.ProyectoTutorias.service.CarreraService;
-import itch.tspw.ProyectoTutorias.service.EstudianteService;
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/carreras")
@@ -17,6 +16,7 @@ public class CarreraCrudController {
     @Autowired
     private CarreraService carreraService;
 
+    // Inyectamos el servicio de estudiantes para buscar los alumnos de la carrera
     @Autowired
     private EstudianteService estudianteService;
 
@@ -67,15 +67,18 @@ public class CarreraCrudController {
             carreraService.eliminar(id);
             return "redirect:/coordinador/carreras?exito=eliminado";
         } catch (Exception e) {
+            // Error si la carrera ya tiene alumnos o grupos vinculados
             return "redirect:/coordinador/carreras?error=vinculado";
         }
     }
 
+    // NUEVO MÉTODO: Ver detalle de la carrera y sus estudiantes
     @GetMapping("/detalle/{id}")
     public String verDetalle(@PathVariable("id") Integer id, Model model) {
         Carrera carrera = carreraService.obtenerPorId(id);
         model.addAttribute("carrera", carrera);
         
+        // Buscamos a los estudiantes (semestre = null para traer todos los de esta carrera)
         model.addAttribute("estudiantes", estudianteService.listarEstudiantes(null, id));
         
         return "coordinador/carreras-detalle";

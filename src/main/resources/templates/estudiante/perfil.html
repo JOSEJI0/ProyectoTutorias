@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout :: encabezado('Mi Perfil')}"></th:block>
+</head>
+<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-slate-800">
+
+    <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
+
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-4xl mx-auto w-full">
+            
+            <div class="flex justify-between items-end mb-8 mt-2">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#0B2A4A]">Mi Perfil</h2>
+                    <p class="text-slate-500 mt-1">Consulta tu información personal y académica.</p>
+                </div>
+            </div>
+
+            <!-- Encabezado del Perfil -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 flex flex-col md:flex-row items-center gap-8 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#0B2A4A]/5 rounded-bl-full -mr-10 -mt-10"></div>
+                
+                <div class="w-32 h-32 bg-[#0B2A4A] text-white rounded-full flex items-center justify-center text-5xl font-black shadow-lg shadow-blue-900/20 border-4 border-white flex-shrink-0 z-10"
+                     th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">
+                    E
+                </div>
+                
+                <div class="text-center md:text-left z-10">
+                    <h3 class="text-3xl font-black text-[#0B2A4A] mb-2" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Completo</h3>
+                    <p class="text-slate-500 font-medium flex items-center justify-center md:justify-start gap-2">
+                        <i class="fa-solid fa-at text-blue-500"></i> <span th:text="${estudiante.usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</span>
+                    </p>
+                    <span class="inline-block mt-3 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-blue-200">
+                        Estudiante Activo
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Información Académica -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                        <i class="fa-solid fa-graduation-cap text-blue-500"></i> Información Académica
+                    </h4>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Número de Control</p>
+                            <p class="font-mono font-bold text-slate-700 text-lg" th:text="${estudiante.numeroControl}">00000000</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Programa Educativo</p>
+                            <p class="font-bold text-[#0B2A4A]" th:text="${estudiante.carrera.nombreCarrera}">Ingeniería</p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Semestre Actual</p>
+                            <p class="font-bold text-slate-700" th:text="${estudiante.semestreActual + '° Semestre'}">1° Semestre</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Tutoría -->
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 relative overflow-hidden">
+                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 relative z-10">
+                        <i class="fa-solid fa-users-rectangle text-blue-500"></i> Asignación de Tutoría
+                    </h4>
+                    
+                    <i class="fa-solid fa-chalkboard-user absolute -right-4 -bottom-4 text-slate-50 text-8xl z-0"></i>
+
+                    <!-- Si TIENE grupo -->
+                    <div th:if="${estudiante.grupo != null}" class="space-y-5 relative z-10">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Grupo de Tutoría</p>
+                            <p class="font-black text-[#0B2A4A] text-xl" th:text="${estudiante.grupo.nombreGrupo}">1A</p>
+                            <p class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> <span th:text="${estudiante.grupo.horario}">Horario</span></p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4">
+                            <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Docente Tutor</p>
+                            <p class="font-bold text-[#0B2A4A] mb-1" th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}">Nombre del Tutor</p>
+                            <a th:href="'mailto:' + ${estudiante.grupo.tutor.usuario.correoInstitucional}" class="text-sm text-blue-600 hover:underline flex items-center gap-2">
+                                <i class="fa-regular fa-envelope"></i> Enviar correo
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Si NO TIENE grupo -->
+                    <div th:unless="${estudiante.grupo != null}" class="relative z-10 bg-slate-50 p-6 rounded-xl border border-slate-200 text-center mt-4">
+                        <div class="text-slate-300 text-4xl mb-3"><i class="fa-solid fa-hourglass-empty"></i></div>
+                        <h5 class="font-bold text-slate-600">Sin grupo asignado</h5>
+                        <p class="text-xs text-slate-500 mt-2">La coordinación aún no te ha asignado a un grupo de tutoría en este periodo.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

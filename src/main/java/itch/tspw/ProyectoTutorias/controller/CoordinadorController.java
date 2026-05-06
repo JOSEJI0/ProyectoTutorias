@@ -4,7 +4,9 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,18 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import itch.tspw.ProyectoTutorias.model.Carrera;
-import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
-import itch.tspw.ProyectoTutorias.model.Sesion;
-import itch.tspw.ProyectoTutorias.repository.CarreraRepository;
-import itch.tspw.ProyectoTutorias.repository.EstudianteRepository;
-import itch.tspw.ProyectoTutorias.repository.GrupoTutoriaRepository;
-import itch.tspw.ProyectoTutorias.repository.SesionRepository;
-import itch.tspw.ProyectoTutorias.repository.TutorRepository;
-import itch.tspw.ProyectoTutorias.service.EvidenciaService;
-import itch.tspw.ProyectoTutorias.service.GrupoTutoriaService;
-import itch.tspw.ProyectoTutorias.service.ReporteService;
-import itch.tspw.ProyectoTutorias.service.SesionService;
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador")
@@ -61,17 +54,33 @@ public class CoordinadorController {
 
     @Autowired
     private SesionRepository sesionRepository;
+    
+    @Autowired
+    private NecesidadRepository necesidadRepository;
+    // Inyectamos el repositorio del PAT
+    @Autowired
+    private PatRepository patRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private PatGrupoService patGrupoService;
 
     @GetMapping("/panel")
     public String mostrarDashboardCoordinador(Model model) {
+        // Obtenemos los grupos activos para el horario
         List<GrupoTutoria> gruposActivos = grupoTutoriaRepository.findByPeriodo_EstatusActivoAndActivoTrue(true);
         
         model.addAttribute("gruposActivos", gruposActivos);
         model.addAttribute("totalGruposActivos", gruposActivos.size());
         model.addAttribute("evidenciasPendientes", evidenciaService.obtenerEvidenciasPendientes());
+        
+        // Contamos a los alumnos que aún no tienen grupo
         model.addAttribute("alumnosSinGrupo", estudianteRepository.findByGrupoIsNullAndActivoTrue().size());
+        
         model.addAttribute("totalTutores", tutorRepository.count()); 
-        model.addAttribute("alertasAcademicas", 0);
+        model.addAttribute("alertasAcademicas", 0); // Placeholder para futuras alertas
+        
         return "coordinador/dashboard-coordinador";
     }
 
@@ -142,12 +151,57 @@ public class CoordinadorController {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado: " + id));
 
+        // Mantenemos las sesiones por si luego quieres poner un "Historial de Asistencia"
         List<Sesion> sesiones = sesionRepository.findByGrupo_IdGrupo(id);
+
+        Optional<PatInstitucional> patInstitucionalOpt = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
+                grupo.getPeriodo().getIdPeriodo(),
+                grupo.getCarrera().getIdCarrera()
+        );
+
+        // NUEVO: Buscamos el PAT clonado de este grupo específico y sus actividades
+        PatGrupo patGrupo = patGrupoService.obtenerPatDeGrupo(id);
+        if (patGrupo != null) {
+            model.addAttribute("actividadesGrupo", patGrupoService.obtenerActividadesDeGrupo(patGrupo.getIdPatGrupo()));
+        }
 
         model.addAttribute("grupo", grupo);
         model.addAttribute("sesiones", sesiones);
         model.addAttribute("totalEstudiantes", grupo.getEstudiantes().size());
         
+        patInstitucionalOpt.ifPresent(patInstitucional -> model.addAttribute("patInstitucional", patInstitucional));
+        
         return "coordinador/detalle-grupo";
+    }
+    @GetMapping("/estudiantes/detalle/{id}")
+    public String verDetalleEstudiante(@PathVariable("id") Integer idEstudiante, Model model) {
+        Estudiante estudiante = estudianteRepository.findById(idEstudiante)
+                .orElseThrow(() -> new IllegalArgumentException("Estudiante no encontrado: " + idEstudiante));
+        
+        var historial = grupoTutoriaService.buscarHistorialTutoriasDeEstudiante(idEstudiante);
+
+        model.addAttribute("estudiante", estudiante);
+        model.addAttribute("historialTutorias", historial);
+        
+        return "coordinador/estudiantes-detalle";
+    }
+    @GetMapping("/necesidades")
+    public String verTodasNecesidades(Model model) {
+        model.addAttribute("necesidades", necesidadRepository.findAllByOrderByFechaSolicitudDesc());
+        return "coordinador/necesidades-lista";
+    }
+    @GetMapping("/perfil")
+    public String verPerfilCoordinador(Model model, org.springframework.security.core.Authentication authentication) {
+        // Obtenemos el usuario logueado
+        Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        model.addAttribute("usuario", usuario);
+        
+        // Pasamos estadísticas rápidas para adornar su perfil
+        model.addAttribute("totalTutores", tutorRepository.count());
+        model.addAttribute("totalEstudiantes", estudianteRepository.findByActivoTrue());
+        
+        return "coordinador/perfil";
     }
 }

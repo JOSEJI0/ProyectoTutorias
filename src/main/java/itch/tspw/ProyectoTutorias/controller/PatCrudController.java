@@ -5,14 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.ActividadPat;
-import itch.tspw.ProyectoTutorias.model.PatInstitucional;
-import itch.tspw.ProyectoTutorias.service.ActividadPatService;
-import itch.tspw.ProyectoTutorias.service.CarreraService;
-import itch.tspw.ProyectoTutorias.service.PatGrupoService;
-import itch.tspw.ProyectoTutorias.service.PatService;
-import itch.tspw.ProyectoTutorias.service.PeriodoEscolarService;
-
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import java.time.LocalDate;
 
 @Controller
@@ -66,6 +60,7 @@ public class PatCrudController {
         }
     }
 
+    // NUEVO: Mostrar formulario de edición
     @GetMapping("/editar/{idPat}")
     public String editarPat(@PathVariable("idPat") Integer idPat, Model model) {
         model.addAttribute("pat", patService.obtenerPorId(idPat));
@@ -74,6 +69,7 @@ public class PatCrudController {
         return "coordinador/pat-editar";
     }
 
+    // NUEVO: Procesar la actualización
     @PostMapping("/actualizar")
     public String actualizarPat(@RequestParam("idPat") Integer idPat,
                                 @RequestParam("idPeriodo") Integer idPeriodo,
@@ -98,6 +94,9 @@ public class PatCrudController {
         return "redirect:/coordinador/pat?exito=eliminado";
     }
 
+    // ==========================================
+    // 2. GESTIÓN DE ACTIVIDADES (DETALLE DEL MOLDE)
+    // ==========================================
     @GetMapping("/{idPat}/actividades")
     public String verActividades(@PathVariable("idPat") Integer idPat, Model model) {
         model.addAttribute("pat", patService.obtenerPorId(idPat));
@@ -111,18 +110,22 @@ public class PatCrudController {
                                    @RequestParam("descripcion") String descripcion,
                                    @RequestParam("semana") Integer semana) {
         
+        // 1. Validar rango de semanas
         if (semana < 1 || semana > 10) {
             return "redirect:/coordinador/pat/" + idPat + "/actividades?error=semana_invalida";
         }
 
+        // 2. Validar que la semana no esté ocupada
         if (actividadService.existeActividadEnSemana(idPat, semana)) {
             return "redirect:/coordinador/pat/" + idPat + "/actividades?error=semana_ocupada";
         }
 
+        // 3. Validar que el título no esté duplicado
         if (actividadService.existeActividadConTitulo(idPat, titulo)) {
             return "redirect:/coordinador/pat/" + idPat + "/actividades?error=titulo_duplicado";
         }
 
+        // Si pasa las validaciones, guardamos
         ActividadPat actividad = new ActividadPat();
         actividad.setTitulo(titulo);
         actividad.setDescripcion(descripcion);

@@ -1,175 +1,90 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Grupos | ITCH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    </style>
+    <th:block th:replace="~{fragments/layout :: encabezado('Asignar Tutorados')}"></th:block>
 </head>
-<body class="bg-[#f8fafc] min-h-screen flex text-slate-900">
+<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
 
-    <aside class="w-80 bg-[#0f172a] text-white flex flex-col h-screen sticky top-0 p-6">
-        <div class="flex items-center gap-4 px-2 mb-12">
-            <div class="h-12 w-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/20 rotate-3">
-                <i class="fa-solid fa-layer-group text-2xl"></i>
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-5xl mx-auto w-full flex-1">
+            
+            <a th:href="@{/coordinador/grupos}" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&larr; Volver a Grupos</a>
+
+            <header class="mb-8 mt-2">
+                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-user-plus mr-2"></i> Asignar Alumnos a Grupo</h1>
+                <p class="text-slate-500 mt-2">Selecciona un grupo existente y marca los alumnos que deseas integrar a sus sesiones de tutoría.</p>
+            </header>
+            
+            <div th:if="${param.error != null}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                Error: Debes seleccionar un grupo válido y al menos un estudiante.
             </div>
-            <div>
-                <h2 class="text-lg font-extrabold tracking-tight">ITCH Portal</h2>
-                <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Coordinación Académica</span>
-            </div>
-        </div>
 
-        <nav class="flex-1 space-y-2">
-            <a th:href="@{/coordinador/panel}" class="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/5 transition-all group">
-                <i class="fa-solid fa-house-user text-slate-500 group-hover:text-emerald-400"></i>
-                <span class="text-sm font-semibold">Inicio</span>
-            </a>
-            <a th:href="@{/coordinador/asignacion}" class="flex items-center gap-4 px-4 py-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 group">
-                <i class="fa-solid fa-square-plus text-emerald-400"></i>
-                <span class="text-sm font-bold text-white">Nueva Asignación</span>
-            </a>
-            <a th:href="@{/coordinador/tutores}" class="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/5 transition-all group">
-                <i class="fa-solid fa-user-tie text-slate-500 group-hover:text-emerald-400"></i>
-                <span class="text-sm font-semibold">Tutores</span>
-            </a>
-            <a th:href="@{/coordinador/estudiantes}" class="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/5 transition-all group">
-                <i class="fa-solid fa-graduation-cap text-slate-500 group-hover:text-emerald-400"></i>
-                <span class="text-sm font-semibold">Estudiantes</span>
-            </a>
-        </nav>
+            <form th:action="@{/coordinador/asignacion/guardar}" method="POST" class="space-y-8">
+                
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">1</div>
+                        <h2 class="text-xl font-bold text-[#0B2A4A]">Seleccionar Grupo de Destino</h2>
+                    </div>
+                    
+                    <div class="max-w-xl">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Grupos Disponibles (Semestre Actual)</label>
+                        <select name="idGrupo" required class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>Selecciona un grupo desplegando aquí...</option>
+                            <option th:each="g : ${gruposDisponibles}" 
+                                    th:value="${g.idGrupo}" 
+                                    th:text="${g.nombreGrupo + ' | Tutor: ' + g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></option>
+                        </select>
+                    </div>
+                </div>
 
-        <div class="mt-auto bg-white/5 rounded-3xl p-5">
-            <form th:action="@{/logout}" method="POST">
-                <button type="submit" class="w-full flex items-center justify-center gap-3 py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold transition-all">
-                    <i class="fa-solid fa-power-off"></i> CERRAR SESIÓN
-                </button>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">2</div>
+                        <h2 class="text-xl font-bold text-[#0B2A4A]">Seleccionar Estudiantes Sin Asignación</h2>
+                    </div>
+
+                    <div class="overflow-hidden border border-slate-100 rounded-xl">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4 text-center w-16">Sel.</th>
+                                    <th class="px-6 py-4">No. Control</th>
+                                    <th class="px-6 py-4">Nombre Completo</th>
+                                    <th class="px-6 py-4">Carrera</th>
+                                    <th class="px-6 py-4 text-center">Semestre</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr th:each="e : ${estudiantes}" class="hover:bg-blue-50/50 transition-colors">
+                                    <td class="px-6 py-4 text-center">
+                                        <input type="checkbox" name="idEstudiantes" th:value="${e.idEstudiante}" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    </td>
+                                    <td class="px-6 py-4 font-mono text-slate-500" th:text="${e.numeroControl}"></td>
+                                    <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></td>
+                                    <td class="px-6 py-4 text-slate-500" th:text="${e.carrera.nombreCarrera}"></td>
+                                    <td class="px-6 py-4 text-center font-medium" th:text="${e.semestreActual + '°'}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(estudiantes)}">
+                                    <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">No hay alumnos pendientes de asignación en este momento.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-[#0B2A4A] text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-[#1a3a5a] transition-all transform hover:-translate-y-1">
+                        <i class="fa-solid fa-check-double mr-2"></i> Confirmar Asignación
+                    </button>
+                </div>
+
             </form>
         </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="h-20 bg-white/50 backdrop-blur-xl flex items-center justify-between px-12 border-b border-slate-200/60">
-            <div class="flex items-center gap-2 text-slate-400 text-sm">
-                <span class="hover:text-emerald-600 transition-colors">Dashboard</span>
-                <i class="fa-solid fa-chevron-right text-[10px]"></i>
-                <span class="text-slate-900 font-bold">Asignación Masiva</span>
-            </div>
-            <div class="flex gap-4">
-                <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-bell text-xs"></i>
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-y-auto p-12 custom-scrollbar">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex justify-between items-end mb-10">
-                    <div>
-                        <h1 class="text-4xl font-[800] text-slate-900 tracking-tight">Vincular Grupos</h1>
-                        <p class="text-slate-500 mt-2 font-medium">Asignación estratégica de estudiantes a tutores académicos.</p>
-                    </div>
-                    <div class="bg-emerald-500 text-white px-6 py-2 rounded-2xl text-xs font-bold shadow-lg shadow-emerald-500/20">
-                        Periodo 2026 Activo
-                    </div>
-                </div>
-
-                <form th:action="@{/coordinador/asignacion/guardar}" method="POST" class="space-y-8">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass-card p-6 rounded-[2.5rem] md:col-span-1 shadow-sm">
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4 block">Identificador</label>
-                            <input type="text" name="nombreGrupo" placeholder="Clave del grupo" required 
-                                   class="w-full bg-slate-100/50 border-2 border-transparent focus:border-emerald-500/20 rounded-2xl px-5 py-4 text-sm font-semibold outline-none transition-all">
-                        </div>
-
-                        <div class="glass-card p-6 rounded-[2.5rem] md:col-span-1 shadow-sm">
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4 block">Tutor Asignado</label>
-                            <select name="tutor.idTutor" required class="w-full bg-slate-100/50 border-2 border-transparent focus:border-emerald-500/20 rounded-2xl px-5 py-4 text-sm font-semibold outline-none cursor-pointer">
-                                <option th:each="t : ${tutores}" th:value="${t.idTutor}" th:text="${t.usuario.nombre + ' ' + t.usuario.apellidos}"></option>
-                            </select>
-                        </div>
-
-                        <div class="glass-card p-6 rounded-[2.5rem] md:col-span-1 shadow-sm">
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4 block">Programa</label>
-                            <select name="carrera.idCarrera" required class="w-full bg-slate-100/50 border-2 border-transparent focus:border-emerald-500/20 rounded-2xl px-5 py-4 text-sm font-semibold outline-none cursor-pointer">
-                                <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}"></option>
-                            </select>
-                        </div>
-
-                        <div class="glass-card p-6 rounded-[2.5rem] md:col-span-1 shadow-sm">
-                            <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-4 block">Ciclo</label>
-                            <select name="periodo.idPeriodo" required class="w-full bg-slate-100/50 border-2 border-transparent focus:border-emerald-500/20 rounded-2xl px-5 py-4 text-sm font-semibold outline-none cursor-pointer">
-                                <option th:each="p : ${periodos}" th:value="${p.idPeriodo}" th:text="${p.nombrePeriodo}"></option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="glass-card rounded-[3rem] shadow-xl overflow-hidden">
-                        <div class="p-10 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center border-b border-slate-100">
-                            <div>
-                                <h3 class="text-xl font-extrabold text-slate-800">Padrón de Estudiantes</h3>
-                                <p class="text-xs text-slate-400 font-semibold mt-1">Seleccione las casillas para vincular al grupo</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="bg-emerald-100 text-emerald-700 px-5 py-2 rounded-full text-[10px] font-black uppercase" th:text="${#lists.size(estudiantes)} + ' Disponibles'"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="max-h-[450px] overflow-y-auto custom-scrollbar px-6">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        <th class="py-6 px-4 text-center">Check</th>
-                                        <th class="py-6 px-4 text-left uppercase tracking-tighter">Matrícula</th>
-                                        <th class="py-6 px-4 text-left uppercase tracking-tighter">Estudiante</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-50">
-                                    <tr th:each="e : ${estudiantes}" class="hover:bg-emerald-50/30 transition-all group">
-                                        <td class="py-6 px-4 text-center">
-                                            <input type="checkbox" name="idEstudiantes" th:value="${e.idEstudiante}" 
-                                                   class="w-6 h-6 rounded-xl border-2 border-slate-200 text-emerald-500 focus:ring-emerald-500/20 transition-all cursor-pointer">
-                                        </td>
-                                        <td class="py-6 px-4">
-                                            <span class="text-xs font-black px-3 py-1 bg-slate-100 rounded-lg text-slate-500 group-hover:bg-emerald-500 group-hover:text-white transition-all" th:text="${e.numeroControl}"></span>
-                                        </td>
-                                        <td class="py-6 px-4">
-                                            <div class="flex items-center gap-4">
-                                                <div class="h-10 w-10 bg-gradient-to-br from-slate-200 to-slate-300 rounded-2xl flex items-center justify-center text-xs font-black text-white shadow-sm"
-                                                     th:text="${#strings.substring(e.usuario.nombre,0,1)}"></div>
-                                                <span class="text-sm font-bold text-slate-700 group-hover:text-emerald-700 transition-colors" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-center pt-6 pb-12">
-                        <button type="submit" class="bg-slate-900 hover:bg-emerald-600 text-white px-16 py-6 rounded-[2rem] font-extrabold text-sm uppercase tracking-widest shadow-2xl shadow-slate-900/20 transition-all flex items-center gap-5 group">
-                            <span>Procesar Asignación</span>
-                            <div class="h-8 w-8 bg-white/10 rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-                                <i class="fa-solid fa-arrow-right-long"></i>
-                            </div>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
         
-        <footer class="py-10 text-center">
-            <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">© 2026 IT Chilpancingo</p>
-        </footer>
+        <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
-
 </body>
 </html>
