@@ -19,13 +19,11 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Autentica usuario por correo y contraseña (retorna null si falla)
     public Usuario autenticarUsuario(String correo, String passwordPlanText) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByCorreoInstitucional(correo);
         
         if (usuarioOpt.isPresent()) {
             Usuario usuario = usuarioOpt.get();
-            // Comparación null-safe y comprobación de activo null-safe
             if (Objects.equals(usuario.getPasswordHash(), passwordPlanText)
                     && Boolean.TRUE.equals(usuario.getActivo())) {
                 return usuario;
@@ -35,7 +33,6 @@ public class UsuarioService {
     }
     
     public void registrarUsuario(Usuario usuario) {
-        // Encriptamos la clave antes de guardar
         String passwordSegura = passwordEncoder.encode(usuario.getPasswordHash());
         usuario.setPasswordHash(passwordSegura);
         usuarioRepository.save(usuario);
@@ -48,7 +45,6 @@ public class UsuarioService {
 
         String storedHash = usuario.getPasswordHash();
         
-        // 1. Verificamos que la contraseña actual sea correcta (Doble chequeo)
         boolean coincide = false;
         try {
             coincide = passwordEncoder.matches(passwordActual, storedHash);
@@ -58,12 +54,10 @@ public class UsuarioService {
             coincide = storedHash.equals(passwordActual);
         }
 
-        // Si no coincide, devolvemos false para mostrar error
         if (!coincide) {
             return false;
         }
 
-        // 2. Si es correcta, encriptamos la nueva y la guardamos
         usuario.setPasswordHash(passwordEncoder.encode(nuevaPassword));
         usuarioRepository.save(usuario);
         

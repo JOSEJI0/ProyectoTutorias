@@ -3,140 +3,91 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Perfil de Coordinación')}"></th:block>
 </head>
-<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-4xl mx-auto w-full">
-            
-            <div class="flex justify-between items-end mb-8 mt-2">
-                <div>
-                    <h2 class="text-3xl font-bold text-[#2A4F73]">Perfil de Coordinación</h2>
-                    <p class="text-[#689BBE] mt-1 font-medium">Información de la cuenta administradora.</p>
-                </div>
+    <main>
+        <header>
+            <h2>Perfil de Coordinación</h2>
+            <p>Información de la cuenta administradora.</p>
+        </header>
+
+        <!-- Información General del Usuario -->
+        <section>
+            <div>
+                <!-- Inicial del nombre -->
+                <h3 th:text="${#strings.substring(usuario.nombre,0,1)}">C</h3>
+                <h1 th:text="${usuario.nombre + ' ' + usuario.apellidos}">Nombre Coordinador</h1>
+                <p th:text="${usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</p>
+                <span>Administrador del Sistema</span>
+            </div>
+        </section>
+
+        <!-- Detalles de Acceso -->
+        <section>
+            <h3>Detalles de Acceso</h3>
+            <ul>
+                <li>
+                    <strong>Identificador de Usuario:</strong>
+                    <span th:text="${usuario.idUsuario}">001</span>
+                </li>
+                <li>
+                    <strong>Nivel de Permisos:</strong>
+                    <div th:each="perfil : ${usuario.perfiles}">
+                        <span th:text="${perfil.nombre}">ROLE_COORDINADOR</span>
+                    </div>
+                </li>
+                <li>
+                    <strong>Estado de la Cuenta:</strong>
+                    <span>Activa</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- Formulario de Seguridad -->
+        <section>
+            <h3>Seguridad de la Cuenta</h3>
+
+            <!-- Mensajes de Error y Éxito -->
+            <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}">
+                Las contraseñas nuevas no coinciden.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}">
+                La contraseña actual ingresada es incorrecta.
+            </div>
+            <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}">
+                ¡Contraseña actualizada exitosamente!
             </div>
 
-            <!-- Encabezado del Perfil -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 flex flex-col md:flex-row items-center gap-8 mb-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-[#2A4F73]/5 rounded-bl-full -mr-10 -mt-10"></div>
-                
-                <div class="w-32 h-32 bg-[#2A4F73] text-white rounded-full flex items-center justify-center text-5xl font-black shadow-lg shadow-[#2A4F73]/20 border-4 border-white flex-shrink-0 z-10"
-                     th:text="${#strings.substring(usuario.nombre,0,1)}">
-                    C
-                </div>
-                
-                <div class="text-center md:text-left z-10">
-                    <h3 class="text-3xl font-black text-[#2A4F73] mb-2" th:text="${usuario.nombre + ' ' + usuario.apellidos}">Nombre Coordinador</h3>
-                    <p class="text-slate-500 font-medium flex items-center justify-center md:justify-start gap-2 mb-3">
-                        <i class="fa-solid fa-at text-[#689BBE]"></i> <span th:text="${usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</span>
-                    </p>
-                    <span class="inline-block bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-emerald-200">
-                        <i class="fa-solid fa-shield-halved mr-1"></i> Administrador del Sistema
-                    </span>
-                </div>
+            <form th:action="@{/usuario/cambiar-password}" method="POST">
+                <label>Contraseña Actual</label>
+                <input type="password" name="passwordActual" required>
+                <br>
+                <label>Nueva Contraseña</label>
+                <input type="password" name="nuevaPassword" required minlength="4">
+                <br>
+                <label>Confirmar Nueva</label>
+                <input type="password" name="confirmarPassword" required minlength="4">
+                <br>
+                <button type="submit">Actualizar Contraseña</button>
+            </form>
+        </section>
+
+        <!-- Resumen de Gestión -->
+        <section>
+            <h3>Alcance de Gestión</h3>
+            <div>
+                <p>Tutores Activos:</p>
+                <strong th:text="${totalTutores}">0</strong>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Información de la Cuenta -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
-                    <h4 class="text-lg font-bold text-[#2A4F73] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                        <i class="fa-solid fa-id-card text-[#689BBE]"></i> Detalles de Acceso
-                    </h4>
-                    
-                    <div class="space-y-5">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Identificador de Usuario</p>
-                            <p class="font-mono font-bold text-slate-700 text-lg" th:text="${usuario.idUsuario}">001</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Nivel de Permisos</p>
-                            <div class="flex gap-2 mt-1">
-                                <span th:each="perfil : ${usuario.perfiles}" class="bg-[#EDF1F4] text-[#2A4F73] px-3 py-1 rounded-md text-xs font-bold font-mono border border-slate-200" th:text="${perfil.nombre}">ROLE_COORDINADOR</span>
-                            </div>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Estado de la Cuenta</p>
-                            <p class="font-bold text-emerald-500 flex items-center gap-1">
-                                <i class="fa-solid fa-circle-check"></i> Activa
-                            </p>
-                        </div>
-                        <!-- Tarjeta de Seguridad y Contraseña -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 mt-8 md:col-span-2">
-                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                        <i class="fa-solid fa-shield-halved text-blue-500"></i> Seguridad de la Cuenta
-                    </h4>
-
-                    <!-- Alertas de Cambio de Contraseña -->
-                    <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-exclamation"></i> Las contraseñas nuevas no coinciden.
-                    </div>
-                    <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-xmark"></i> La contraseña actual ingresada es incorrecta.
-                    </div>
-                    <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}" class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i> ¡Contraseña actualizada exitosamente!
-                    </div>
-
-                    <form th:action="@{/usuario/cambiar-password}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Contraseña Actual</label>
-                            <input type="password" name="passwordActual" required placeholder="••••••••"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nueva Contraseña</label>
-                            <input type="password" name="nuevaPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Confirmar Nueva</label>
-                            <input type="password" name="confirmarPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-
-                        <div class="md:col-span-3 flex justify-end mt-2">
-                            <button type="submit" class="bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white px-8 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2">
-                                <i class="fa-solid fa-key"></i> Actualizar Contraseña
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                    </div>
-                </div>
-
-                <!-- Resumen de Gestión -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 relative overflow-hidden flex flex-col">
-                    <h4 class="text-lg font-bold text-[#2A4F73] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 relative z-10">
-                        <i class="fa-solid fa-chart-pie text-[#689BBE]"></i> Alcance de Gestión
-                    </h4>
-                    
-                    <i class="fa-solid fa-globe absolute -right-8 -bottom-8 text-slate-50 text-9xl z-0"></i>
-
-                    <div class="space-y-6 relative z-10 flex-1 flex flex-col justify-center">
-                        <div class="flex items-center justify-between p-4 bg-[#EDF1F4]/50 rounded-xl border border-slate-100">
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Plantilla Docente</p>
-                                <p class="font-bold text-[#2A4F73]">Tutores Activos</p>
-                            </div>
-                            <div class="text-3xl font-black text-[#689BBE]" th:text="${totalTutores}">0</div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between p-4 bg-[#EDF1F4]/50 rounded-xl border border-slate-100">
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Población Estudiantil</p>
-                                <p class="font-bold text-[#2A4F73]">Alumnos Tutorados</p>
-                            </div>
-                            <div class="text-3xl font-black text-[#689BBE]" th:text="${totalEstudiantes}">0</div>
-                        </div>
-                    </div>
-                </div>
+            <div>
+                <p>Alumnos Tutorados:</p>
+                <strong th:text="${totalEstudiantes}">0</strong>
             </div>
+        </section>
 
-        </div>
+        <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>
 </html>

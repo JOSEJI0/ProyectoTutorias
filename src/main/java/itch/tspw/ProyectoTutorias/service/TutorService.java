@@ -41,7 +41,6 @@ public class TutorService {
         Usuario usuario = tutor.getUsuario();
         
         if (usuario.getIdUsuario() == null) {
-            // Contraseña por defecto: El RFC del docente
             String hash = passwordEncoder.encode(tutor.getRfcEmpleado());
             usuario.setPasswordHash(hash);
             

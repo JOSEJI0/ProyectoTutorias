@@ -1,60 +1,48 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Edición')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Editar Carrera')}"></th:block>
 </head>
-<body class="bg-[#F8FAFC] min-h-screen flex font-sans text-slate-900">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 overflow-y-auto p-6 md:p-12">
-        <div class="max-w-xl mx-auto">
+    <main>
+        <section>
+            <a th:href="@{/coordinador/carreras}">Volver al catálogo</a>
             
-            <header class="mb-10 text-center">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-900 text-white rounded-xl mb-4 shadow-lg shadow-slate-200">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </div>
-                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Modificar Carrera</h1>
-                <p class="text-slate-500 text-sm mt-1">Actualiza la información técnica del programa académico.</p>
+            <header>
+                <h1>Editar Carrera</h1>
+                <p>Modifica los detalles del programa educativo.</p>
             </header>
 
-            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <form th:action="@{/coordinador/carreras/actualizar}" method="POST" class="p-8 space-y-6">
-                    <!-- Campo oculto necesario para la base de datos[cite: 8, 11] -->
-                    <input type="hidden" name="idCarrera" th:value="${carrera.idCarrera}">
-                    
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Clave de Registro</label>
-                        <input type="text" name="clave" th:value="${carrera.claveOficial}" required 
-                               placeholder="Ej. ISIC-2010-224"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:border-slate-900 focus:bg-white outline-none transition-all">
-                    </div>
+            <form th:action="@{/coordinador/carreras/actualizar}" method="POST">
+                <!-- Campo oculto para el ID de la carrera[cite: 4] -->
+                <input type="hidden" name="idCarrera" th:value="${carrera.idCarrera}">
+                
+                <div>
+                    <label>Clave Oficial *</label>
+                    <br>
+                    <input type="text" name="clave" th:value="${carrera.claveOficial}" required>
+                </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Denominación del Programa</label>
-                        <input type="text" name="nombre" th:value="${carrera.nombreCarrera}" required 
-                               placeholder="Nombre completo de la carrera"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-900 focus:bg-white outline-none transition-all">
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row items-center gap-3 pt-6">
-                        <button type="submit" class="w-full sm:w-auto flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 shadow-md transition-all active:scale-95">
-                            Guardar Cambios
-                        </button>
-                        <a th:href="@{/coordinador/carreras}" class="w-full sm:w-auto px-8 py-3.5 text-center text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition-colors">
-                            Cancelar
-                        </a>
-                    </div>
-                </form>
-            </div>
+                <br>
 
-            <footer class="mt-8 text-center">
-                <p class="text-[10px] text-slate-400 font-medium italic">
-                    <i class="fa-solid fa-circle-info mr-1"></i> Todos los campos marcados son obligatorios para el sistema.
-                </p>
-            </footer>
+                <div>
+                    <label>Nombre de la Carrera *</label>
+                    <br>
+                    <input type="text" name="nombre" th:value="${carrera.nombreCarrera}" required>
+                </div>
+                
+                <br>
 
-        </div>
+                <div>
+                    <a th:href="@{/coordinador/carreras}">Cancelar</a>
+                    <button type="submit">Actualizar</button>
+                </div>
+            </form>
+        </section>
+
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

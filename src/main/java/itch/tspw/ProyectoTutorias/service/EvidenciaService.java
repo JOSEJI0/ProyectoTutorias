@@ -13,12 +13,10 @@ public class EvidenciaService {
     @Autowired
     private EvidenciaSesionRepository evidenciaRepository;
 
-    // Obtener evidencias pendientes de validación
     public List<EvidenciaSesion> obtenerEvidenciasPendientes() {
         return evidenciaRepository.findByEstatusValidacion("PENDIENTE");
     }
 
-    // Validar (aprobar/rechazar) una evidencia y guardar notas
     public boolean validarEvidencia(Integer idEvidencia, String estatus, String notas) {
         Optional<EvidenciaSesion> evidenciaOpt = evidenciaRepository.findById(idEvidencia);
         

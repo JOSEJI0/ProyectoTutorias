@@ -2,7 +2,6 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,7 +94,6 @@ public class PatGrupoService {
 
     @Transactional
     public void asignarPatAutomatico(GrupoTutoria grupo) {
-        // CAMBIO CLAVE: Usa el nuevo método que verifica que esté activo
         Optional<PatInstitucional> patInst = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
                 grupo.getPeriodo().getIdPeriodo(), 
                 grupo.getCarrera().getIdCarrera()

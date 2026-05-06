@@ -1,70 +1,65 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantenemos el fragmento de encabezado institucional -->
     <th:block th:replace="~{fragments/layout :: encabezado('Detalle de Sesión')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación docente -->
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-4xl mx-auto w-full flex-1">
-            
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h1 class="text-3xl font-bold text-[#0B2A4A] flex items-center gap-3">
-                        <i class="fa-solid fa-clipboard-check text-blue-500"></i> Detalle de Sesión <span th:text="'#' + ${sesion.idSesion}"></span>
-                    </h1>
-                    <p class="text-slate-500 mt-2">Grupo: <strong th:text="${sesion.grupo.nombreGrupo}">1A</strong> | Semana: <strong th:text="${sesion.semanaNumero}">1</strong></p>
-                </div>
-                <a th:href="@{/tutor/panel}" class="bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> Volver al Panel
-                </a>
-            </div>
+    <main>
+        <section>
+            <header>
+                <h1>Detalle de Sesión <span th:text="'#' + ${sesion.idSesion}"></span></h1>
+                <p>
+                    Grupo: <strong th:text="${sesion.grupo.nombreGrupo}"></strong> | 
+                    Semana: <strong th:text="${sesion.semanaNumero}"></strong>
+                </p>
+                <a th:href="@{/tutor/panel}">Volver al Panel</a>
+            </header>
 
-            <!-- Ficha Técnica de la Clase -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-6 justify-between items-center">
-                <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actividad del PAT Realizada</p>
-                    <p class="font-bold text-lg text-[#0B2A4A]" th:text="${sesion.actividad.titulo}">Tema</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha de Captura</p>
-                    <p class="font-medium text-slate-700"><i class="fa-regular fa-calendar mr-1"></i> <span th:text="${sesion.fechaImparticion}"></span></p>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Estatus del Registro</p>
-                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide inline-block mt-1" th:text="${sesion.estatusRegistro}">COMPLETADO</span>
-                </div>
-            </div>
+            <br>
 
-            <!-- Tabla de Asistencia -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-5 border-b border-slate-100 bg-slate-50/50">
-                    <h3 class="font-bold text-[#0B2A4A]"><i class="fa-solid fa-users mr-2"></i> Lista de Alumnos</h3>
-                </div>
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
+            <!-- Ficha Técnica de la Clase (RF3) -->
+            <section>
+                <p><strong>Actividad del PAT Realizada:</strong> <span th:text="${sesion.actividad.titulo}"></span></p>
+                <p><strong>Fecha de Captura:</strong> <span th:text="${sesion.fechaImparticion}"></span></p>
+                <p><strong>Estatus del Registro:</strong> <span th:text="${sesion.estatusRegistro}"></span></p>
+            </section>
+
+            <br><hr><br>
+
+            <!-- Tabla de Asistencia Registrada (RF3) -->
+            <section>
+                <h3>Lista de Alumnos</h3>
+                <table>
+                    <thead>
                         <tr>
-                            <th class="px-6 py-4">No. Control</th>
-                            <th class="px-6 py-4">Nombre del Estudiante</th>
-                            <th class="px-6 py-4 text-center">Estado de Asistencia</th>
+                            <th>No. Control</th>
+                            <th>Nombre del Estudiante</th>
+                            <th>Estado de Asistencia</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        <tr th:each="registro : ${listaAsistencia}" class="hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-4 font-mono text-sm text-slate-500" th:text="${registro.estudiante.numeroControl}">123456</td>
-                            <td class="px-6 py-4 font-medium text-slate-700" th:text="${registro.estudiante.usuario.nombre + ' ' + registro.estudiante.usuario.apellidos}">Juan Pérez</td>
-                            <td class="px-6 py-4 text-center">
-                                <span th:if="${registro.presente}" class="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg text-xs font-bold border border-emerald-100"><i class="fa-solid fa-check mr-1"></i> Presente</span>
-                                <span th:unless="${registro.presente}" class="bg-red-50 text-red-600 px-3 py-1 rounded-lg text-xs font-bold border border-red-100"><i class="fa-solid fa-xmark mr-1"></i> Ausente</span>
+                    <tbody>
+                        <!-- Iteración sobre los registros de asistencia de la sesión específica -->
+                        <tr th:each="registro : ${listaAsistencia}">
+                            <td th:text="${registro.estudiante.numeroControl}"></td>
+                            <td th:text="${registro.estudiante.usuario.nombre} + ' ' + ${registro.estudiante.usuario.apellidos}"></td>
+                            <td>
+                                <!-- Muestra si el alumno asistió o faltó -->
+                                <span th:if="${registro.presente}">Presente</span>
+                                <span th:unless="${registro.presente}">Ausente</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </section>
 
-        </div>
+        </section>
+        
+        <!-- Pie de página institucional -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

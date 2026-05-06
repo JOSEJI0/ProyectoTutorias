@@ -24,7 +24,6 @@ public class ActividadPatGrupo {
     @Column(name = "semana_programada")
     private Integer semanaProgramada;
 
-    // Nos servirá para que el tutor marque la actividad como "Completada" o "Pendiente"
     @Column(length = 50)
     private String estatus = "Pendiente"; 
 

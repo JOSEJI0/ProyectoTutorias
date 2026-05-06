@@ -16,12 +16,10 @@ public class PeriodoEscolarService {
         return periodoRepository.findAll();
     }
 
-    // AGREGAR O CORREGIR ESTE MÉTODO:
     public PeriodoEscolar obtenerPorId(Integer id) {
         return periodoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Periodo no encontrado"));
     }
-    	//Obtener periodos activos
 	public PeriodoEscolar obtenerActivo() {
 		
 		return periodoRepository.findByEstatusActivoTrue()

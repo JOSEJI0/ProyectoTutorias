@@ -3,178 +3,112 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Mi Perfil')}"></th:block>
 </head>
-<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-4xl mx-auto w-full">
+    <main>
+        <header>
+            <h2>Mi Perfil</h2>
+            <p>Consulta tu información personal y académica.</p>
+        </header>
+
+        <!-- Información Personal del Estudiante -->
+        <section>
+            <div>
+                <!-- Inicial del nombre -->
+                <h3 th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">E</h3>
+                <h1 th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Completo</h1>
+                <p th:text="${estudiante.usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</p>
+                <span>Estudiante Activo</span>
+            </div>
+        </section>
+
+        <br>
+
+        <!-- Información Académica -->
+        <section>
+            <h3>Información Académica</h3>
+            <ul>
+                <li>
+                    <strong>Número de Control:</strong> 
+                    <span th:text="${estudiante.numeroControl}">00000000</span>
+                </li>
+                <li>
+                    <strong>Programa Educativo:</strong> 
+                    <span th:text="${estudiante.carrera.nombreCarrera}">Ingeniería</span>
+                </li>
+                <li>
+                    <strong>Semestre Actual:</strong> 
+                    <span th:text="${estudiante.semestreActual + '° Semestre'}">1° Semestre</span>
+                </li>
+            </ul>
+        </section>
+
+        <br>
+
+        <!-- Asignación de Tutoría (RF2) -->
+        <section>
+            <h3>Asignación de Tutoría</h3>
             
-            <div class="flex justify-between items-end mb-8 mt-2">
-                <div>
-                    <h2 class="text-3xl font-bold text-[#0B2A4A]">Mi Perfil</h2>
-                    <p class="text-slate-500 mt-1">Consulta tu información personal y académica.</p>
-                </div>
+            <!-- Si TIENE grupo asignado -->
+            <div th:if="${estudiante.grupo != null}">
+                <p>Grupo: <strong th:text="${estudiante.grupo.nombreGrupo}">1A</strong></p>
+                <p>Horario: <span th:text="${estudiante.grupo.horario}">Horario</span></p>
+                <p>Docente Tutor: <strong th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}">Nombre del Tutor</strong></p>
+                <a th:href="'mailto:' + ${estudiante.grupo.tutor.usuario.correoInstitucional}">Enviar correo</a>
             </div>
 
-            <!-- Encabezado del Perfil -->
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 flex flex-col md:flex-row items-center gap-8 mb-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-[#0B2A4A]/5 rounded-bl-full -mr-10 -mt-10"></div>
-                
-                <div class="w-32 h-32 bg-[#0B2A4A] text-white rounded-full flex items-center justify-center text-5xl font-black shadow-lg shadow-blue-900/20 border-4 border-white flex-shrink-0 z-10"
-                     th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">
-                    E
-                </div>
-                
-                <div class="text-center md:text-left z-10">
-                    <h3 class="text-3xl font-black text-[#0B2A4A] mb-2" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Completo</h3>
-                    <p class="text-slate-500 font-medium flex items-center justify-center md:justify-start gap-2">
-                        <i class="fa-solid fa-at text-blue-500"></i> <span th:text="${estudiante.usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</span>
-                    </p>
-                    <span class="inline-block mt-3 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-blue-200">
-                        Estudiante Activo
-                    </span>
-                </div>
+            <!-- Si NO TIENE grupo asignado -->
+            <div th:unless="${estudiante.grupo != null}">
+                <p>Sin grupo asignado. La coordinación aún no te ha asignado a un grupo de tutoría.</p>
             </div>
+        </section>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Información Académica -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
-                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                        <i class="fa-solid fa-graduation-cap text-blue-500"></i> Información Académica
-                    </h4>
-                    
-                    <div class="space-y-5">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Número de Control</p>
-                            <p class="font-mono font-bold text-slate-700 text-lg" th:text="${estudiante.numeroControl}">00000000</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Programa Educativo</p>
-                            <p class="font-bold text-[#0B2A4A]" th:text="${estudiante.carrera.nombreCarrera}">Ingeniería</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Semestre Actual</p>
-                            <p class="font-bold text-slate-700" th:text="${estudiante.semestreActual + '° Semestre'}">1° Semestre</p>
-                        </div>
-                    </div>
-                </div>
+        <br>
 
-                <!-- Información de Tutoría -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 relative overflow-hidden">
-                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4 relative z-10">
-                        <i class="fa-solid fa-users-rectangle text-blue-500"></i> Asignación de Tutoría
-                    </h4>
-                    
-                    <i class="fa-solid fa-chalkboard-user absolute -right-4 -bottom-4 text-slate-50 text-8xl z-0"></i>
-
-                    <!-- Si TIENE grupo -->
-                    <div th:if="${estudiante.grupo != null}" class="space-y-5 relative z-10">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Grupo de Tutoría</p>
-                            <p class="font-black text-[#0B2A4A] text-xl" th:text="${estudiante.grupo.nombreGrupo}">1A</p>
-                            <p class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock mr-1"></i> <span th:text="${estudiante.grupo.horario}">Horario</span></p>
-                        </div>
-                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 mt-4">
-                            <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Docente Tutor</p>
-                            <p class="font-bold text-[#0B2A4A] mb-1" th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}">Nombre del Tutor</p>
-                            <a th:href="'mailto:' + ${estudiante.grupo.tutor.usuario.correoInstitucional}" class="text-sm text-blue-600 hover:underline flex items-center gap-2">
-                                <i class="fa-regular fa-envelope"></i> Enviar correo
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Si NO TIENE grupo -->
-                    <div th:unless="${estudiante.grupo != null}" class="relative z-10 bg-slate-50 p-6 rounded-xl border border-slate-200 text-center mt-4">
-                        <div class="text-slate-300 text-4xl mb-3"><i class="fa-solid fa-hourglass-empty"></i></div>
-                        <h5 class="font-bold text-slate-600">Sin grupo asignado</h5>
-                        <p class="text-xs text-slate-500 mt-2">La coordinación aún no te ha asignado a un grupo de tutoría en este periodo.</p>
-                    </div>
-                </div>
-                
-                <!-- Mis Documentos Oficiales (NUEVA TARJETA) -->
-                <div class="bg-[#0B2A4A] rounded-3xl shadow-sm border border-[#0B2A4A] p-8 md:col-span-2 relative overflow-hidden mt-2">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full -mr-10 -mt-10"></div>
-                    
-                    <h4 class="text-lg font-bold text-white mb-6 flex items-center gap-2 border-b border-white/20 pb-4 relative z-10">
-                        <i class="fa-solid fa-award text-emerald-400"></i> Liberación de Tutorías
-                    </h4>
-                    
-                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div class="flex-1">
-                            <p class="text-blue-200 text-sm mb-2">Porcentaje de asistencia alcanzado:</p>
-                            <div class="flex items-center gap-4">
-                                <div class="text-4xl font-black text-white" th:text="${porcentajeAsistencia} + '%'">0%</div>
-                                <div class="flex-1 h-2 bg-white/20 rounded-full overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-1000" 
-                                         th:classappend="${porcentajeAsistencia >= 80 ? 'bg-emerald-400' : 'bg-amber-400'}"
-                                         th:style="'width: ' + ${porcentajeAsistencia} + '%'"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="w-full md:w-auto mt-4 md:mt-0">
-                            <!-- Si pasa del 80% -->
-                            <a th:if="${porcentajeAsistencia >= 80}" th:href="@{/estudiante/constancia/pdf}" class="block text-center bg-emerald-500 hover:bg-emerald-400 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-900/20 transition-all">
-                                <i class="fa-solid fa-download mr-2"></i> Descargar Constancia
-                            </a>
-                            
-                            <!-- Si no llega al 80% -->
-                            <div th:unless="${porcentajeAsistencia >= 80}" class="bg-white/10 text-white px-6 py-3 rounded-xl text-sm text-center border border-white/10">
-                                <i class="fa-solid fa-lock text-amber-400 mr-2"></i> Requiere mínimo 80%
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tarjeta de Seguridad y Contraseña -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 mt-8 md:col-span-2">
-                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                        <i class="fa-solid fa-shield-halved text-blue-500"></i> Seguridad de la Cuenta
-                    </h4>
-
-                    <!-- Alertas de Cambio de Contraseña -->
-                    <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-exclamation"></i> Las contraseñas nuevas no coinciden.
-                    </div>
-                    <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-xmark"></i> La contraseña actual ingresada es incorrecta.
-                    </div>
-                    <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}" class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i> ¡Contraseña actualizada exitosamente!
-                    </div>
-
-                    <form th:action="@{/usuario/cambiar-password}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Contraseña Actual</label>
-                            <input type="password" name="passwordActual" required placeholder="••••••••"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nueva Contraseña</label>
-                            <input type="password" name="nuevaPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Confirmar Nueva</label>
-                            <input type="password" name="confirmarPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-
-                        <div class="md:col-span-3 flex justify-end mt-2">
-                            <button type="submit" class="bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white px-8 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2">
-                                <i class="fa-solid fa-key"></i> Actualizar Contraseña
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
+        <!-- Liberación de Tutorías (RF6) -->
+        <section>
+            <h3>Liberación de Tutorías</h3>
+            <p>Porcentaje de asistencia alcanzado: <strong th:text="${porcentajeAsistencia} + '%'">0%</strong></p>
+            
+            <!-- Requisito de acreditación del 80% -->
+            <div th:if="${porcentajeAsistencia >= 80}">
+                <a th:href="@{/estudiante/constancia/pdf}">Descargar Constancia</a>
             </div>
+            
+            <div th:unless="${porcentajeAsistencia >= 80}">
+                <p>Requiere mínimo 80% para descargar constancia.</p>
+            </div>
+        </section>
 
-        </div>
+        <br>
+
+        <!-- Seguridad de la Cuenta -->
+        <section>
+            <h3>Seguridad de la Cuenta</h3>
+
+            <!-- Alertas de Cambio de Contraseña -->
+            <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}">Las contraseñas nuevas no coinciden.</div>
+            <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}">La contraseña actual es incorrecta.</div>
+            <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}">¡Contraseña actualizada exitosamente!</div>
+
+            <form th:action="@{/usuario/cambiar-password}" method="POST">
+                <label>Contraseña Actual</label>
+                <input type="password" name="passwordActual" required>
+                <br>
+                <label>Nueva Contraseña</label>
+                <input type="password" name="nuevaPassword" required minlength="4">
+                <br>
+                <label>Confirmar Nueva</label>
+                <input type="password" name="confirmarPassword" required minlength="4">
+                <br>
+                <button type="submit">Actualizar Contraseña</button>
+            </form>
+        </section>
+
+        <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
+
 </body>
 </html>

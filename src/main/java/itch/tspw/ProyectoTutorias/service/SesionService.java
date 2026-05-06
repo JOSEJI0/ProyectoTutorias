@@ -51,7 +51,6 @@ public class SesionService {
         nuevaSesion.setGrupo(grupo);
         nuevaSesion.setActividad(actividad);
         
-        // Guardamos y recuperamos el ID
         nuevaSesion = sesionRepository.save(nuevaSesion);
 
         for (Estudiante estudiante : grupo.getEstudiantes()) {

@@ -1,47 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Resultados Tutores - ITCH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Mantiene el fragmento de encabezado reutilizable[cite: 1, 9] -->
+    <th:block th:replace="~{fragments/layout :: encabezado('Resultados Tutores')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
-    <aside class="w-64 bg-[#0B2A4A] text-white flex flex-col p-6 h-screen sticky top-0">
-        <div class="mb-10 border-b border-white/10 pb-6 text-center">
-            <h1 class="text-xl font-bold">Coordinación</h1>
-            <p class="text-xs text-blue-300">Gestión Académica</p>
-        </div>
-        <nav class="space-y-4 flex-1">
-            <a th:href="@{/coordinador/panel}" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-chart-line"></i> Resumen</a>
-            <a th:href="@{/coordinador/busquedas}" class="flex items-center gap-3 bg-white/10 p-3 rounded-lg transition-colors"><i class="fa-solid fa-magnifying-glass"></i> Consultas</a>
-            <a href="#" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-file-pdf"></i> Reportes PAT</a>
-        </nav>
-        <a th:href="@{/login}" class="text-red-300 text-sm hover:underline"><i class="fa-solid fa-arrow-right-from-bracket"></i> Salir del sistema</a>
-    </aside>
+    <!-- Mantiene la navegación lateral del coordinador[cite: 1, 9] -->
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
-            <a th:href="@{/coordinador/busquedas}" class="text-blue-600 hover:underline text-sm mb-4 inline-block">&larr; Volver a Búsquedas</a>
-            <h2 class="text-2xl font-bold text-[#0B2A4A] mb-6" th:text="'Tutores asignados al Periodo ID: ' + ${periodoId}"></h2>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/busquedas}">Volver a Búsquedas</a>
             
-            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-100 text-xs font-bold text-slate-500 uppercase">
-                        <tr><th class="px-6 py-4">Grupo</th><th class="px-6 py-4">Tutor</th><th class="px-6 py-4">Carrera</th></tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr th:each="g : ${resultados}" class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold" th:text="${g.nombreGrupo}"></td>
-                            <td class="px-6 py-4" th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></td>
-                            <td class="px-6 py-4 text-slate-500" th:text="${g.carrera.nombreCarrera}"></td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(resultados)}"><td colspan="3" class="px-6 py-10 text-center text-slate-400">No se encontraron tutores para este periodo.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <!-- Título dinámico con el ID del periodo consultado -->
+            <h2 th:text="'Tutores asignados al Periodo ID: ' + ${periodoId}"></h2>
+            
+            <!-- Tabla simple de resultados -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grupo</th>
+                        <th>Tutor</th>
+                        <th>Carrera</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Itera sobre la lista de grupos/tutores encontrados -->
+                    <tr th:each="g : ${resultados}">
+                        <!-- Nombre del grupo[cite: 9] -->
+                        <td th:text="${g.nombreGrupo}"></td>
+                        <!-- Nombre completo del tutor a través de su usuario -->
+                        <td th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></td>
+                        <!-- Carrera asociada al grupo -->
+                        <td th:text="${g.carrera.nombreCarrera}"></td>
+                    </tr>
+                    
+                    <!-- Manejo de lista vacía[cite: 9] -->
+                    <tr th:if="${#lists.isEmpty(resultados)}">
+                        <td colspan="3">No se encontraron tutores para este periodo.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
     </main>
+
+    <!-- Mantiene el fragmento de pie de página[cite: 1, 9] -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
 </body>
 </html>

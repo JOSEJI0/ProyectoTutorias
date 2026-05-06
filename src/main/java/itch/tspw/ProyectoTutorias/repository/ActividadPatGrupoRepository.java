@@ -9,6 +9,5 @@ import java.util.List;
 
 @Repository
 public interface ActividadPatGrupoRepository extends JpaRepository<ActividadPatGrupo, Integer> {
-    // Trae las actividades de un grupo ordenadas por la semana de impartición
     List<ActividadPatGrupo> findByPatGrupo_IdPatGrupoOrderBySemanaProgramadaAsc(Integer idPatGrupo);
 }

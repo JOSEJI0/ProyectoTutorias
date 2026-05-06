@@ -3,74 +3,70 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detalle del Estudiante')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-4xl mx-auto w-full flex-1">
-            <a th:href="@{/coordinador/estudiantes}" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&larr; Volver al Listado</a>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/estudiantes}">Volver al Listado</a>
             
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-id-card mr-2"></i> Perfil del Estudiante</h1>
+            <header>
+                <h1>Perfil del Estudiante</h1>
             </header>
 
-            <!-- Tarjeta de Datos Personales -->
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 mb-8 flex items-start gap-6">
-                <div class="bg-slate-100 p-6 rounded-full text-[#0B2A4A]">
-                    <i class="fa-solid fa-user-graduate text-5xl"></i>
-                </div>
-                <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Nombre Completo</p>
-                        <p class="text-lg font-bold text-[#0B2A4A]" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">No. Control</p>
-                        <p class="text-lg font-mono text-slate-600" th:text="${estudiante.numeroControl}"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Carrera y Semestre</p>
-                        <p class="text-md text-slate-600" th:text="${estudiante.carrera.nombreCarrera + ' - ' + estudiante.semestreActual + '° Semestre'}"></p>
-                    </div>
-                    <div>
-                        <p class="text-xs font-bold text-slate-400 uppercase">Correo Institucional</p>
-                        <p class="text-md text-blue-600" th:text="${estudiante.usuario.correoInstitucional}"></p>
-                    </div>
+            <!-- Datos Personales del Estudiante -->
+            <section>
+                <div>
+                    <p>Nombre Completo</p>
+                    <strong th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}"></strong>
                 </div>
                 <div>
-                    <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${estudiante.idEstudiante})}" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg font-bold hover:bg-slate-200 transition-colors text-sm">
-                        <i class="fa-solid fa-pen mr-1"></i> Editar
-                    </a>
+                    <p>No. Control</p>
+                    <code th:text="${estudiante.numeroControl}"></code>
                 </div>
-            </div>
+                <div>
+                    <p>Carrera y Semestre</p>
+                    <p th:text="${estudiante.carrera.nombreCarrera + ' - ' + estudiante.semestreActual + '° Semestre'}"></p>
+                </div>
+                <div>
+                    <p>Correo Institucional</p>
+                    <p th:text="${estudiante.usuario.correoInstitucional}"></p>
+                </div>
+                <br>
+                <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${estudiante.idEstudiante})}">Editar Perfil</a>
+            </section>
 
-            <!-- Sección de Historial de Tutorías -->
-            <h3 class="font-bold text-[#0B2A4A] mb-4 text-xl"><i class="fa-solid fa-clock-rotate-left mr-2"></i> Historial de Tutorías</h3>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
+            <hr>
+
+            <!-- Historial de Tutorías -->
+            <section>
+                <h3>Historial de Tutorías</h3>
+                <table>
+                    <thead>
                         <tr>
-                            <th class="px-6 py-4">Periodo</th>
-                            <th class="px-6 py-4">Tutor Asignado</th>
-                            <th class="px-6 py-4">Grupo</th>
+                            <th>Periodo</th>
+                            <th>Tutor Asignado</th>
+                            <th>Grupo</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <!-- Ajusta los atributos 'grupo.periodo...', 'grupo.tutor...' según tu modelo de Historial/GrupoTutoria -->
-                        <tr th:each="grupo : ${historialTutorias}" class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${grupo.periodo.nombrePeriodo}"></td>
-                            <td class="px-6 py-4 text-slate-600" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}"></td>
-                            <td class="px-6 py-4 text-slate-500 font-mono" th:text="${grupo.nombreGrupo}"></td>
+                    <tbody>
+                        <!-- Itera sobre el historial de tutorías del modelo -->
+                        <tr th:each="grupo : ${historialTutorias}">
+                            <td th:text="${grupo.periodo.nombrePeriodo}"></td>
+                            <td th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}"></td>
+                            <td th:text="${grupo.nombreGrupo}"></td>
                         </tr>
+                        <!-- Caso de lista vacía[cite: 8] -->
                         <tr th:if="${#lists.isEmpty(historialTutorias)}">
-                            <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic">No hay registros de tutorías anteriores para este estudiante.</td>
+                            <td colspan="3">No hay registros de tutorías anteriores para este estudiante.</td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
+            </section>
 
-        </div>
+        </section>
+        
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

@@ -31,7 +31,6 @@ public class PatInstitucional {
     
     public PatInstitucional() {}
 
-    // Getters y setters
     public Integer getIdPat() { return idPat; }
     public void setIdPat(Integer idPat) { this.idPat = idPat; }
     

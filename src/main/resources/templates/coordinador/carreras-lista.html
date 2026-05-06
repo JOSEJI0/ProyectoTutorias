@@ -1,71 +1,51 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Gestión de Carreras')}"></th:block>
+    <!-- Fragmento de encabezado reutilizable[cite: 1, 4] -->
+    <th:block th:replace="~{fragments/layout :: encabezado('Catálogo de Carreras')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación[cite: 1, 4] -->
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-5xl mx-auto w-full flex-1">
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-book-bookmark mr-2"></i> Gestión de Carreras</h1>
-                <p class="text-slate-500 mt-2">Administración del catálogo de programas educativos.</p>
-            </header>
+    <main>
+        <header>
+            <h1>Catálogo de Carreras</h1>
+            <p>Listado de programas educativos registrados en el sistema.</p>
+        </header>
 
-            <div th:if="${param.exito != null}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 text-green-700 rounded shadow-sm">Operación realizada con éxito.</div>
-            <div th:if="${param.error != null}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">Error: La clave de la carrera ya existe o la carrera tiene alumnos vinculados.</div>
+        <section>
+            <!-- Tabla simple de carreras -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Clave</th>
+                        <th>Nombre de la Carrera</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${carreras}">
+                        <td th:text="${c.idCarrera}"></td>
+                        <td th:text="${c.claveOficial}"></td>
+                        <td th:text="${c.nombreCarrera}"></td>
+                        <td>
+                            <!-- Enlaces de gestión operativa -->
+                            <a th:href="@{/coordinador/carreras/detalle/{id}(id=${c.idCarrera})}">Ver</a> | 
+                            <a th:href="@{/coordinador/carreras/editar/{id}(id=${c.idCarrera})}">Editar</a>
+                        </td>
+                    </tr>
+                    <!-- Mensaje en caso de lista vacía -->
+                    <tr th:if="${#lists.isEmpty(carreras)}">
+                        <td colspan="4">No hay carreras registradas.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
-                <h3 class="font-bold text-[#0B2A4A] mb-4 border-b pb-2">Registrar Nueva Carrera</h3>
-                <form th:action="@{/coordinador/carreras/guardar}" method="POST" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-                    <div class="md:col-span-1">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Clave Oficial <span class="text-red-500">*</span></label>
-                        <input type="text" name="clave" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                    </div>
-                    <div class="md:col-span-3">
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nombre de la Carrera <span class="text-red-500">*</span></label>
-                        <input type="text" name="nombre" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                    </div>
-                    <div class="md:col-span-1">
-                        <button type="submit" class="w-full bg-[#0B2A4A] text-white py-2 rounded-lg font-bold hover:bg-[#1a3a5a] transition-colors"><i class="fa-solid fa-plus mr-1"></i> Guardar</button>
-                    </div>
-                </form>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-4">Clave</th>
-                            <th class="px-6 py-4">Nombre de la Carrera</th>
-                            <th class="px-6 py-4 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr th:each="c : ${carreras}" class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-mono text-slate-500" th:text="${c.claveOficial}"></td>
-                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${c.nombreCarrera}"></td>
-                            <td class="px-6 py-4 text-center space-x-4">
-                                <a th:href="@{/coordinador/carreras/detalle/{id}(id=${c.idCarrera})}" title="Ver Alumnos" class="text-emerald-500 hover:text-emerald-700 transition-colors">
-                                    <i class="fa-solid fa-eye text-lg"></i>
-                                </a>
-                                <a th:href="@{/coordinador/carreras/editar/{id}(id=${c.idCarrera})}" title="Editar Carrera" class="text-blue-500 hover:text-blue-700 transition-colors">
-                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
-                                </a>
-                                <a th:href="@{/coordinador/carreras/eliminar/{id}(id=${c.idCarrera})}" title="Eliminar Carrera" class="text-red-400 hover:text-red-600 transition-colors" onclick="return confirm('¿Seguro que deseas eliminar esta carrera?');">
-                                    <i class="fa-solid fa-trash-can text-lg"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(carreras)}">
-                            <td colspan="3" class="px-6 py-8 text-center text-slate-400 italic">No hay carreras registradas.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- Pie de página reutilizable[cite: 1, 4] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

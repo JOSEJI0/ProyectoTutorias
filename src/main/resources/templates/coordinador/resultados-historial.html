@@ -1,46 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Historial de Alumno - ITCH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Mantiene el fragmento de encabezado reutilizable[cite: 1, 4] -->
+    <th:block th:replace="~{fragments/layout :: encabezado('Historial de Alumno')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
-    <aside class="w-64 bg-[#0B2A4A] text-white flex flex-col p-6 h-screen sticky top-0">
-        <div class="mb-10 border-b border-white/10 pb-6 text-center">
-            <h1 class="text-xl font-bold">Coordinación</h1>
-            <p class="text-xs text-blue-300">Gestión Académica</p>
-        </div>
-        <nav class="space-y-4 flex-1">
-            <a th:href="@{/coordinador/panel}" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-chart-line"></i> Resumen</a>
-            <a th:href="@{/coordinador/busquedas}" class="flex items-center gap-3 bg-white/10 p-3 rounded-lg transition-colors"><i class="fa-solid fa-magnifying-glass"></i> Consultas</a>
-            <a href="#" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-file-pdf"></i> Reportes PAT</a>
-        </nav>
-        <a th:href="@{/login}" class="text-red-300 text-sm hover:underline"><i class="fa-solid fa-arrow-right-from-bracket"></i> Salir del sistema</a>
-    </aside>
+    <!-- Mantiene la navegación lateral del coordinador[cite: 1, 4] -->
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
-            <a th:href="@{/coordinador/busquedas}" class="text-blue-600 hover:underline text-sm mb-4 inline-block">&larr; Volver a Búsquedas</a>
-            <h2 class="text-2xl font-bold text-[#0B2A4A] mb-6" th:text="'Historial Académico del Alumno ID: ' + ${estudianteId}"></h2>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/busquedas}">Volver a Búsquedas</a>
             
-            <div th:if="${#lists.isEmpty(resultados)}" class="bg-white p-10 text-center rounded-xl shadow-sm border border-slate-200 text-slate-500">
+            <!-- Título dinámico con el ID del estudiante consultado -->
+            <h2 th:text="'Historial Académico del Alumno ID: ' + ${estudianteId}"></h2>
+            
+            <!-- Mensaje si el alumno no posee registros en la base de datos -->
+            <div th:if="${#lists.isEmpty(resultados)}">
                 Este alumno no tiene historial de tutorías registrado.
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div th:each="g : ${resultados}" class="bg-white p-6 rounded-xl border-l-4 border-emerald-500 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 class="font-bold text-lg text-[#0B2A4A]" th:text="${g.nombreGrupo}"></h3>
-                    <p class="text-sm text-slate-500 font-medium" th:text="${g.periodo.nombrePeriodo}"></p>
-                    <div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-chalkboard-user text-slate-400"></i>
-                        <p class="text-xs text-slate-500" th:text="'Tutor: ' + ${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></p>
-                    </div>
+            <!-- Listado de grupos en los que ha estado inscrito el alumno -->
+            <div>
+                <div th:each="g : ${resultados}">
+                    <hr>
+                    <!-- Nombre del grupo de tutoría -->
+                    <h3 th:text="${g.nombreGrupo}"></h3>
+                    
+                    <!-- Nombre del periodo escolar correspondiente -->
+                    <p th:text="${g.periodo.nombrePeriodo}"></p>
+                    
+                    <!-- Datos del tutor asignado en ese periodo[cite: 4] -->
+                    <p th:text="'Tutor: ' + ${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></p>
+                    <hr>
                 </div>
             </div>
-        </div>
+        </section>
     </main>
+
+    <!-- Mantiene el fragmento de pie de página[cite: 1, 4] -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
 </body>
 </html>

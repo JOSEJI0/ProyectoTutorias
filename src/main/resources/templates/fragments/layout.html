@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- FRAGMENTO: ENCABEZADO BASE -->
     <th:block th:fragment="encabezado(titulo)">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,141 +16,145 @@
         </style>
     </th:block>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans">
 
-    <!-- SIDEBAR BASE (Diseño unificado para todos los roles) -->
-    <aside th:fragment="sidebarCoordinador" class="w-64 bg-[#0F172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
+    <!-- SIDEBAR COORDINADOR -->
+    <aside th:fragment="sidebarCoordinador" class="w-64 bg-[#0B172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
         <div class="p-6">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold">C</div>
-                <span class="font-black text-white tracking-tighter text-lg uppercase">Gestión</span>
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <span class="font-black text-white tracking-tighter text-xl uppercase">ITCH</span>
             </div>
             
-            <nav class="space-y-1 custom-scrollbar overflow-y-auto max-h-[calc(100vh-200px)]">
+            <nav class="space-y-1 custom-scrollbar overflow-y-auto max-h-[calc(100vh-250px)]">
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 px-3">Principal</p>
-                <a th:href="@{/coordinador/panel}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-grid-2 text-blue-400"></i> <span>Panel General</span>
+                <a th:href="@{/coordinador/panel}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm group">
+                    <i class="fa-solid fa-chart-pie text-blue-400 group-hover:scale-110 transition-transform"></i> <span>Panel General</span>
                 </a>
-                <a th:href="@{/coordinador/tutores}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/coordinador/tutores}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-chalkboard-user"></i> <span>Tutores</span>
                 </a>
-                <a th:href="@{/coordinador/estudiantes}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/coordinador/estudiantes}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-user-graduate"></i> <span>Tutorados</span>
                 </a>
                 
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-2 px-3">Organización</p>
-                <a th:href="@{/coordinador/carreras}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/coordinador/carreras}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-layer-group"></i> <span>Carreras</span>
                 </a>
-                <a th:href="@{/coordinador/grupos}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-shapes"></i> <span>Grupos</span>
-                </a>
-                <a th:href="@{/coordinador/asignacion}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-link"></i> <span>Asignación</span>
+                <a th:href="@{/coordinador/grupos}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
+                    <i class="fa-solid fa-users-rectangle"></i> <span>Grupos</span>
                 </a>
 
                 <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-6 mb-2 px-3">Seguimiento</p>
-                <a th:href="@{/coordinador/necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/coordinador/necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-bell text-emerald-400"></i> <span>Buzón</span>
                 </a>
-                <a th:href="@{/coordinador/pat}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/coordinador/pat}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-calendar-check"></i> <span>Plan PAT</span>
-                </a>
-                <a th:href="@{/coordinador/reportes}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-file-invoice text-red-400"></i> <span>Informes</span>
                 </a>
             </nav>
         </div>
 
-        <div class="mt-auto p-4 border-t border-slate-800">
-            <a th:href="@{/coordinador/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl bg-slate-800/50 text-white hover:bg-slate-800 transition-all text-xs">
-                <i class="fa-solid fa-circle-user text-blue-400"></i> Mi Cuenta
+        <!-- Usuario y Logout -->
+        <div class="mt-auto p-4 border-t border-slate-800 bg-slate-900/50">
+            <a th:href="@{/coordinador/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl hover:bg-slate-800 text-white transition-all text-xs">
+                <i class="fa-solid fa-circle-user text-blue-400 text-lg"></i>
+                <div class="overflow-hidden">
+                    <p class="font-bold truncate">Coordinador</p>
+                </div>
             </a>
             <form th:action="@{/logout}" method="POST">
-                <button type="submit" class="w-full text-left p-3 text-xs text-slate-500 hover:text-red-400 flex items-center gap-3">
-                    <i class="fa-solid fa-power-off"></i> Finalizar Sesión
+                <button type="submit" class="w-full text-left p-3 text-xs text-slate-400 hover:text-red-400 flex items-center gap-3 transition-colors">
+                    <i class="fa-solid fa-power-off"></i> Cerrar Sesión
                 </button>
             </form>
         </div>
     </aside>
     
     <!-- SIDEBAR TUTOR -->
-    <aside th:fragment="sidebarTutor" class="w-64 bg-[#0F172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
+    <aside th:fragment="sidebarTutor" class="w-64 bg-[#0B172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
         <div class="p-6">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center text-white font-bold">T</div>
-                <span class="font-black text-white tracking-tighter text-lg uppercase">Tutorías</span>
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                    <i class="fa-solid fa-person-chalkboard"></i>
+                </div>
+                <span class="font-black text-white tracking-tighter text-xl uppercase">Tutorías</span>
             </div>
             
             <nav class="space-y-1">
-                <a th:href="@{/tutor/panel}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-house-chimney text-emerald-400"></i> <span>Panel Docente</span>
+                <a th:href="@{/tutor/panel}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
+                    <i class="fa-solid fa-house-user text-emerald-400"></i> <span>Panel Docente</span>
                 </a>
-                <a th:href="@{/tutor/grupos}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/tutor/grupos}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-users"></i> <span>Mis Grupos</span>
                 </a>
-                <a th:href="@{/tutor/asistencia}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-clipboard-user"></i> <span>Pase de Lista</span>
+                <a th:href="@{/tutor/asistencia}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
+                    <i class="fa-solid fa-clipboard-list"></i> <span>Pase de Lista</span>
                 </a>
-                <a th:href="@{/tutor/pat}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-book"></i> <span>Cronograma PAT</span>
+                <a th:href="@{/tutor/pat}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
+                    <i class="fa-solid fa-book-open"></i> <span>Cronograma PAT</span>
                 </a>
-                <a th:href="@{/tutor/necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-envelope-open text-blue-400"></i> <span>Buzón</span>
-                </a>
-                <a th:href="@{/tutor/reportes}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-print text-red-400"></i> <span>Generar Reportes</span>
+                <a th:href="@{/tutor/necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
+                    <i class="fa-solid fa-envelope-open-text text-blue-400"></i> <span>Buzón Estudiantil</span>
                 </a>
             </nav>
         </div>
 
-        <div class="mt-auto p-4 border-t border-slate-800">
-            <a th:href="@{/tutor/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl bg-slate-800/50 text-white text-xs">
-                <i class="fa-solid fa-user-circle text-emerald-400"></i> Perfil Tutor
+        <div class="mt-auto p-4 border-t border-slate-800 bg-slate-900/50">
+            <a th:href="@{/tutor/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl hover:bg-slate-800 text-white text-xs transition-all">
+                <i class="fa-solid fa-user-circle text-emerald-400 text-lg"></i>
+                <span class="font-bold">Perfil Tutor</span>
             </a>
             <form th:action="@{/logout}" method="POST">
-                <button type="submit" class="w-full text-left p-3 text-xs text-slate-500 hover:text-red-400 flex items-center gap-3">
-                    <i class="fa-solid fa-power-off"></i> Salir
+                <button type="submit" class="w-full text-left p-3 text-xs text-slate-400 hover:text-red-400 flex items-center gap-3 transition-colors">
+                    <i class="fa-solid fa-door-closed"></i> Cerrar Sesión
                 </button>
             </form>
         </div>
     </aside>
     
     <!-- SIDEBAR ESTUDIANTE -->
-    <aside th:fragment="sidebarEstudiante" class="w-64 bg-[#0F172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
+    <aside th:fragment="sidebarEstudiante" class="w-64 bg-[#0B172A] text-slate-300 flex flex-col h-screen sticky top-0 z-20 border-r border-slate-800">
         <div class="p-6">
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white font-bold">E</div>
-                <span class="font-black text-white tracking-tighter text-lg uppercase">Portal Alumno</span>
+            <div class="flex items-center gap-3 mb-10">
+                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                    <i class="fa-solid fa-user-graduate"></i>
+                </div>
+                <span class="font-black text-white tracking-tighter text-xl uppercase">Portal</span>
             </div>
             
             <nav class="space-y-1">
-                <a th:href="@{/estudiante/panel}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/estudiante/panel}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-rocket text-blue-400"></i> <span>Inicio</span>
                 </a>
-                <a th:href="@{/estudiante/historial}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
+                <a th:href="@{/estudiante/historial}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm">
                     <i class="fa-solid fa-clock-rotate-left"></i> <span>Mi Historial</span>
                 </a>
-                <a th:href="@{/estudiante/deteccion-necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-lg transition-all text-sm">
-                    <i class="fa-solid fa-comment-dots text-emerald-400"></i> <span>Reportar Necesidad</span>
+                <a th:href="@{/estudiante/deteccion-necesidades}" class="nav-link flex items-center gap-3 p-3 rounded-xl transition-all text-sm text-emerald-400">
+                    <i class="fa-solid fa-comment-medical"></i> <span>Reportar Necesidad</span>
                 </a>
             </nav>
         </div>
 
-        <div class="mt-auto p-4 border-t border-slate-800">
-            <a th:href="@{/estudiante/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl bg-slate-800/50 text-white text-xs">
-                <i class="fa-solid fa-graduation-cap text-blue-400"></i> Mi Perfil
+        <div class="mt-auto p-4 border-t border-slate-800 bg-slate-900/50">
+            <a th:href="@{/estudiante/perfil}" class="flex items-center gap-3 p-3 mb-2 rounded-xl hover:bg-slate-800 text-white text-xs transition-all">
+                <i class="fa-solid fa-id-badge text-blue-400 text-lg"></i>
+                <span class="font-bold">Mi Perfil Alumno</span>
             </a>
             <form th:action="@{/logout}" method="POST">
-                <button type="submit" class="w-full text-left p-3 text-xs text-slate-500 hover:text-red-400 flex items-center gap-3">
-                    <i class="fa-solid fa-door-open"></i> Salir
+                <button type="submit" class="w-full text-left p-3 text-xs text-slate-400 hover:text-red-400 flex items-center gap-3 transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Salir
                 </button>
             </form>
         </div>
     </aside>
 
-    <footer th:fragment="footer" class="mt-auto p-8 text-center">
-        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">&copy; ITCH - Sistema de Tutorías</p>
+    <!-- FRAGMENTO: PIE DE PÁGINA -->
+    <footer th:fragment="footer" class="mt-auto p-10 text-center border-t border-slate-200">
+        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">&copy; ITCH - Sistema de Gestión de Tutorías</p>
     </footer>
 
 </body>

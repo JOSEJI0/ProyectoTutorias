@@ -3,103 +3,101 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detalles y Temario PAT')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-6xl mx-auto">
-            <a th:href="@{/coordinador/pat}" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&larr; Volver al Catálogo de Planes</a>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/pat}">Volver al Catálogo de Planes</a>
             
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]">Detalles del Plan Institucional</h1>
-                <p class="text-slate-500 mt-2">Agrega las actividades de las 10 semanas que los tutores deberán impartir.</p>
+            <header>
+                <h1>Detalles del Plan Institucional</h1>
+                <p>Agrega las actividades de las 10 semanas que los tutores deberán impartir.</p>
             </header>
 
             <!-- Resumen del PAT -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
-                    <div class="bg-blue-100 text-blue-600 p-3 rounded-full text-xl"><i class="fa-solid fa-graduation-cap"></i></div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Carrera</p>
-                        <p class="font-bold text-[#0B2A4A]" th:text="${pat.carrera.nombreCarrera}"></p>
-                    </div>
+            <section>
+                <div>
+                    <p>Carrera</p>
+                    <strong th:text="${pat.carrera.nombreCarrera}"></strong>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
-                    <div class="bg-emerald-100 text-emerald-600 p-3 rounded-full text-xl"><i class="fa-regular fa-calendar-days"></i></div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Periodo</p>
-                        <p class="font-bold text-[#0B2A4A]" th:text="${pat.periodo.nombrePeriodo}"></p>
-                    </div>
+                <div>
+                    <p>Periodo</p>
+                    <strong th:text="${pat.periodo.nombrePeriodo}"></strong>
                 </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-4">
-                    <div class="bg-purple-100 text-purple-600 p-3 rounded-full text-xl"><i class="fa-solid fa-code-branch"></i></div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Versión</p>
-                        <p class="font-bold text-[#0B2A4A] font-mono" th:text="${pat.version}"></p>
-                    </div>
+                <div>
+                    <p>Versión</p>
+                    <code th:text="${pat.version}"></code>
                 </div>
-            </div>
+            </section>
 
-            <!-- Bloque de Notificaciones (Éxito y Errores) -->
-            <div th:if="${param.exito != null}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 text-green-700 rounded shadow-sm">
+            <br>
+
+            <!-- Notificaciones de Backend -->
+            <div th:if="${param.exito != null}">
                 Tema asignado y guardado correctamente.
             </div>
 
             <div th:if="${param.error != null}">
-                <div th:if="${param.error[0] == 'semana_invalida'}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                <p th:if="${param.error[0] == 'semana_invalida'}">
                     <strong>Error:</strong> La semana debe estar entre el rango permitido (1 a 10).
-                </div>
-                <div th:if="${param.error[0] == 'semana_ocupada'}" class="mb-6 bg-yellow-50 border-l-4 border-yellow-500 p-4 text-yellow-700 rounded shadow-sm">
-                    <strong>Atención:</strong> Ya has asignado un tema para esa semana. Borra el anterior si deseas reemplazarlo.
-                </div>
-                <div th:if="${param.error[0] == 'titulo_duplicado'}" class="mb-6 bg-orange-50 border-l-4 border-orange-500 p-4 text-orange-700 rounded shadow-sm">
-                    <strong>Atención:</strong> Ya existe un tema con ese título en este plan de acción.
-                </div>
+                </p>
+                <p th:if="${param.error[0] == 'semana_ocupada'}">
+                    <strong>Atención:</strong> Ya has asignado un tema para esa semana.
+                </p>
+                <p th:if="${param.error[0] == 'titulo_duplicado'}">
+                    <strong>Atención:</strong> Ya existe un tema con ese título.
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- FORMULARIO DE ASIGNACIÓN DE ACTIVIDADES -->
-                <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 self-start sticky top-10">
-                    <h3 class="font-bold text-[#0B2A4A] mb-4 border-b pb-2">Asignar Tema</h3>
-                    <form th:action="@{/coordinador/pat/{id}/actividades/guardar(id=${pat.idPat})}" method="POST" class="space-y-4">
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">Semana (1 al 10) <span class="text-red-500">*</span></label>
-                            <input type="number" min="1" max="10" name="semana" placeholder="Ej. 1" required class="w-full mt-1 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">Título del Tema <span class="text-red-500">*</span></label>
-                            <input type="text" name="titulo" placeholder="Ej. Integración Grupal" required class="w-full mt-1 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">Descripción General <span class="text-red-500">*</span></label>
-                            <textarea name="descripcion" rows="4" required class="w-full mt-1 border border-slate-200 rounded px-4 py-2 outline-none focus:ring-1 focus:ring-[#0B2A4A] text-sm text-slate-600 custom-scrollbar"></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-[#0B2A4A] text-white py-2.5 rounded-lg font-bold shadow-md hover:bg-[#1a3a5a] transition-colors"><i class="fa-solid fa-plus mr-1"></i> Añadir a la lista</button>
-                    </form>
-                </div>
+            <br>
 
-                <!-- LISTA DE ACTIVIDADES -->
-                <div class="lg:col-span-2">
-                    <div class="space-y-4">
-                        <div th:each="a : ${actividades}" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start">
-                            <div>
-                                <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mb-2 inline-block" th:text="'Semana ' + ${a.semanaProgramada}"></span>
-                                <h4 class="font-bold text-lg text-[#0B2A4A]" th:text="${a.titulo}"></h4>
-                                <p class="text-sm text-slate-500 mt-2" th:text="${a.descripcion}"></p>
-                            </div>
-                            <a th:href="@{/coordinador/pat/{idPat}/actividades/eliminar/{idAct}(idPat=${pat.idPat}, idAct=${a.idActividad})}" class="text-red-400 hover:text-red-600" title="Eliminar actividad" onclick="return confirm('¿Eliminar actividad de este molde?');">
-                                <i class="fa-solid fa-trash-can text-lg"></i>
-                            </a>
-                        </div>
-                        <div th:if="${#lists.isEmpty(actividades)}" class="bg-white p-10 text-center rounded-2xl border border-slate-200 text-slate-400 italic">
-                            Aún no has asignado actividades para este temario.
-                        </div>
+            <!-- FORMULARIO DE ASIGNACIÓN DE ACTIVIDADES -->
+            <section>
+                <h3>Asignar Tema</h3>
+                <form th:action="@{/coordinador/pat/{id}/actividades/guardar(id=${pat.idPat})}" method="POST">
+                    <div>
+                        <label>Semana (1 al 10) *</label>
+                        <input type="number" min="1" max="10" name="semana" placeholder="Ej. 1" required>
                     </div>
-                </div>
-            </div>
+                    <br>
+                    <div>
+                        <label>Título del Tema *</label>
+                        <input type="text" name="titulo" placeholder="Ej. Integración Grupal" required>
+                    </div>
+                    <br>
+                    <div>
+                        <label>Descripción General *</label>
+                        <textarea name="descripcion" rows="4" required></textarea>
+                    </div>
+                    <br>
+                    <button type="submit">Añadir a la lista</button>
+                </form>
+            </section>
 
-        </div>
+            <br>
+
+            <!-- LISTA DE ACTIVIDADES PROGRAMADAS[cite: 4, 5] -->
+            <section>
+                <h3>Temario Programado</h3>
+                <div th:each="a : ${actividades}">
+                    <hr>
+                    <p><strong th:text="'Semana ' + ${a.semanaProgramada}"></strong></p>
+                    <h4 th:text="${a.titulo}"></h4>
+                    <p th:text="${a.descripcion}"></p>
+                    <a th:href="@{/coordinador/pat/{idPat}/actividades/eliminar/{idAct}(idPat=${pat.idPat}, idAct=${a.idActividad})}" 
+                       onclick="return confirm('¿Eliminar actividad de este molde?');">
+                       Eliminar
+                    </a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(actividades)}">
+                    <p><em>Aún no has asignado actividades para este temario.</em></p>
+                </div>
+            </section>
+
+        </section>
     </main>
 </body>
 </html>

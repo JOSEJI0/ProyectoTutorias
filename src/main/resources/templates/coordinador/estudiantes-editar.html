@@ -3,64 +3,84 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Editar Estudiante')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-3xl mx-auto w-full flex-1">
-            <a th:href="@{/coordinador/estudiantes}" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&larr; Volver al Listado</a>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/estudiantes}">Volver al Listado</a>
             
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-user-pen mr-2"></i> Editar Estudiante</h1>
-                <p class="text-slate-500 mt-2">Modifica los datos personales o académicos del tutorado.</p>
+            <header>
+                <h1>Editar Estudiante</h1>
+                <p>Modifica los datos personales o académicos del tutorado.</p>
             </header>
 
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                <form th:action="@{/coordinador/estudiantes/actualizar}" method="POST" class="space-y-6">
-                    <input type="hidden" name="idEstudiante" th:value="${estudiante.idEstudiante}">
-                    <input type="hidden" name="activo" th:value="${estudiante.activo}">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">No. Control <span class="text-red-500">*</span></label>
-                            <input type="text" name="numControl" th:value="${estudiante.numeroControl}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Correo Institucional <span class="text-red-500">*</span></label>
-                            <input type="email" name="correo" th:value="${estudiante.usuario.correoInstitucional}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nombre <span class="text-red-500">*</span></label>
-                            <input type="text" name="nombre" th:value="${estudiante.usuario.nombre}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Apellidos <span class="text-red-500">*</span></label>
-                            <input type="text" name="apellidos" th:value="${estudiante.usuario.apellidos}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Carrera <span class="text-red-500">*</span></label>
-                            <select name="idCarrera" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                                <option th:each="c : ${carreras}" 
-                                        th:value="${c.idCarrera}" 
-                                        th:text="${c.nombreCarrera}"
-                                        th:selected="${c.idCarrera == estudiante.carrera.idCarrera}">Carrera</option>
-                            </select>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Semestre Actual <span class="text-red-500">*</span></label>
-                            <input type="number" min="1" max="12" name="semestre" th:value="${estudiante.semestreActual}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                        </div>
-                    </div>
-                    
-                    <div class="pt-6 border-t border-slate-100 flex justify-end">
-                        <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-[#1a3a5a] transition-colors flex items-center">
-                            <i class="fa-solid fa-save mr-2"></i> Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+            <form th:action="@{/coordinador/estudiantes/actualizar}" method="POST">
+                <!-- Campos ocultos necesarios para la persistencia de datos -->
+                <input type="hidden" name="idEstudiante" th:value="${estudiante.idEstudiante}">
+                <input type="hidden" name="activo" th:value="${estudiante.activo}">
+                
+                <div>
+                    <label>No. Control *</label>
+                    <br>
+                    <input type="text" name="numControl" th:value="${estudiante.numeroControl}" required>
+                </div>
+
+                <br>
+
+                <div>
+                    <label>Correo Institucional *</label>
+                    <br>
+                    <input type="email" name="correo" th:value="${estudiante.usuario.correoInstitucional}" required>
+                </div>
+
+                <br>
+
+                <div>
+                    <label>Nombre *</label>
+                    <br>
+                    <input type="text" name="nombre" th:value="${estudiante.usuario.nombre}" required>
+                </div>
+
+                <br>
+
+                <div>
+                    <label>Apellidos *</label>
+                    <br>
+                    <input type="text" name="apellidos" th:value="${estudiante.usuario.apellidos}" required>
+                </div>
+
+                <br>
+
+                <div>
+                    <label>Carrera *</label>
+                    <br>
+                    <select name="idCarrera" required>
+                        <!-- Itera sobre el catálogo de carreras y marca la actual como seleccionada -->
+                        <option th:each="c : ${carreras}" 
+                                th:value="${c.idCarrera}" 
+                                th:text="${c.nombreCarrera}"
+                                th:selected="${c.idCarrera == estudiante.carrera.idCarrera}">Carrera</option>
+                    </select>
+                </div>
+
+                <br>
+
+                <div>
+                    <label>Semestre Actual *</label>
+                    <br>
+                    <input type="number" min="1" max="12" name="semestre" th:value="${estudiante.semestreActual}" required>
+                </div>
+                
+                <br>
+
+                <div>
+                    <button type="submit">Guardar Cambios</button>
+                </div>
+            </form>
+        </section>
+
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

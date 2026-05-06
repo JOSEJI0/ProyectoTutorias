@@ -12,7 +12,6 @@ import java.util.UUID;
 @Service
 public class UploadFileService {
 
-    // Carpeta raíz donde se guardarán las fotos
     private final String FOLDER = "uploads//";
 
     public String guardarImagen(MultipartFile file) throws IOException {
@@ -22,13 +21,11 @@ public class UploadFileService {
             
             Path rutaAbsoluta = Paths.get(FOLDER + nombreUnico);
             
-            // Crea la carpeta 'uploads'
             File directorio = new File(FOLDER);
             if (!directorio.exists()) {
                 directorio.mkdirs();
             }
             
-            // Guarda el archivo
             Files.write(rutaAbsoluta, file.getBytes());
             return nombreUnico;
         }

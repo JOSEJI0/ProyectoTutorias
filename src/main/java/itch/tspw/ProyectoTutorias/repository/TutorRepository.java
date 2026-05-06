@@ -9,7 +9,6 @@ import itch.tspw.ProyectoTutorias.model.Usuario;
 
 
 public interface TutorRepository extends JpaRepository<Tutor, Integer> {
-    
     Optional<Tutor> findByRfcEmpleado(String rfcEmpleado);
     Optional<Tutor> findByUsuario(Usuario usuario);
 }

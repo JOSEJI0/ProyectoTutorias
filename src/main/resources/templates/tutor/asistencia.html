@@ -1,152 +1,136 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantenemos el encabezado institucional[cite: 1] -->
     <th:block th:replace="~{fragments/layout :: encabezado('Pase de Lista')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación docente[cite: 1] -->
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
-            <div class="flex items-center justify-between mb-8">
-                <a th:href="@{/tutor/panel}" class="text-slate-400 hover:text-[#0B2A4A] transition-colors">
-                    <i class="fa-solid fa-arrow-left"></i> Volver al panel
-                </a>
-                <div class="text-right">
-                    <h2 class="text-2xl font-bold text-[#0B2A4A]" th:text="${grupo.nombreGrupo}">7A-SISC</h2>
-                    <p class="text-sm text-slate-500" th:text="${grupo.carrera.nombreCarrera}">Ingeniería en Sistemas</p>
+    <main>
+        <section>
+            <header>
+                <a th:href="@{/tutor/panel}">Volver al panel</a>
+                <div>
+                    <!-- Identificación del grupo asignado -->
+                    <h2 th:text="${grupo.nombreGrupo}"></h2>
+                    <p th:text="${grupo.carrera.nombreCarrera}"></p>
                 </div>
-            </div>
+            </header>
 
+            <!-- Formulario de Registro de Sesión y Asistencia (RF3) -->
             <form th:action="@{/tutor/guardar-asistencia}" method="POST" enctype="multipart/form-data">
+                <!-- ID del grupo para vinculación en el backend -->
                 <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Semana de Trabajo</label>
-                        <select name="semana" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                            <option value="1">Semana 1</option>
-                            <option value="2">Semana 2</option>
-                            <option value="3">Semana 3</option>
-                            <option value="4">Semana 4</option>
-                            <option value="5">Semana 5</option>
-                        </select>
-                    </div>
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                        <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Actividad del PAT</label>
-                        <select name="idActividad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
-                            <option value="1">Integración Grupal</option>
-                            <option value="2">Detección de Necesidades</option>
-                        </select>
-                    </div>
-                </div>
+                <fieldset>
+                    <legend>Configuración de la Sesión</legend>
+                    
+                    <label>Semana de Trabajo</label>
+                    <select name="semana">
+                        <option value="1">Semana 1</option>
+                        <option value="2">Semana 2</option>
+                        <option value="3">Semana 3</option>
+                        <option value="4">Semana 4</option>
+                        <option value="5">Semana 5</option>
+                    </select>
 
-                <!-- ========================================== -->
-                <!-- TABLA 1: PASE DE LISTA DE ALUMNOS          -->
-                <!-- ========================================== -->
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-8">
-                    <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
-                        <h3 class="font-bold text-[#0B2A4A] flex items-center gap-2">
-                            <i class="fa-solid fa-list-check"></i> Lista de Asistencia
-                        </h3>
-                        <span class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1 rounded-full border border-blue-100" th:text="${#lists.size(estudiantes)} + ' alumnos'">0 alumnos</span>
-                    </div>
-                    <table class="w-full text-left">
+                    <br><br>
+
+                    <label>Actividad del PAT</label>
+                    <select name="idActividad">
+                        <!-- Se asume que las actividades se cargan del Plan Institucional -->
+                        <option value="1">Integración Grupal</option>
+                        <option value="2">Detección de Necesidades</option>
+                    </select>
+                </fieldset>
+
+                <br>
+
+                <!-- Lista de Alumnos para Marcado de Asistencia -->
+                <section>
+                    <h3>Lista de Asistencia</h3>
+                    <p><span th:text="${#lists.size(estudiantes)}">0</span> alumnos inscritos</p>
+                    
+                    <table>
                         <thead>
-                            <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
-                                <th class="px-8 py-4">No. Control</th>
-                                <th class="px-8 py-4">Estudiante</th>
-                                <th class="px-8 py-4 text-center">Asistencia</th>
+                            <tr>
+                                <th>No. Control</th>
+                                <th>Estudiante</th>
+                                <th>Asistencia</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            <tr th:each="estudiante : ${estudiantes}" class="hover:bg-slate-50/30 transition-colors">
-                                <td class="px-8 py-4 text-sm font-mono text-slate-500" th:text="${estudiante.numeroControl}">22520185</td>
-                                <td class="px-8 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[#0B2A4A] font-bold text-xs border border-slate-200" 
-                                             th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">I</div>
-                                        <span class="font-medium text-slate-700" th:text="${estudiante.usuario.nombre} + ' ' + ${estudiante.usuario.apellidos}">Nombre Alumno</span>
-                                    </div>
-                                </td>
-                                <td class="px-8 py-4 text-center">
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" name="asistencias" th:value="${estudiante.idEstudiante}" class="sr-only peer" checked>
-                                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
-                                    </label>
+                        <tbody>
+                            <tr th:each="estudiante : ${estudiantes}">
+                                <td th:text="${estudiante.numeroControl}"></td>
+                                <td th:text="${estudiante.usuario.nombre} + ' ' + ${estudiante.usuario.apellidos}"></td>
+                                <td>
+                                    <!-- Los IDs de los alumnos seleccionados se envían como lista al controlador -->
+                                    <input type="checkbox" name="asistencias" th:value="${estudiante.idEstudiante}" checked>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                </div>
+                </section>
                     
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8">
-                    <h3 class="font-bold text-[#0B2A4A] flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-camera-retro"></i> Evidencia Fotográfica
-                    </h3>
-                    <label class="block text-xs font-bold text-slate-400 uppercase mb-2">Sube una foto de la sesión con tu grupo (Obligatorio)</label>
-                    <input type="file" name="fotoEvidencia" accept="image/*" required 
-                           class="block w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-[#0B2A4A] hover:file:bg-blue-100 transition-all cursor-pointer border border-slate-200 rounded-xl">
-                    <p class="text-[10px] text-slate-400 mt-2 italic">Formatos: JPG o PNG. Se enviará a coordinación para su validación.</p>
-                </div>
+                <br>
 
-                <div class="flex justify-end gap-4">
-                    <button type="submit" class="bg-[#0B2A4A] text-white px-10 py-3 rounded-xl font-bold shadow-lg hover:bg-[#1a3a5a] transition-all transform hover:-translate-y-1">
-                        Finalizar y Enviar a Revisión <i class="fa-solid fa-paper-plane ml-2 text-xs"></i>
+                <!-- Evidencia Fotográfica Requerida para Validación -->
+                <section>
+                    <h3>Evidencia Fotográfica</h3>
+                    <label>Sube una foto de la sesión con tu grupo (Obligatorio)</label>
+                    <br>
+                    <input type="file" name="fotoEvidencia" accept="image/*" required>
+                </section>
+
+                <br>
+
+                <div>
+                    <button type="submit">
+                        Finalizar y Enviar a Revisión
                     </button>
                 </div>
             </form>
 
-            <!-- ========================================== -->
-            <!-- TABLA 2: HISTORIAL DE SESIONES PASADAS     -->
-            <!-- ========================================== -->
-            <div class="mt-12">
-                <div class="flex items-center gap-3 mb-6 border-b border-slate-200 pb-4">
-                    <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </div>
-                    <h3 class="font-bold text-xl text-[#0B2A4A]">Historial de Sesiones</h3>
-                </div>
+            <br><hr><br>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                            <tr>
-                                <th class="px-6 py-4 text-center">ID</th>
-                                <th class="px-6 py-4">Semana</th>
-                                <th class="px-6 py-4">Fecha</th>
-                                <th class="px-6 py-4">Actividad PAT</th>
-                                <th class="px-6 py-4 text-center">Estatus</th>
-                                <th class="px-6 py-4 text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50">
-                            <!-- El ciclo de las sesiones sí debe ir aquí -->
-                            <tr th:each="sesion : ${historialSesiones}" class="hover:bg-slate-50/50 transition-colors text-sm">
-                                <td class="px-6 py-4 text-center font-mono text-slate-400" th:text="'#' + ${sesion.idSesion}">#1</td>
-                                <td class="px-6 py-4 font-bold text-slate-700" th:text="'Semana ' + ${sesion.semanaNumero}">Semana 1</td>
-                                <td class="px-6 py-4 text-slate-500"><i class="fa-regular fa-calendar mr-2 text-slate-400"></i><span th:text="${sesion.fechaImparticion}"></span></td>
-                                <td class="px-6 py-4 text-slate-600 font-medium" th:text="${sesion.actividad.titulo}">Tema</td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide" th:text="${sesion.estatusRegistro}">COMPLETADO</span>
-                                </td>
-                                <!-- El botón del ojito (ahora sí, en el lugar correcto) -->
-                                <td class="px-6 py-4 text-center">
-                                    <a th:href="@{/tutor/sesion/{id}(id=${sesion.idSesion})}" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 w-8 h-8 rounded-lg flex items-center justify-center transition-colors mx-auto" title="Ver Detalles">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            
-                            <tr th:if="${#lists.isEmpty(historialSesiones)}">
-                                <td colspan="6" class="px-6 py-10 text-center text-slate-400 italic">Aún no hay sesiones registradas para este grupo.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+            <!-- Historial de Sesiones Pasadas -->
+            <section>
+                <h3>Historial de Sesiones</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Semana</th>
+                            <th>Fecha</th>
+                            <th>Actividad PAT</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="sesion : ${historialSesiones}">
+                            <td th:text="'#' + ${sesion.idSesion}"></td>
+                            <td th:text="'Semana ' + ${sesion.semanaNumero}"></td>
+                            <td th:text="${sesion.fechaImparticion}"></td>
+                            <td th:text="${sesion.actividad.titulo}"></td>
+                            <td th:text="${sesion.estatusRegistro}"></td>
+                            <td>
+                                <!-- Enlace para ver el detalle de una sesión ya registrada -->
+                                <a th:href="@{/tutor/sesion/{id}(id=${sesion.idSesion})}">Ver Detalles</a>
+                            </td>
+                        </tr>
+                        
+                        <tr th:if="${#lists.isEmpty(historialSesiones)}">
+                            <td colspan="6">Aún no hay sesiones registradas para este grupo.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </section>
         
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>

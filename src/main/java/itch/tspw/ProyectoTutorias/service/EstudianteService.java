@@ -25,7 +25,6 @@ public class EstudianteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Listar filtrando por semestre y que estén activos
     public List<Estudiante> listarEstudiantes(Integer semestre, Integer idCarrera) {
         if (semestre != null && idCarrera != null) {
             return estudianteRepository.findBySemestreActualAndCarrera_IdCarreraAndActivoTrue(semestre, idCarrera);
@@ -46,9 +45,7 @@ public class EstudianteService {
     public void guardarEstudiante(Estudiante estudiante) {
         Usuario usuario = estudiante.getUsuario();
 
-        // Configuración si es un usuario completamente nuevo
         if (usuario.getIdUsuario() == null) {
-            // Contraseña por defecto: El número de control
             String hash = passwordEncoder.encode(estudiante.getNumeroControl());
             usuario.setPasswordHash(hash);
             
@@ -68,18 +65,14 @@ public class EstudianteService {
         estudianteRepository.save(estudiante);
     }
 
-    // ELIMINACIÓN LÓGICA
     @Transactional
     public void eliminarEstudianteLogico(Integer idEstudiante) {
         Estudiante estudiante = obtenerPorId(idEstudiante);
         
-        // 1. Desvincular de su grupo actual
         estudiante.setGrupo(null);
         
-        // 2. Borrado lógico del estudiante
         estudiante.setActivo(false);
         
-        // 3. Borrado lógico de las credenciales de usuario
         if (estudiante.getUsuario() != null) {
             estudiante.getUsuario().setActivo(false);
             usuarioRepository.save(estudiante.getUsuario());

@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-    // Al usar EAGER en la relación, esto consultará al usuario Y a sus perfiles automáticamente
     Optional<Usuario> findByCorreoInstitucional(String correoInstitucional);
 }

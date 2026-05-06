@@ -26,9 +26,8 @@ public class NecesidadEstudiante {
     private LocalDate fechaSolicitud = LocalDate.now();
 
     @Column(name = "estatus")
-    private String estatus = "Pendiente"; // Pendiente, En Seguimiento, Atendida
+    private String estatus = "Pendiente";
 
-    // Getters y Setters
     public Integer getIdNecesidad() { return idNecesidad; }
     public void setIdNecesidad(Integer idNecesidad) { this.idNecesidad = idNecesidad; }
     public Estudiante getEstudiante() { return estudiante; }

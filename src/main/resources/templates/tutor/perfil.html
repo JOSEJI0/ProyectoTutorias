@@ -1,94 +1,86 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantiene el fragmento de encabezado institucional -->
     <th:block th:replace="~{fragments/layout :: encabezado('Mi Perfil')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación docente -->
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-4xl mx-auto w-full flex-1">
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-user-gear mr-2"></i> Mi Perfil</h1>
-                <p class="text-slate-500">Gestiona tu información personal y foto de identidad.</p>
+    <main>
+        <section>
+            <header>
+                <h1>Mi Perfil</h1>
+                <p>Gestiona tu información personal y foto de identidad.</p>
             </header>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 text-center">
-                    <div class="relative inline-block mb-4">
-                        <img th:src="@{'/uploads/' + ${usuario.fotoPerfil}}" 
-                             class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mx-auto" alt="Foto de perfil">
-                    </div>
-                    <h3 class="font-bold text-xl text-[#0B2A4A]" th:text="${usuario.nombre + ' ' + usuario.apellidos}"></h3>
-                    <p class="text-sm text-slate-400" th:text="${usuario.correoInstitucional}"></p>
+            <!-- Resumen de Identidad -->
+            <section>
+                <div>
+                    <!-- Visualización de foto almacenada en el servidor -->
+                    <img th:src="@{'/uploads/' + ${usuario.fotoPerfil}}" width="150" alt="Foto de perfil">
                 </div>
-
-                <div class="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
-                    <form th:action="@{/tutor/perfil/actualizar-foto}" method="POST" enctype="multipart/form-data" class="space-y-6">
-                        <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cambiar Foto de Perfil</label>
-                            <div class="mt-2 flex items-center gap-4">
-                                <input type="file" name="foto" accept="image/*" required 
-                                       class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all cursor-pointer">
-                            </div>
-                            <p class="text-[10px] text-slate-400 mt-2 italic">Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB.</p>
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#1a3a5a] transition-all shadow-md">
-                                <i class="fa-solid fa-cloud-arrow-up mr-2"></i> Subir Nueva Foto
-                            </button>
-                        </div>
-                    </form>
+                <div>
+                    <h3 th:text="${usuario.nombre + ' ' + usuario.apellidos}"></h3>
+                    <p th:text="${usuario.correoInstitucional}"></p>
                 </div>
-                <!-- Tarjeta de Seguridad y Contraseña -->
-                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 mt-8 md:col-span-2">
-                    <h4 class="text-lg font-bold text-[#0B2A4A] mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
-                        <i class="fa-solid fa-shield-halved text-blue-500"></i> Seguridad de la Cuenta
-                    </h4>
+            </section>
 
-                    <!-- Alertas de Cambio de Contraseña -->
-                    <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-exclamation"></i> Las contraseñas nuevas no coinciden.
+            <br>
+
+            <!-- Formulario de Actualización de Foto (RF1)[cite: 1] -->
+            <section>
+                <form th:action="@{/tutor/perfil/actualizar-foto}" method="POST" enctype="multipart/form-data">
+                    <label>Cambiar Foto de Perfil</label>
+                    <br>
+                    <input type="file" name="foto" accept="image/*" required>
+                    <p><small>Formatos permitidos: JPG, PNG. Tamaño máximo: 2MB.</small></p>
+
+                    <button type="submit">Subir Nueva Foto</button>
+                </form>
+            </section>
+
+            <br><hr><br>
+
+            <!-- Gestión de Seguridad y Contraseña[cite: 1] -->
+            <section>
+                <h4>Seguridad de la Cuenta</h4>
+
+                <!-- Alertas de estado de operación[cite: 1] -->
+                <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}">Las contraseñas nuevas no coinciden.</div>
+                <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}">La contraseña actual es incorrecta.</div>
+                <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}">¡Contraseña actualizada exitosamente!</div>
+
+                <form th:action="@{/usuario/cambiar-password}" method="POST">
+                    <div>
+                        <label>Contraseña Actual</label>
+                        <input type="password" name="passwordActual" required>
                     </div>
-                    <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}" class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-xmark"></i> La contraseña actual ingresada es incorrecta.
+                    
+                    <br>
+
+                    <div>
+                        <label>Nueva Contraseña</label>
+                        <input type="password" name="nuevaPassword" required minlength="4">
                     </div>
-                    <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}" class="bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 p-4 rounded text-sm mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check"></i> ¡Contraseña actualizada exitosamente!
+                    
+                    <br>
+
+                    <div>
+                        <label>Confirmar Nueva Contraseña</label>
+                        <input type="password" name="confirmarPassword" required minlength="4">
                     </div>
 
-                    <form th:action="@{/usuario/cambiar-password}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Contraseña Actual</label>
-                            <input type="password" name="passwordActual" required placeholder="••••••••"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nueva Contraseña</label>
-                            <input type="password" name="nuevaPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Confirmar Nueva</label>
-                            <input type="password" name="confirmarPassword" required placeholder="••••••••" minlength="4"
-                                   class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none bg-slate-50 transition-colors">
-                        </div>
+                    <br>
 
-                        <div class="md:col-span-3 flex justify-end mt-2">
-                            <button type="submit" class="bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white px-8 py-3 rounded-xl font-bold shadow-md transition-colors flex items-center gap-2">
-                                <i class="fa-solid fa-key"></i> Actualizar Contraseña
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+                    <button type="submit">Actualizar Contraseña</button>
+                </form>
+            </section>
+        </section>
         
+        <!-- Pie de página institucional[cite: 1] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

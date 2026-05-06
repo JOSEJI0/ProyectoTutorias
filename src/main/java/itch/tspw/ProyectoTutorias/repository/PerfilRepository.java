@@ -9,5 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PerfilRepository extends JpaRepository<Perfil, Integer> {
-    Optional<Perfil> findByNombre(String nombre); // Nos servirá para buscar "ROLE_TUTOR", etc.
+    Optional<Perfil> findByNombre(String nombre);
 }

@@ -12,7 +12,7 @@ public class Perfil {
     private Integer idPerfil;
 
     @Column(unique = true, nullable = false, length = 50)
-    private String nombre; // Ej: ROLE_COORDINADOR, ROLE_TUTOR
+    private String nombre;
 
     public Perfil() {
     }

@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface EvidenciaSesionRepository extends JpaRepository<EvidenciaSesion, Integer> {
     
-    // Evidencias por estatus (p.ej. PENDIENTE)
     List<EvidenciaSesion> findByEstatusValidacion(String estatusValidacion);
 }

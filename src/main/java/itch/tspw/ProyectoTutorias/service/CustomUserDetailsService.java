@@ -23,16 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
-        // 1. Buscamos el usuario en nuestra tabla 'usuarios'
         Usuario usuario = usuarioRepository.findByCorreoInstitucional(correo)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con correo: " + correo));
 
-        // 2. Extraemos sus perfiles desde la tabla intermedia 'usuario_perfil'
         Collection<GrantedAuthority> authorities = usuario.getPerfiles().stream()
                 .map(perfil -> new SimpleGrantedAuthority(perfil.getNombre()))
                 .collect(Collectors.toList());
 
-        // 3. Le entregamos a Spring Security los datos oficiales
         return new User(usuario.getCorreoInstitucional(), usuario.getPasswordHash(), authorities);
     }
 }

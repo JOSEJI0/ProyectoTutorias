@@ -1,81 +1,70 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantiene el fragmento de encabezado institucional[cite: 1] -->
     <th:block th:replace="~{fragments/layout :: encabezado('Consultar PAT')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación docente[cite: 1] -->
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
+    <main>
+        <header>
+            <h1>Plan de Acción Tutorial (PAT)</h1>
+            <p>Consulta el plan institucional emitido por coordinación y genera el plan específico para tus grupos.</p>
+        </header>
+
+        <!-- Formulario para Clonar PAT Institucional a un Grupo Específico (RF4) -->
+        <section>
+            <h3>Crear PAT de Grupo</h3>
+            <p>Selecciona un grupo para clonar automáticamente todas las actividades del PAT Institucional.</p>
             
-            <header class="mb-8">
-                <h1 class="text-3xl font-bold text-[#0B2A4A] flex items-center gap-3">
-                    <i class="fa-solid fa-book-bookmark text-blue-500"></i> Plan de Acción Tutorial (PAT)
-                </h1>
-                <p class="text-slate-500 mt-2">Consulta el plan institucional emitido por coordinación y genera el plan específico para tus grupos.</p>
-            </header>
+            <form th:action="@{/tutor/pat/clonar}" method="POST">
+                <label>Selecciona un grupo:</label>
+                <select name="idGrupo" required>
+                    <option value="" disabled selected>Selecciona un grupo...</option>
+                    <!-- Itera sobre los grupos asignados al tutor -->
+                    <option th:each="grupo : ${grupos}" 
+                            th:value="${grupo.idGrupo}" 
+                            th:text="${grupo.nombreGrupo + ' - ' + grupo.carrera.siglas}">
+                    </option>
+                </select>
+                <button type="submit">Clonar PAT</button>
+            </form>
+        </section>
 
-            <!-- ========================================== -->
-            <!-- PANEL PARA CLONAR PAT A UN GRUPO           -->
-            <!-- ========================================== -->
-            <div class="bg-[#0B2A4A] rounded-2xl p-6 shadow-lg mb-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                <!-- Decoración de fondo -->
-                <i class="fa-solid fa-clone text-white/5 absolute -right-10 -bottom-10 text-9xl"></i>
-                
-                <div class="relative z-10 md:w-1/2">
-                    <h3 class="text-xl font-bold mb-2 text-blue-300">Crear PAT de Grupo</h3>
-                    <p class="text-sm text-slate-300">Selecciona un grupo para clonar automáticamente todas las actividades del PAT Institucional. Podrás modificar las fechas después.</p>
-                </div>
-                
-                <form th:action="@{/tutor/pat/clonar}" method="POST" class="relative z-10 flex w-full md:w-auto gap-3">
-                    <select name="idGrupo" required class="bg-white/10 border border-white/20 text-white text-sm rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-400 min-w-[200px]">
-                        <option value="" disabled selected class="text-slate-800">Selecciona un grupo...</option>
-                        <option th:each="grupo : ${grupos}" th:value="${grupo.idGrupo}" th:text="${grupo.nombreGrupo + ' - ' + grupo.carrera.siglas}" class="text-slate-800"></option>
-                    </select>
-                    <button type="submit" class="bg-blue-500 hover:bg-blue-400 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-colors whitespace-nowrap flex items-center gap-2">
-                        <i class="fa-solid fa-copy"></i> Clonar PAT
-                    </button>
-                </form>
-            </div>
+        <br><hr><br>
 
-            <!-- ========================================== -->
-            <!-- TABLA DEL PAT INSTITUCIONAL                -->
-            <!-- ========================================== -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h3 class="font-bold text-[#0B2A4A]"><i class="fa-solid fa-building-columns mr-2"></i> Actividades del PAT Institucional</h3>
-                </div>
-                
-                <table class="w-full text-left">
-                    <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                        <tr>
-                            <th class="px-6 py-4 text-center">Semana</th>
-                            <th class="px-6 py-4">Título de la Actividad</th>
-                            <th class="px-6 py-4">Descripción General</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        <tr th:each="actividad : ${patInstitucional}" class="hover:bg-slate-50/50 transition-colors">
-                            <td class="px-6 py-4 text-center">
-                                <span class="bg-blue-50 text-blue-600 font-bold px-3 py-1 rounded-lg text-xs" th:text="${actividad.semanaNumero}">1</span>
-                            </td>
-                            <!-- Ajusta 'actividad.titulo' o 'actividad.descripcion' según los nombres reales en tu clase ActividadPat -->
-                            <td class="px-6 py-4 font-bold text-slate-700" th:text="${actividad.titulo}">Título</td>
-                            <td class="px-6 py-4 text-sm text-slate-500" th:text="${actividad.descripcion}">Descripción de la actividad...</td>
-                        </tr>
-                        
-                        <tr th:if="${#lists.isEmpty(patInstitucional)}">
-                            <td colspan="3" class="px-6 py-10 text-center text-slate-400 italic">
-                                La coordinación aún no ha publicado el PAT Institucional para este periodo.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <!-- Visualización del PAT Institucional (RF4) -->
+        <section>
+            <h3>Actividades del PAT Institucional</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Semana</th>
+                        <th>Título de la Actividad</th>
+                        <th>Descripción General</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Itera sobre el plan maestro definido por la coordinación -->
+                    <tr th:each="actividad : ${patInstitucional}">
+                        <td th:text="${actividad.semanaNumero}"></td>
+                        <td th:text="${actividad.titulo}"></td>
+                        <td th:text="${actividad.descripcion}"></td>
+                    </tr>
+                    
+                    <!-- Caso en que la coordinación no haya publicado el plan -->
+                    <tr th:if="${#lists.isEmpty(patInstitucional)}">
+                        <td colspan="3">La coordinación aún no ha publicado el PAT Institucional para este periodo.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
 
-        </div>
+        <!-- Pie de página institucional[cite: 1] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 

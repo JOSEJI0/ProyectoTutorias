@@ -1,121 +1,89 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <!-- Usa el fragmento de encabezado definido en layout.html -->
-    <th:block th:replace="~{fragments/layout :: encabezado('Asignación de Estudiantes')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Asignar Tutorados')}"></th:block>
 </head>
-<body class="bg-[#F8FAFC] min-h-screen flex font-sans text-slate-900">
+<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
 
-    <!-- Inserta el Sidebar lateral del Coordinador[cite: 1] -->
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 overflow-y-auto p-6 lg:p-12">
-        <div class="max-w-6xl mx-auto">
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-5xl mx-auto w-full flex-1">
             
-            <!-- Encabezado de página con estilo de Dashboard -->
-            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight text-slate-800">Vinculación de Tutorados</h1>
-                    <p class="text-slate-500 text-sm mt-1">Organiza y asigna estudiantes a sus grupos correspondientes.</p>
-                </div>
-                <a th:href="@{/coordinador/grupos}" class="text-xs font-bold text-slate-400 uppercase tracking-widest hover:text-blue-600 transition-all flex items-center gap-2 border-b border-transparent hover:border-blue-600 pb-1">
-                    <i class="fa-solid fa-arrow-left-long"></i> Volver a la lista
-                </a>
+            <a th:href="@{/coordinador/grupos}" class="text-blue-600 hover:underline mb-4 inline-block font-medium">&larr; Volver a Grupos</a>
+
+            <header class="mb-8 mt-2">
+                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-user-plus mr-2"></i> Asignar Alumnos a Grupo</h1>
+                <p class="text-slate-500 mt-2">Selecciona un grupo existente y marca los alumnos que deseas integrar a sus sesiones de tutoría.</p>
             </header>
             
-            <!-- Mensajes de Feedback (basados en perfil.html) -->
-            <div th:if="${param.error != null}" class="mb-8 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm rounded-r-xl flex items-center gap-3">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span>Error: Debes seleccionar un grupo y al menos un alumno para continuar.</span>
+            <div th:if="${param.error != null}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm">
+                Error: Debes seleccionar un grupo válido y al menos un estudiante.
             </div>
 
-            <form th:action="@{/coordinador/asignacion/guardar}" method="POST">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <form th:action="@{/coordinador/asignacion/guardar}" method="POST" class="space-y-8">
+                
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">1</div>
+                        <h2 class="text-xl font-bold text-[#0B2A4A]">Seleccionar Grupo de Destino</h2>
+                    </div>
                     
-                    <!-- PANEL IZQUIERDO: Configuración (Estilo de tarjeta de perfil)[cite: 3] -->
-                    <div class="space-y-6">
-                        <section class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-                            <!-- Adorno visual sutil del perfil[cite: 3] -->
-                            <div class="absolute top-0 right-0 w-20 h-20 bg-[#2A4F73]/5 rounded-bl-full -mr-8 -mt-8"></div>
-                            
-                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-blue-500"></i> Grupo de Destino
-                            </h3>
-
-                            <div class="space-y-4">
-                                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Lista de Grupos Disponibles</label>
-                                <select name="idGrupo" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-[#0B2A4A] focus:outline-none transition-colors appearance-none cursor-pointer">
-                                    <option value="" disabled selected>Seleccionar grupo...</option>
-                                    <option th:each="g : ${gruposDisponibles}" 
-                                            th:value="${g.idGrupo}" 
-                                            th:text="${g.nombreGrupo + ' | ' + g.tutor.usuario.nombre}"></option>
-                                </select>
-                                <div class="p-3 bg-blue-50 rounded-xl">
-                                    <p class="text-[11px] text-blue-700 leading-relaxed">
-                                        <i class="fa-solid fa-circle-info mr-1"></i> Solo se muestran grupos activos en el ciclo escolar vigente.
-                                    </p>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Botón de Acción (Estilo Acciones Críticas)[cite: 2] -->
-                        <button type="submit" class="w-full bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white p-4 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-lg shadow-blue-900/20 transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
-                            <i class="fa-solid fa-link-slash"></i> Ejecutar Asignación
-                        </button>
+                    <div class="max-w-xl">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Grupos Disponibles (Semestre Actual)</label>
+                        <select name="idGrupo" required class="w-full mt-2 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" disabled selected>Selecciona un grupo desplegando aquí...</option>
+                            <option th:each="g : ${gruposDisponibles}" 
+                                    th:value="${g.idGrupo}" 
+                                    th:text="${g.nombreGrupo + ' | Tutor: ' + g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></option>
+                        </select>
                     </div>
-
-                    <!-- PANEL DERECHO: Tabla de Alumnos (Estilo Monitoreo de Grupos)[cite: 2] -->
-                    <div class="lg:col-span-2">
-                        <section class="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden flex flex-col h-full">
-                            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-white">
-                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                    <i class="fa-solid fa-user-graduate text-slate-400"></i> Estudiantes Pendientes
-                                </h3>
-                                <span class="text-[10px] bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-black border border-emerald-100 uppercase" th:text="${#lists.size(estudiantes)} + ' Alumnos'"></span>
-                            </div>
-
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left text-sm">
-                                    <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
-                                        <tr>
-                                            <th class="px-6 py-4 w-12 text-center">Marcar</th>
-                                            <th class="px-6 py-4">Control</th>
-                                            <th class="px-6 py-4">Nombre y Correo</th>
-                                            <th class="px-6 py-4">Carrera</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-50">
-                                        <tr th:each="e : ${estudiantes}" class="hover:bg-slate-50 transition-colors group">
-                                            <td class="px-6 py-4 text-center">
-                                                <input type="checkbox" name="idEstudiantes" th:value="${e.idEstudiante}" class="w-4 h-4 rounded border-slate-300 text-[#0B2A4A] focus:ring-[#0B2A4A] cursor-pointer">
-                                            </td>
-                                            <td class="px-6 py-4 font-mono text-xs text-slate-500" th:text="${e.numeroControl}"></td>
-                                            <td class="px-6 py-4">
-                                                <div class="font-bold text-slate-700 group-hover:text-blue-600 transition-colors" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></div>
-                                                <div class="text-[10px] text-slate-400" th:text="${e.usuario.correoInstitucional}"></div>
-                                            </td>
-                                            <td class="px-6 py-4 text-xs font-medium text-slate-500" th:text="${e.carrera.nombreCarrera}"></td>
-                                        </tr>
-                                        <!-- Estado vacío simplificado[cite: 2] -->
-                                        <tr th:if="${#lists.isEmpty(estudiantes)}">
-                                            <td colspan="4" class="px-6 py-20 text-center">
-                                                <div class="flex flex-col items-center opacity-30">
-                                                    <i class="fa-solid fa-users-slash text-5xl mb-3"></i>
-                                                    <p class="text-sm font-medium">No hay registros pendientes de asignación</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    </div>
-
                 </div>
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold">2</div>
+                        <h2 class="text-xl font-bold text-[#0B2A4A]">Seleccionar Estudiantes Sin Asignación</h2>
+                    </div>
+
+                    <div class="overflow-hidden border border-slate-100 rounded-xl">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4 text-center w-16">Sel.</th>
+                                    <th class="px-6 py-4">No. Control</th>
+                                    <th class="px-6 py-4">Nombre Completo</th>
+                                    <th class="px-6 py-4">Carrera</th>
+                                    <th class="px-6 py-4 text-center">Semestre</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr th:each="e : ${estudiantes}" class="hover:bg-blue-50/50 transition-colors">
+                                    <td class="px-6 py-4 text-center">
+                                        <input type="checkbox" name="idEstudiantes" th:value="${e.idEstudiante}" class="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    </td>
+                                    <td class="px-6 py-4 font-mono text-slate-500" th:text="${e.numeroControl}"></td>
+                                    <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></td>
+                                    <td class="px-6 py-4 text-slate-500" th:text="${e.carrera.nombreCarrera}"></td>
+                                    <td class="px-6 py-4 text-center font-medium" th:text="${e.semestreActual + '°'}"></td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(estudiantes)}">
+                                    <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">No hay alumnos pendientes de asignación en este momento.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-[#0B2A4A] text-white px-10 py-4 rounded-xl font-bold shadow-lg hover:bg-[#1a3a5a] transition-all transform hover:-translate-y-1">
+                        <i class="fa-solid fa-check-double mr-2"></i> Confirmar Asignación
+                    </button>
+                </div>
+
             </form>
         </div>
         
-        <!-- Footer definido en layout.html[cite: 1] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

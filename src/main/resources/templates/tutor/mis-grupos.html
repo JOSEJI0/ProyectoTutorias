@@ -1,104 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantenemos el fragmento de encabezado institucional -->
     <th:block th:replace="~{fragments/layout :: encabezado('Mis Grupos')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación docente[cite: 1] -->
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-6xl mx-auto w-full flex-1">
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-users-rectangle mr-2"></i> Mis Grupos Asignados</h1>
-                <p class="text-slate-500 mt-2">Aquí puedes consultar la información general de los grupos que tutorizas en este periodo.</p>
+    <main>
+        <section>
+            <header>
+                <h1>Mis Grupos Asignados</h1>
+                <p>Aquí puedes consultar la información general de los grupos que tutorizas en este periodo.</p>
             </header>
 
-            <!-- Grid de Tarjetas de Grupos -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                <div th:each="grupo : ${grupos}" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg transition-all flex flex-col group relative">
+            <!-- Listado de Tarjetas de Grupos -->
+            <section>
+                <div th:each="grupo : ${grupos}">
+                    <hr>
+                    <!-- Enlace al Detalle del Grupo -->
+                    <header>
+                        <p>Grupo</p>
+                        <h3>
+                            <a th:href="@{/tutor/grupo/{id}/detalle(id=${grupo.idGrupo})}" th:text="${grupo.nombreGrupo}"></a>
+                        </h3>
+                    </header>
                     
-                    <!-- ENLACE GIGANTE INVISIBLE (Cubre toda la tarjeta para ir al Detalle) -->
-                    <a th:href="@{/tutor/grupo/{id}/detalle(id=${grupo.idGrupo})}" class="absolute inset-0 z-0" title="Ver detalle del grupo"></a>
-
-                    <!-- Cabecera de la Tarjeta -->
-                    <div class="bg-[#0B2A4A] p-5 text-white flex justify-between items-center group-hover:bg-[#113a63] transition-colors relative z-10">
-                        <div>
-                            <span class="text-xs font-bold text-blue-300 uppercase tracking-widest block mb-1">Grupo</span>
-                            <h3 class="text-2xl font-black" th:text="${grupo.nombreGrupo}">1A-SISC</h3>
-                        </div>
-                        <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-arrow-right -rotate-45"></i>
-                        </div>
-                    </div>
-                    
-                    <!-- Cuerpo de la Tarjeta (Z-10 para no tapar el enlace) -->
-                    <div class="p-6 flex-1 space-y-5 relative z-10 pointer-events-none">
-                        <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase">Carrera</p>
-                            <p class="text-sm font-bold text-blue-600" th:text="${grupo.carrera.nombreCarrera}">Ingeniería</p>
-                        </div>
+                    <div>
+                        <p><strong>Carrera:</strong> <span th:text="${grupo.carrera.nombreCarrera}"></span></p>
                         
-                        <div class="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Semestre</p>
-                                <!-- Validación de Nulos: Si semestre es 0 o nulo, mostramos "N/A" -->
-                                <p class="text-sm font-black text-slate-700" th:if="${grupo.semestre == null || grupo.semestre == 0}">N/A</p>
-                                <p class="text-sm font-black text-slate-700" th:unless="${grupo.semestre == null || grupo.semestre == 0}" th:text="${grupo.semestre} + '°'"></p>
-                            </div>
-                            <div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Alumnos</p>
-                                <div class="flex items-center gap-2">
-                                    <i class="fa-solid fa-users text-slate-400 text-xs"></i>
-                                    <p class="text-sm font-black text-slate-700" th:text="${#lists.size(grupo.estudiantes)}"></p>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Información Académica -->
+                        <ul>
+                            <li>
+                                <strong>Semestre:</strong>
+                                <!-- Validación de Nulos para Semestre -->
+                                <span th:if="${grupo.semestre == null || grupo.semestre == 0}">N/A</span>
+                                <span th:unless="${grupo.semestre == null || grupo.semestre == 0}" th:text="${grupo.semestre} + '°'"></span>
+                            </li>
+                            <li>
+                                <strong>Alumnos Inscritos:</strong>
+                                <!-- Conteo dinámico de la lista de estudiantes -->
+                                <span th:text="${#lists.size(grupo.estudiantes)}">0</span>
+                            </li>
+                            <li>
+                                <strong>Horario Asignado:</strong>
+                                <!-- Validación de Nulos para Horario -->
+                                <span th:if="${grupo.horario == null || grupo.horario.isEmpty()}">Por definir</span>
+                                <span th:unless="${grupo.horario == null || grupo.horario.isEmpty()}" th:text="${grupo.horario}"></span>
+                            </li>
+                        </ul>
 
-                        <div>
-                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Horario Asignado</p>
-                            <!-- Validación de Nulos: Si horario está vacío, mostramos "Por definir" -->
-                            <div th:if="${grupo.horario == null || grupo.horario.isEmpty()}" class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-3 py-1.5 rounded-lg text-xs font-bold">
-                                <i class="fa-solid fa-triangle-exclamation"></i> Por definir
-                            </div>
-                            <div th:unless="${grupo.horario == null || grupo.horario.isEmpty()}" class="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-mono font-bold">
-                                <i class="fa-regular fa-clock text-blue-500"></i> <span th:text="${grupo.horario}"></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Botonera de Acción Directa (Z-20 para que se pueda clicar) -->
-                    <div class="p-4 border-t border-slate-100 bg-white flex gap-3 relative z-20">
-                        <!-- Botón para ver el PAT -->
-                        <form th:action="@{/tutor/pat/seleccionar}" method="POST" class="w-1/2">
-                            <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
-                            <button type="submit" class="w-full bg-blue-50 text-blue-600 border border-blue-100 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-blue-500 hover:text-white transition-colors flex items-center justify-center gap-2" title="Gestionar PAT">
-                                <i class="fa-solid fa-book-bookmark"></i> Ver PAT
-                            </button>
-                        </form>
+                        <!-- Botonera de Acción Directa -->
+                        <nav>
+                            <!-- Formulario para gestionar el PAT del grupo -->
+                            <form th:action="@{/tutor/pat/seleccionar}" method="POST" style="display:inline;">
+                                <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
+                                <button type="submit">Ver PAT</button>
+                            </form>
 
-                        <!-- Botón para pasar lista -->
-                        <form th:action="@{/tutor/asistencia}" method="POST" class="w-1/2">
-                            <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
-                            <button type="submit" class="w-full bg-[#0B2A4A] text-white py-2.5 rounded-xl text-xs font-bold shadow-md hover:bg-[#1a3a5a] transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2" title="Tomar Asistencia">
-                                <i class="fa-solid fa-list-check"></i> Asistencia
-                            </button>
-                        </form>
+                            <!-- Formulario para tomar asistencia (RF3) -->
+                            <form th:action="@{/tutor/asistencia}" method="POST" style="display:inline;">
+                                <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
+                                <button type="submit">Pasar Asistencia</button>
+                            </form>
+                        </nav>
                     </div>
+                    <hr>
                 </div>
 
-                <!-- Mensaje si no hay grupos -->
-                <div th:if="${#lists.isEmpty(grupos)}" class="col-span-full bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center">
-                    <div class="w-24 h-24 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 border border-slate-100">
-                        <i class="fa-solid fa-folder-open"></i>
-                    </div>
-                    <h3 class="font-bold text-2xl text-slate-700 mb-2">Sin grupos asignados</h3>
-                    <p class="text-slate-500 max-w-md mx-auto">La coordinación aún no te ha asignado grupos de tutoría para este periodo escolar. Vuelve a revisar más tarde.</p>
+                <!-- Mensaje de estado vacío -->
+                <div th:if="${#lists.isEmpty(grupos)}">
+                    <h3>Sin grupos asignados</h3>
+                    <p>La coordinación aún no te ha asignado grupos de tutoría para este periodo escolar.</p>
                 </div>
+            </section>
+        </section>
 
-            </div>
-        </div>
+        <!-- Pie de página institucional[cite: 1] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

@@ -49,12 +49,10 @@ public class Usuario {
         fechaCreacion = LocalDateTime.now();
     }
 
-    // Método de ayuda para asignar roles fácilmente
     public void agregarPerfil(Perfil perfil) {
         this.perfiles.add(perfil);
     }
 
-    // === Getters y setters ===
     public Integer getIdUsuario() { return idUsuario; }
     public void setIdUsuario(Integer idUsuario) { this.idUsuario = idUsuario; }
 

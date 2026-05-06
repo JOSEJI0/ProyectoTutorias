@@ -1,48 +1,46 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Actividades por Fecha - ITCH</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Mantiene el fragmento de encabezado del layout base[cite: 1, 4] -->
+    <th:block th:replace="~{fragments/layout :: encabezado('Actividades por Fecha')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
-    <aside class="w-64 bg-[#0B2A4A] text-white flex flex-col p-6 h-screen sticky top-0">
-        <div class="mb-10 border-b border-white/10 pb-6 text-center">
-            <h1 class="text-xl font-bold">Coordinación</h1>
-            <p class="text-xs text-blue-300">Gestión Académica</p>
-        </div>
-        <nav class="space-y-4 flex-1">
-            <a th:href="@{/coordinador/panel}" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-chart-line"></i> Resumen</a>
-            <a th:href="@{/coordinador/busquedas}" class="flex items-center gap-3 bg-white/10 p-3 rounded-lg transition-colors"><i class="fa-solid fa-magnifying-glass"></i> Consultas</a>
-            <a href="#" class="flex items-center gap-3 hover:bg-white/5 p-3 rounded-lg transition-colors"><i class="fa-solid fa-file-pdf"></i> Reportes PAT</a>
-        </nav>
-        <a th:href="@{/login}" class="text-red-300 text-sm hover:underline"><i class="fa-solid fa-arrow-right-from-bracket"></i> Salir del sistema</a>
-    </aside>
+    <!-- Mantiene la navegación lateral del coordinador[cite: 1, 4] -->
+    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
-            <a th:href="@{/coordinador/busquedas}" class="text-blue-600 hover:underline text-sm mb-4 inline-block">&larr; Volver a Búsquedas</a>
-            <h2 class="text-2xl font-bold text-[#0B2A4A] mb-6" th:text="'Sesiones impartidas el ' + ${fechaBusqueda}"></h2>
+    <main>
+        <section>
+            <a th:href="@{/coordinador/busquedas}">Volver a Búsquedas</a>
             
-            <div th:if="${#lists.isEmpty(resultados)}" class="bg-white p-10 text-center rounded-xl shadow-sm border border-slate-200 text-slate-500">
+            <!-- Título dinámico con la fecha consultada -->
+            <h2 th:text="'Sesiones impartidas el ' + ${fechaBusqueda}"></h2>
+            
+            <!-- Mensaje en caso de no encontrar resultados -->
+            <div th:if="${#lists.isEmpty(resultados)}">
                 No se registraron sesiones en esta fecha.
             </div>
 
-            <div class="space-y-4">
-                <div th:each="s : ${resultados}" class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex justify-between items-center hover:shadow-md transition-shadow">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><i class="fa-regular fa-calendar-check"></i></div>
-                        <div>
-                            <h4 class="font-bold text-slate-800" th:text="${s.actividad.titulo}"></h4>
-                            <p class="text-sm text-slate-500" th:text="'Grupo: ' + ${s.grupo.nombreGrupo} + ' | Tutor: ' + ${s.grupo.tutor.usuario.nombre}"></p>
-                        </div>
+            <!-- Listado de sesiones encontradas -->
+            <ul>
+                <li th:each="s : ${resultados}">
+                    <div>
+                        <!-- Título de la actividad programada en el PAT -->
+                        <h4 th:text="${s.actividad.titulo}"></h4>
+                        
+                        <!-- Información del grupo y el tutor responsable -->
+                        <p th:text="'Grupo: ' + ${s.grupo.nombreGrupo} + ' | Tutor: ' + ${s.grupo.tutor.usuario.nombre}"></p>
                     </div>
-                    <span class="bg-purple-100 text-purple-700 px-4 py-1 rounded-full text-xs font-bold" th:text="${s.estatusRegistro}"></span>
-                </div>
-            </div>
-        </div>
+                    
+                    <!-- Estado actual del registro de la sesión[cite: 4] -->
+                    <span th:text="${s.estatusRegistro}"></span>
+                    <hr>
+                </li>
+            </ul>
+        </section>
     </main>
+
+    <!-- Mantiene el pie de página del layout[cite: 1, 4] -->
+    <div th:replace="~{fragments/layout :: footer}"></div>
 </body>
 </html>

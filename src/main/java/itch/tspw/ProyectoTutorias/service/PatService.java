@@ -28,12 +28,10 @@ public class PatService {
         return patRepository.findById(idPat).orElseThrow(() -> new RuntimeException("PAT no encontrado"));
     }
 
-    // 2. Actualiza la verificación de duplicados
     public boolean existePatParaCarreraEnPeriodo(Integer idPeriodo, Integer idCarrera) {
         return patRepository.findByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrue(idPeriodo, idCarrera).isPresent();
     }
 
-    // 3. CAMBIA el borrado físico por LÓGICO
     public void eliminarLogico(Integer idPat) {
         PatInstitucional pat = patRepository.findById(idPat)
             .orElseThrow(() -> new RuntimeException("PAT no encontrado"));

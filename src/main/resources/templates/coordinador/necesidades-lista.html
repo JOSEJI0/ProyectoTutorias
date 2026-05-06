@@ -1,62 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
+    <!-- Mantiene el encabezado institucional[cite: 1] -->
     <th:block th:replace="~{fragments/layout :: encabezado('Buzón de Necesidades')}"></th:block>
 </head>
-<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-slate-800">
+<body>
 
+    <!-- Sidebar de navegación por roles[cite: 1] -->
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-6xl mx-auto">
-            
-            <header class="mb-8 mt-2">
-                <h2 class="text-3xl font-bold text-[#0B2A4A]">Buzón de Detección de Necesidades</h2>
-                <p class="text-slate-500 mt-1">Solicitudes de apoyo enviadas por tus estudiantes tutorados.</p>
-            </header>
+    <main>
+        <header>
+            <h1>Buzón de Detección de Necesidades</h1>
+            <p>Solicitudes de apoyo enviadas por tus estudiantes tutorados.</p>
+        </header>
 
-            <div class="grid gap-6">
-                <!-- Tarjeta por cada necesidad -->
-                <div th:each="n : ${necesidades}" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row gap-6 relative overflow-hidden">
-                    
-                    <div class="absolute top-0 left-0 w-1 h-full" 
-                         th:classappend="${n.estatus == 'Pendiente' ? 'bg-red-500' : 'bg-emerald-500'}"></div>
-
-                    <!-- Datos del Alumno -->
-                    <div class="md:w-1/4 border-b md:border-b-0 md:border-r border-slate-100 pb-4 md:pb-0 pr-4">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1" th:text="${n.estudiante.grupo.nombreGrupo}">Grupo</p>
-                        <h4 class="font-bold text-[#0B2A4A] mb-1" th:text="${n.estudiante.usuario.nombre + ' ' + n.estudiante.usuario.apellidos}">Alumno</h4>
-                        <p class="text-xs text-slate-500 font-mono" th:text="${n.estudiante.numeroControl}">No. Control</p>
-                    </div>
-
-                    <!-- Petición -->
-                    <div class="md:w-2/4 flex-1">
-                        <div class="flex items-center gap-3 mb-2">
-                            <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-100" th:text="${n.area}">Área</span>
-                            <span class="text-xs text-slate-400 font-medium"><i class="fa-regular fa-calendar mr-1"></i> <span th:text="${#temporals.format(n.fechaSolicitud, 'dd/MM/yyyy')}">Fecha</span></span>
-                        </div>
-                        <p class="text-sm text-slate-600 leading-relaxed" th:text="${n.descripcion}">Descripción de la necesidad...</p>
-                    </div>
-
-                    <!-- Acciones -->
-                    <div class="md:w-1/4 flex flex-col justify-center items-end border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 pl-4">
-                        <span th:if="${n.estatus == 'Atendida'}" class="text-emerald-500 font-bold text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-check-double"></i> Atendida
-                        </span>
-                        <span th:if="${n.estatus == 'Pendiente'}" class="text-red-500 font-bold text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-hourglass-half"></i> Pendiente
-                        </span>
-                    </div>
+        <section>
+            <!-- Lista de necesidades detectadas[cite: 4, 5] -->
+            <div th:each="n : ${necesidades}">
+                <hr>
+                <!-- Datos del Alumno solicitante -->
+                <div>
+                    <p>Grupo: <span th:text="${n.estudiante.grupo.nombreGrupo}">Grupo</span></p>
+                    <h4 th:text="${n.estudiante.usuario.nombre + ' ' + n.estudiante.usuario.apellidos}">Alumno</h4>
+                    <p>Control: <span th:text="${n.estudiante.numeroControl}">No. Control</span></p>
                 </div>
 
-                <div th:if="${#lists.isEmpty(necesidades)}" class="text-center py-16 bg-white rounded-2xl border border-slate-200 border-dashed">
-                    <div class="text-4xl text-slate-300 mb-4"><i class="fa-solid fa-inbox"></i></div>
-                    <h3 class="text-xl font-bold text-slate-400">Buzón vacío</h3>
-                    <p class="text-slate-400 text-sm mt-2">Ninguno de tus alumnos ha emitido un formato de detección de necesidades aún.</p>
+                <!-- Detalle de la Petición[cite: 4, 5] -->
+                <div>
+                    <p>Área: <strong th:text="${n.area}">Área</strong></p>
+                    <p>Fecha: <span th:text="${#temporals.format(n.fechaSolicitud, 'dd/MM/yyyy')}">Fecha</span></p>
+                    <p>Descripción:</p>
+                    <p th:text="${n.descripcion}">Descripción de la necesidad...</p>
                 </div>
+
+                <!-- Estatus de atención -->
+                <div>
+                    <p>Estatus: 
+                        <span th:if="${n.estatus == 'Atendida'}">Atendida</span>
+                        <span th:if="${n.estatus == 'Pendiente'}">Pendiente</span>
+                    </p>
+                </div>
+                <hr>
             </div>
 
-        </div>
+            <!-- Caso de buzón vacío -->
+            <div th:if="${#lists.isEmpty(necesidades)}">
+                <h3>Buzón vacío</h3>
+                <p>Ninguno de tus alumnos ha emitido un formato de detección de necesidades aún.</p>
+            </div>
+        </section>
+
+        <!-- Pie de página institucional[cite: 1] -->
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

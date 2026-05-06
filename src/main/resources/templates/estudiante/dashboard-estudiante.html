@@ -3,150 +3,106 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Mi Panel')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-6xl mx-auto">
-            
-            <header class="flex justify-between items-end mb-8 mt-2">
-                <div>
-                    <h2 class="text-3xl font-bold text-[#0B2A4A]">¡Hola, <span th:text="${estudiante.usuario.nombre}">Estudiante</span>!</h2>
-                    <p class="text-slate-500 mt-1" th:text="${estudiante.carrera.nombreCarrera} + ' - ' + ${estudiante.semestreActual} + '° Semestre'">Carrera</p>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-[#0B2A4A] rounded-full flex items-center justify-center text-white font-bold shadow-md text-xl" 
-                         th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">E</div>
-                </div>
-            </header>
+    <main>
+        <header>
+            <h2>¡Hola, <span th:text="${estudiante.usuario.nombre}">Estudiante</span>!</h2>
+            <p th:text="${estudiante.carrera.nombreCarrera} + ' - ' + ${estudiante.semestreActual} + '° Semestre'">Carrera</p>
+        </header>
 
-            <!-- Alerta de éxito al enviar formato -->
-            <div th:if="${param.exito != null && param.exito[0] == 'necesidades_enviadas'}" class="mb-6 bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-xl flex items-center gap-3 font-bold">
-                <i class="fa-solid fa-circle-check text-xl"></i> Tu formato de detección de necesidades se ha enviado a tu tutor exitosamente.
-            </div>
-
-            <div th:if="${grupo == null}" class="bg-white p-12 rounded-3xl shadow-sm border border-slate-200 text-center mb-8">
-                <div class="w-24 h-24 bg-blue-50 text-blue-300 rounded-full flex items-center justify-center text-5xl mx-auto mb-6 border border-blue-100">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                </div>
-                <h3 class="font-bold text-2xl text-[#0B2A4A] mb-2">Asignación Pendiente</h3>
-                <p class="text-slate-500 max-w-lg mx-auto">La coordinación académica aún está organizando los grupos de tutoría. Vuelve a revisar pronto.</p>
-            </div>
-
-            <th:block th:if="${grupo != null}">
-                
-                <!-- Tarjetas Superiores -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <!-- Tarjeta de Progreso Dinámica -->
-                    <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col items-center justify-center text-center gap-4 border border-slate-200">
-                        <div class="relative w-28 h-28 flex-shrink-0">
-                            <!-- SVG Círculo Dinámico -->
-                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                                <path stroke-dasharray="100, 100" class="text-slate-100" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                                <path th:attr="stroke-dasharray=${porcentajeAsistencia != null ? porcentajeAsistencia : 0} + ', 100'" 
-                                      class="text-blue-500 transition-all duration-1000 ease-out" stroke-width="3" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                            </svg>
-                            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                                <span class="text-2xl font-black text-[#0B2A4A]" th:text="${porcentajeAsistencia != null ? porcentajeAsistencia + '%' : '0%'}">0%</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h3 class="text-lg font-bold text-[#0B2A4A] mb-1">Progreso de Asistencia</h3>
-                            <p class="text-xs text-slate-500 font-bold bg-slate-100 px-3 py-1 rounded-full inline-block mt-2">
-                                <span th:text="${totalAsistencias}">0</span> de <span th:text="${totalSesiones}">0</span> sesiones asistidas
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta de Info del Grupo -->
-                    <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 flex flex-col justify-center">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Grupo Asignado</p>
-                        <h3 class="text-2xl font-black text-[#0B2A4A] mb-1" th:text="${grupo.nombreGrupo}">1A-SISC</h3>
-                        <p class="text-sm font-medium text-slate-600 mb-4 flex items-center gap-2">
-                            <i class="fa-regular fa-clock text-blue-500"></i> <span th:text="${grupo.horario}">Horario</span>
-                        </p>
-                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100 mt-auto">
-                            <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">Docente Tutor</p>
-                            <p class="text-sm font-bold text-[#0B2A4A]" th:text="${tutor.usuario.nombre + ' ' + tutor.usuario.apellidos}">Nombre Tutor</p>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta de Acciones -->
-                    <div class="bg-[#0B2A4A] rounded-2xl shadow-sm p-6 text-white border border-[#0B2A4A] flex flex-col justify-center relative overflow-hidden">
-                        <i class="fa-solid fa-bolt absolute -right-6 -bottom-6 text-white/5 text-8xl"></i>
-                        <h3 class="text-lg font-bold mb-2 relative z-10">Acciones y Trámites</h3>
-                        <p class="text-xs text-blue-200 mb-6 relative z-10">Envía tus formatos oficiales.</p>
-                        <div class="space-y-3 relative z-10">
-                            <a th:href="@{/estudiante/deteccion-necesidades}" class="block text-center w-full bg-white text-[#0B2A4A] hover:bg-slate-50 py-3 rounded-xl font-bold text-sm transition-colors shadow-sm">
-                                Emitir Detección de Necesidades
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Historial y PAT en dos columnas -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    
-                    <!-- Historial de Asistencias -->
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
-                            <h3 class="font-bold text-[#0B2A4A] text-lg"><i class="fa-solid fa-clock-rotate-left mr-2 text-slate-400"></i> Historial de Asistencias</h3>
-                        </div>
-                        <div class="overflow-y-auto flex-1 max-h-96">
-                            <table class="w-full text-left">
-                                <thead class="bg-white text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 border-b border-slate-100">
-                                    <tr>
-                                        <th class="px-6 py-4">Fecha / Sesión</th>
-                                        <th class="px-6 py-4 text-center">Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    <tr th:each="asistencia : ${historialAsistencias}" class="hover:bg-slate-50/50 transition-colors">
-                                        <td class="px-6 py-4">
-                                            <p class="text-sm font-bold text-[#0B2A4A]" th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.titulo : 'Sesión Regular'}">Tema</p>
-                                            <p class="text-xs font-mono text-slate-500" th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')}">Fecha</p>
-                                        </td>
-                                        <td class="px-6 py-4 text-center">
-										    <span th:if="${asistencia.presente}" class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide"><i class="fa-solid fa-check mr-1"></i> Presente</span>
-										    <span th:unless="${asistencia.presente}" class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide"><i class="fa-solid fa-xmark mr-1"></i> Falta</span>
-										</td>
-                                    </tr>
-                                    <tr th:if="${#lists.isEmpty(historialAsistencias)}">
-                                        <td colspan="2" class="px-6 py-12 text-center text-slate-400 italic">No hay sesiones registradas todavía.</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Cronograma PAT -->
-                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
-                            <h3 class="font-bold text-[#0B2A4A] text-lg"><i class="fa-solid fa-list-check mr-2 text-blue-500"></i> Plan Semestral (PAT)</h3>
-                        </div>
-                        <div class="p-6 overflow-y-auto max-h-96">
-                            <div class="space-y-6">
-                                <div th:each="act : ${actividadesPAT}" class="relative pl-6 border-l-2 border-blue-100">
-                                    <div class="absolute -left-[9px] top-0 w-4 h-4 bg-blue-500 rounded-full border-4 border-white shadow-sm"></div>
-                                    <div class="mb-1 flex justify-between items-start">
-                                        <h4 class="font-bold text-sm text-[#0B2A4A]" th:text="${'S' + act.semanaProgramada + ': ' + act.titulo}">S1: Título</h4>
-                                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border" 
-                                              th:classappend="${act.estatus == 'Completado' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : (act.estatus == 'En Proceso' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-slate-100 text-slate-500 border-slate-200')}"
-                                              th:text="${act.estatus}">Estado</span>
-                                    </div>
-                                    <p class="text-xs text-slate-500" th:text="${act.descripcion}">Descripción de la actividad.</p>
-                                </div>
-                                <div th:if="${actividadesPAT == null || #lists.isEmpty(actividadesPAT)}" class="text-center italic text-slate-400 py-8">
-                                    Plan de trabajo aún no disponible.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </th:block>
+        <!-- Alerta de éxito de RF5 -->
+        <div th:if="${param.exito != null && param.exito[0] == 'necesidades_enviadas'}">
+            Tu formato de detección de necesidades se ha enviado exitosamente.
         </div>
+
+        <!-- Estado de asignación de grupo (RF2) -->
+        <div th:if="${grupo == null}">
+            <h3>Asignación Pendiente</h3>
+            <p>La coordinación académica aún está organizando los grupos de tutoría.</p>
+        </div>
+
+        <th:block th:if="${grupo != null}">
+            
+            <!-- Resumen de Asistencia (RF3)[cite: 5] -->
+            <section>
+                <h3>Progreso de Asistencia</h3>
+                <p>Porcentaje: <strong th:text="${porcentajeAsistencia != null ? porcentajeAsistencia + '%' : '0%'}">0%</strong></p>
+                <p>
+                    Sesiones: <span th:text="${totalAsistencias}">0</span> de <span th:text="${totalSesiones}">0</span> asistidas
+                </p>
+            </section>
+
+            <br>
+
+            <!-- Información del Grupo y Tutor (RF2)[cite: 5] -->
+            <section>
+                <h3>Información del Grupo</h3>
+                <p>Grupo: <strong th:text="${grupo.nombreGrupo}">1A-SISC</strong></p>
+                <p>Horario: <span th:text="${grupo.horario}">Horario</span></p>
+                <p>Docente Tutor: <strong th:text="${tutor.usuario.nombre + ' ' + tutor.usuario.apellidos}">Nombre Tutor</strong></p>
+            </section>
+
+            <br>
+
+            <!-- Acciones Funcionales (RF5)[cite: 5] -->
+            <section>
+                <h3>Acciones y Trámites</h3>
+                <a th:href="@{/estudiante/deteccion-necesidades}">
+                    Emitir Detección de Necesidades
+                </a>
+            </section>
+
+            <br>
+
+            <!-- Historial de Asistencias Detallado (RF3)[cite: 5] -->
+            <section>
+                <h3>Historial de Asistencias</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha / Sesión</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="asistencia : ${historialAsistencias}">
+                            <td>
+                                <p th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.titulo : 'Sesión Regular'}"></p>
+                                <small th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'dd/MM/yyyy')}"></small>
+                            </td>
+                            <td>
+                                <span th:if="${asistencia.presente}">Presente</span>
+                                <span th:unless="${asistencia.presente}">Falta</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(historialAsistencias)}">
+                            <td colspan="2">No hay sesiones registradas todavía.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <br>
+
+            <!-- Cronograma PAT Adaptado (RF4)[cite: 5] -->
+            <section>
+                <h3>Plan Semestral (PAT)</h3>
+                <div th:each="act : ${actividadesPAT}">
+                    <hr>
+                    <h4 th:text="${'Semana ' + act.semanaProgramada + ': ' + act.titulo}"></h4>
+                    <p>Estado: <span th:text="${act.estatus}">Estado</span></p>
+                    <p th:text="${act.descripcion}">Descripción de la actividad.</p>
+                </div>
+                <div th:if="${actividadesPAT == null || #lists.isEmpty(actividadesPAT)}">
+                    <p>Plan de trabajo aún no disponible.</p>
+                </div>
+            </section>
+
+        </th:block>
+
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface PeriodoEscolarRepository extends JpaRepository<PeriodoEscolar, Integer> {
-    // Busca el periodo que esté marcado como activo (1)
     Optional<PeriodoEscolar> findByEstatusActivoTrue();
 }

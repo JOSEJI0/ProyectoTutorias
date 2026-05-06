@@ -12,12 +12,10 @@ public class PatGrupo {
     @Column(name = "id_pat_grupo")
     private Integer idPatGrupo;
 
-    // Un grupo de tutoría tiene un solo PAT adaptado por periodo
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_grupo", nullable = false)
     private GrupoTutoria grupo;
 
-    // Referencia de dónde salió esta copia (para mantener trazabilidad)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_pat_institucional")
     private PatInstitucional patInstitucionalOrigen;

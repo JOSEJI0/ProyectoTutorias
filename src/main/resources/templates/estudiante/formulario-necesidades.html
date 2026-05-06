@@ -3,56 +3,54 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detección de Necesidades')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col items-center justify-center">
-        
-        <div class="max-w-2xl w-full">
-            <div class="mb-6 flex items-center">
-                <a th:href="@{/estudiante/panel}" class="text-slate-500 hover:text-[#0B2A4A] transition-colors bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm text-sm font-bold">
-                    <i class="fa-solid fa-arrow-left mr-2"></i> Volver al Panel
-                </a>
-            </div>
+    <main>
+        <section>
+            <a th:href="@{/estudiante/panel}">Volver al Panel</a>
 
-            <div class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-10 -mt-10"></div>
-                
-                <h2 class="text-2xl font-black text-[#0B2A4A] mb-2 relative z-10 flex items-center gap-3">
-                    <i class="fa-solid fa-clipboard-user text-blue-500"></i> Formato de Detección de Necesidades
-                </h2>
-                <p class="text-slate-500 mb-8 text-sm max-w-lg leading-relaxed">
-                    Este formato es completamente confidencial y será enviado directamente a tu tutor <span class="font-bold" th:text="${estudiante.grupo.tutor.usuario.nombre}"></span>. Úsalo para solicitar apoyo específico.
+            <header>
+                <h1>Formato de Detección de Necesidades</h1>
+                <p>
+                    Este formato es confidencial y será enviado directamente a tu tutor: 
+                    <strong th:text="${estudiante.grupo.tutor.usuario.nombre}"></strong>.
                 </p>
+            </header>
 
-                <form th:action="@{/estudiante/deteccion-necesidades/enviar}" method="POST" class="space-y-6 relative z-10">
-                    
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Área de Atención Requerida</label>
-                        <select name="area" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-[#0B2A4A] cursor-pointer shadow-sm">
-                            <option value="" disabled selected>Selecciona el área principal...</option>
-                            <option value="Academica">Apoyo Académico (Materias, técnicas de estudio)</option>
-                            <option value="Vocacional">Orientación Vocacional o Profesional</option>
-                            <option value="Personal">Apoyo Personal o Psicológico</option>
-                            <option value="Administrativa">Problemas con trámites administrativos</option>
-                        </select>
-                    </div>
+            <!-- Formulario de envío (RF5) -->
+            <form th:action="@{/estudiante/deteccion-necesidades/enviar}" method="POST">
+                
+                <div>
+                    <label>Área de Atención Requerida</label>
+                    <br>
+                    <select name="area" required>
+                        <option value="" disabled selected>Selecciona el área principal...</option>
+                        <option value="Academica">Apoyo Académico (Materias, técnicas de estudio)</option>
+                        <option value="Vocacional">Orientación Vocacional o Profesional</option>
+                        <option value="Personal">Apoyo Personal o Psicológico</option>
+                        <option value="Administrativa">Problemas con trámites administrativos</option>
+                    </select>
+                </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Descripción Breve de tu Situación</label>
-                        <textarea name="descripcion" rows="6" required placeholder="Describe brevemente cómo puede apoyarte tu tutor..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 resize-none shadow-sm"></textarea>
-                        <p class="text-[10px] text-slate-400 mt-2 text-right">Tu tutor revisará esto en la próxima sesión individual.</p>
-                    </div>
+                <br>
 
-                    <div class="pt-6 border-t border-slate-100 flex justify-end">
-                        <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-4 rounded-xl font-bold shadow-lg hover:bg-[#1a3a5a] transition-all transform hover:-translate-y-1 flex items-center gap-2">
-                            Enviar Solicitud al Tutor <i class="fa-solid fa-paper-plane"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div>
+                    <label>Descripción Breve de tu Situación</label>
+                    <br>
+                    <textarea name="descripcion" rows="6" required placeholder="Describe brevemente cómo puede apoyarte tu tutor..."></textarea>
+                </div>
+
+                <br>
+
+                <div>
+                    <button type="submit">
+                        Enviar Solicitud al Tutor
+                    </button>
+                </div>
+            </form>
+        </section>
     </main>
 
 </body>

@@ -21,7 +21,6 @@ public class ActividadPatService {
         actividadRepository.deleteById(id);
     }
     
- // 1. Actualiza los llamados a los métodos nuevos del repositorio
     public List<ActividadPat> listarPorPat(Integer idPat) {
         return actividadRepository.findByPat_IdPatAndActivoTrueOrderBySemanaProgramadaAsc(idPat);
     }
@@ -34,7 +33,6 @@ public class ActividadPatService {
         return actividadRepository.existsByPat_IdPatAndTituloIgnoreCaseAndActivoTrue(idPat, titulo);
     }
 
-    // 2. CAMBIA el borrado físico por LÓGICO
     public void eliminarLogico(Integer idActividad) {
         ActividadPat act = actividadRepository.findById(idActividad)
             .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));

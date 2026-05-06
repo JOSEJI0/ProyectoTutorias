@@ -29,7 +29,7 @@ public class EvidenciaSesion {
     private String urlArchivo;
 
     @Column(name = "estatus_validacion", length = 50)
-    private String estatusValidacion; // "PENDIENTE", "APROBADA", "RECHAZADA"
+    private String estatusValidacion;
 
     @Column(name = "notas_coordinador", columnDefinition = "TEXT")
     private String notasCoordinador;

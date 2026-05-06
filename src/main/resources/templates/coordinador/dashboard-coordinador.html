@@ -1,104 +1,84 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Dashboard')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Dashboard Coordinador')}"></th:block>
 </head>
-<body class="bg-[#F8FAFC] min-h-screen flex font-sans text-slate-900">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 overflow-y-auto p-6 lg:p-12">
-        <div class="max-w-6xl mx-auto">
+    <main>
+        <header>
+            <h2>Panel de Control</h2>
+            <p>Resumen general del programa de tutorías.</p>
+            <p>Periodo Activo: <span>Ene-Jun 2026</span></p>
+        </header>
+
+        <!-- Métricas Principales -->
+        <section>
+            <div>
+                <p>Grupos Activos</p>
+                <h3 th:text="${totalGruposActivos}">0</h3>
+            </div>
+            <div>
+                <p>Alumnos sin Grupo</p>
+                <h3 th:text="${alumnosSinGrupo}">0</h3>
+            </div>
+            <div>
+                <p>Evidencias PAT</p>
+                <h3 th:text="${#lists.size(evidenciasPendientes)}">0</h3>
+            </div>
+            <div>
+                <p>Tutores</p>
+                <h3 th:text="${totalTutores}">0</h3>
+            </div>
+        </section>
+
+        <br>
+
+        <!-- Agenda de Grupos -->
+        <section>
+            <h3>Agenda de Grupos</h3>
+            <a th:href="@{/coordinador/grupos}">Ver todos</a>
             
-            <!-- Header Simplificado -->
-            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                <div>
-                    <h1 class="text-2xl font-black tracking-tight">Panel - Coordinador</h1>
-                </div>
-            </header>
+            <ul>
+                <li th:each="grupo : ${gruposActivos}">
+                    <span th:text="${grupo.horario}">Horario</span>
+                    <strong th:text="${grupo.nombreGrupo}">Nombre del Grupo</strong>
+                    <span th:text="${'Tutor: ' + grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre Docente</span>
+                    <a th:href="@{/coordinador/grupo/{id}/detalle(id=${grupo.idGrupo})}">Detalles</a>
+                </li>
+            </ul>
+            
+            <p th:if="${#lists.isEmpty(gruposActivos)}">
+                No hay grupos configurados para este periodo.
+            </p>
+        </section>
 
-            <!-- Métricas Clave (Tarjetas Planas) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Grupos</p>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-black" th:text="${totalGruposActivos}">0</span>
-                        <span class="text-xs text-slate-400">activos</span>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Sin Asignar</p>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-black text-orange-600" th:text="${alumnosSinGrupo}">0</span>
-                        <span class="text-xs text-slate-400">alumnos</span>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Evidencias</p>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-black" th:text="${#lists.size(evidenciasPendientes)}">0</span>
-                        <span class="text-xs text-slate-400">pendientes</span>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200">
-                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Plantilla</p>
-                    <div class="flex items-baseline gap-2">
-                        <span class="text-3xl font-black" th:text="${totalTutores}">0</span>
-                        <span class="text-xs text-slate-400">tutores</span>
-                    </div>
-                </div>
-            </div>
+        <br>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Lista de Grupos (Diseño Compacto) -->
-                <section class="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden">
-                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                        <h3 class="font-bold">Monitoreo de Grupos</h3>
-                        <a th:href="@{/coordinador/grupos}" class="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase">Ver todos</a>
-                    </div>
-                    <div class="divide-y divide-slate-50">
-                        <div th:each="grupo : ${gruposActivos}" class="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
-                            <div class="flex gap-4 items-center">
-                                <div class="hidden sm:block p-2 bg-slate-100 rounded text-slate-400">
-                                    <i class="fa-solid fa-users text-sm"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-sm" th:text="${grupo.nombreGrupo}">Grupo</h4>
-                                    <p class="text-xs text-slate-500" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Tutor</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <span class="hidden md:block text-[10px] font-black bg-slate-800 text-white px-2 py-1 rounded uppercase" th:text="${grupo.horario}">00:00</span>
-                                <a th:href="@{/coordinador/grupo/{id}/detalle(id=${grupo.idGrupo})}" class="p-2 text-slate-400 hover:text-blue-600 transition-colors">
-                                    <i class="fa-solid fa-arrow-right-long"></i>
-                                </a>
-                            </div>
-                        </div>
-                        <div th:if="${#lists.isEmpty(gruposActivos)}" class="p-10 text-center text-sm text-slate-400 italic">
-                            No existen registros para mostrar.
-                        </div>
-                    </div>
-                </section>
+        <!-- Acciones Rápidas -->
+        <nav>
+            <h3>Acciones Rápidas</h3>
+            <ul>
+                <li>
+                    <a th:href="@{/coordinador/grupos/nuevo}">Aperturar Grupo</a>
+                </li>
+                <li>
+                    <a th:href="@{/coordinador/asignacion}">
+                        Asignar Alumnos 
+                        <span th:if="${alumnosSinGrupo > 0}" th:text="'(' + ${alumnosSinGrupo} + ' pendientes)'"></span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/coordinador/estudiantes}">Ver Alumnado</a>
+                </li>
+                <li>
+                    <a th:href="@{/coordinador/reportes/descargar-pat}">Reporte Global (PDF)</a>
+                </li>
+            </ul>
+        </nav>
 
-                <!-- Menú Lateral de Accesos Rápidos -->
-                <aside class="space-y-6">
-                    <div class="bg-[#0B2A4A] p-6 rounded-xl text-white shadow-lg shadow-blue-900/20">
-                        <h3 class="text-sm font-bold mb-4 opacity-80 uppercase tracking-widest">Acciones Críticas</h3>
-                        <div class="flex flex-col gap-3">
-                            <a th:href="@{/coordinador/asignacion}" class="flex items-center justify-between p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-all group">
-                                <span class="text-sm font-medium">Asignar Estudiantes</span>
-                                <i class="fa-solid fa-plus text-xs group-hover:translate-x-1 transition-transform"></i>
-                            </a>
-                            <a th:href="@{/coordinador/grupos/nuevo}" class="flex items-center justify-between p-3 bg-white/10 rounded-lg hover:bg-white/20 transition-all group">
-                                <span class="text-sm font-medium">Aperturar Nuevo Grupo</span>
-                                <i class="fa-solid fa-door-open text-xs group-hover:translate-x-1 transition-transform"></i>
-                            </a>
-                        </div>
-                    </div>
-                </aside>
-            </div>
-        </div>
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 </body>

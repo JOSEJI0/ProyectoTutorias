@@ -3,78 +3,67 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Gestión de Grupos')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body>
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-6xl mx-auto w-full flex-1">
-            
-            <header class="mb-8 mt-2 flex justify-between items-center">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-users-rectangle mr-2"></i> Gestión de Grupos</h1>
-                <a th:href="@{/coordinador/grupos/nuevo}" class="bg-[#0B2A4A] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#1a3a5a] transition-colors shadow-sm">
-                    <i class="fa-solid fa-plus mr-2"></i> Crear Grupo
-                </a>
+    <main>
+        <section>
+            <header>
+                <h1>Gestión de Grupos</h1>
+                <!-- Enlace para crear un nuevo grupo -->
+                <a th:href="@{/coordinador/grupos/nuevo}">Crear Grupo</a>
             </header>
 
-            <div th:if="${param.exito != null}" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 text-green-700 rounded shadow-sm">Operación exitosa.</div>
-            <div th:if="${param.error != null}" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 text-red-700 rounded shadow-sm" th:text="${param.error}">Error en la operación.</div>
+            <!-- Mensajes de retroalimentación -->
+            <div th:if="${param.exito != null}">Operación exitosa.</div>
+            <div th:if="${param.error != null}" th:text="${param.error}">Error en la operación.</div>
 
-            <div class="flex gap-4 mb-6">
-                <a th:href="@{/coordinador/grupos(activos=true)}" 
-                   th:classappend="${mostrandoActivos} ? 'bg-[#0B2A4A] text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-100'"
-                   class="px-6 py-2 rounded-full font-bold text-sm transition-all">
-                   Semestre Actual
-                </a>
-                <a th:href="@{/coordinador/grupos(activos=false)}" 
-                   th:classappend="${!mostrandoActivos} ? 'bg-[#0B2A4A] text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-100'"
-                   class="px-6 py-2 rounded-full font-bold text-sm transition-all">
-                   Historial (Cerrados)
-                </a>
-            </div>
+            <br>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
-                        <tr>
-                            <th class="px-6 py-4">Grupo</th>
-                            <th class="px-6 py-4">Tutor Asignado</th>
-                            <th class="px-6 py-4">Carrera</th>
-                            <th class="px-6 py-4 text-center">Alumnos</th>
-                            <th class="px-6 py-4 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr th:each="g : ${grupos}" class="hover:bg-slate-50 transition-colors">
-                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${g.nombreGrupo}">1A Sistemas</td>
-                            <td class="px-6 py-4 text-slate-600" th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}">Juan Pérez</td>
-                            <td class="px-6 py-4 text-slate-500" th:text="${g.carrera.nombreCarrera}">Ing. Sistemas Computacionales</td>
-                            
-                            <td class="px-6 py-4 text-center">
-                                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full" th:text="${#lists.size(g.estudiantes)}">0</span>
-                            </td>
-                            
-                            <td class="px-6 py-4 text-center space-x-4 flex justify-center">
-                                <a th:href="@{/coordinador/grupos/editar/{id}(id=${g.idGrupo})}" title="Editar Configuración" class="text-blue-500 hover:text-blue-700">
-                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
-                                </a>
+            <!-- Filtros de estado (Activos/Historial) -->
+            <nav>
+                <a th:href="@{/coordinador/grupos(activos=true)}">Semestre Actual</a> | 
+                <a th:href="@{/coordinador/grupos(activos=false)}">Historial (Cerrados)</a>
+            </nav>
 
-                                <a th:href="@{/coordinador/grupo/{id}/detalle(id=${g.idGrupo})}" title="Ver Detalles" class="text-emerald-500 hover:text-emerald-700">
-                                    <i class="fa-solid fa-eye text-lg"></i>
-                                </a>
-                                
-                                <a th:href="@{/coordinador/grupos/eliminar/{id}(id=${g.idGrupo})}" title="Eliminar Grupo" class="text-red-400 hover:text-red-600" onclick="return confirm('¿Estás seguro de eliminar este grupo? Los alumnos perderán su asignación actual y volverán a estar disponibles.');">
-                                    <i class="fa-solid fa-trash-can text-lg"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(grupos)}">
-                            <td colspan="5" class="px-6 py-8 text-center text-slate-400 italic">No se encontraron grupos para este periodo.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+            <br>
+
+            <!-- Tabla de administración de grupos -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Grupo</th>
+                        <th>Tutor Asignado</th>
+                        <th>Carrera</th>
+                        <th>Alumnos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="g : ${grupos}">
+                        <td th:text="${g.nombreGrupo}"></td>
+                        <td th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></td>
+                        <td th:text="${g.carrera.nombreCarrera}"></td>
+                        
+                        <!-- Conteo de estudiantes asignados al grupo[cite: 4, 7] -->
+                        <td th:text="${#lists.size(g.estudiantes)}">0</td>
+                        
+                        <td>
+                            <!-- Acciones operativas[cite: 4] -->
+                            <a th:href="@{/coordinador/grupos/editar/{id}(id=${g.idGrupo})}">Editar</a> | 
+                            <a th:href="@{/coordinador/grupo/{id}/detalle(id=${g.idGrupo})}">Ver Detalles</a> | 
+                            <a th:href="@{/coordinador/grupos/eliminar/{id}(id=${g.idGrupo})}" 
+                               onclick="return confirm('¿Estás seguro de eliminar este grupo?');">Eliminar</a>
+                        </td>
+                    </tr>
+                    <!-- Manejo de lista vacía[cite: 4] -->
+                    <tr th:if="${#lists.isEmpty(grupos)}">
+                        <td colspan="5">No se encontraron grupos para este periodo.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
         
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
