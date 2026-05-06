@@ -1,5 +1,6 @@
 package itch.tspw.ProyectoTutorias.service;
 
+
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +48,17 @@ public class EstudianteService {
 
         // Configuración si es un usuario completamente nuevo
         if (usuario.getIdUsuario() == null) {
-            // Si no tiene password asignado, usamos el número de control por defecto
-            String pwdRaw = usuario.getPasswordHash() != null ? usuario.getPasswordHash() : estudiante.getNumeroControl();
-            String hash = passwordEncoder.encode(pwdRaw);
+            // Contraseña por defecto: El número de control
+            String hash = passwordEncoder.encode(estudiante.getNumeroControl());
             usuario.setPasswordHash(hash);
             
             Perfil perfilEstudiante = perfilRepository.findByNombre("ROLE_ESTUDIANTE")
                     .orElseThrow(() -> new RuntimeException("El perfil ROLE_ESTUDIANTE no existe en la BD"));
-            usuario.agregarPerfil(perfilEstudiante);
+            
+            if(usuario.getPerfiles() == null) {
+                usuario.setPerfiles(new java.util.HashSet<>());
+            }
+            usuario.getPerfiles().add(perfilEstudiante);
             usuario.setActivo(true);
         }
 
@@ -69,13 +73,13 @@ public class EstudianteService {
     public void eliminarEstudianteLogico(Integer idEstudiante) {
         Estudiante estudiante = obtenerPorId(idEstudiante);
         
-        // 1. Desvincular de su grupo actual (si tiene)
+        // 1. Desvincular de su grupo actual
         estudiante.setGrupo(null);
         
         // 2. Borrado lógico del estudiante
         estudiante.setActivo(false);
         
-        // 3. Borrado lógico de las credenciales de usuario (opcional pero recomendado)
+        // 3. Borrado lógico de las credenciales de usuario
         if (estudiante.getUsuario() != null) {
             estudiante.getUsuario().setActivo(false);
             usuarioRepository.save(estudiante.getUsuario());

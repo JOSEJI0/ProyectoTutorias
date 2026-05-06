@@ -1,55 +1,94 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Centro de Búsquedas')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Consultas')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body class="bg-[#F8FAFC] min-h-screen flex font-sans text-slate-900">
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-6xl mx-auto w-full flex-1">
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-magnifying-glass mr-2"></i> Centro de Búsquedas</h1>
-                <p class="text-slate-500">Módulo de consultas operativas de tutoría.</p>
+    <main class="flex-1 overflow-y-auto p-6 md:p-12">
+        <div class="max-w-5xl mx-auto">
+            
+            <header class="mb-12">
+                <h1 class="text-2xl font-black tracking-tight text-slate-800">Centro de Inteligencia</h1>
+                <p class="text-slate-500 text-sm mt-1">Consulta información específica sobre el historial y desempeño del programa.</p>
             </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-blue-100">
-                    <h3 class="font-bold text-[#0B2A4A] mb-4">Tutores por Semestre</h3>
+            <!-- Rejilla de Consultas -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- Consulta 1: Docentes -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-chalkboard-user text-sm"></i>
+                    </div>
+                    <h2 class="font-bold text-slate-900 mb-2">Filtro de Tutorías</h2>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Obtén la lista de docentes asignados durante un ciclo escolar específico.</p>
+                    
                     <form th:action="@{/coordinador/buscar-tutores}" method="GET" class="space-y-4">
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">ID del Periodo Escolar</label>
-                            <input type="number" name="idPeriodo" placeholder="Ej. 1" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">ID del Periodo</label>
+                            <input type="number" name="idPeriodo" placeholder="0" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-900 transition-colors">
                         </div>
-                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors">Buscar</button>
+                        <button type="submit" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition-colors">
+                            Ejecutar Consulta
+                        </button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-emerald-100">
-                    <h3 class="font-bold text-[#0B2A4A] mb-4">Historial de Tutorado</h3>
+                <!-- Consulta 2: Estudiantes -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-address-card text-sm"></i>
+                    </div>
+                    <h2 class="font-bold text-slate-900 mb-2">Expediente Alumno</h2>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Rastrea la trayectoria de un estudiante a través de sus diferentes grupos.</p>
+                    
                     <form th:action="@{/coordinador/buscar-historial-alumno}" method="GET" class="space-y-4">
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">ID del Estudiante</label>
-                            <input type="number" name="idEstudiante" placeholder="Ej. 1" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-emerald-500">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">ID del Estudiante</label>
+                            <input type="number" name="idEstudiante" placeholder="0" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-900 transition-colors">
                         </div>
-                        <button type="submit" class="w-full bg-emerald-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-emerald-700 transition-colors">Buscar</button>
+                        <button type="submit" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-emerald-600 transition-colors">
+                            Ver Historial
+                        </button>
                     </form>
                 </div>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-purple-100">
-                    <h3 class="font-bold text-[#0B2A4A] mb-4">Actividades por Fecha</h3>
+                <!-- Consulta 3: Actividades -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-lg flex items-center justify-center mb-6">
+                        <i class="fa-solid fa-calendar-check text-sm"></i>
+                    </div>
+                    <h2 class="font-bold text-slate-900 mb-2">Bitácora Diaria</h2>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">Localiza todas las sesiones y actividades programadas en una fecha exacta.</p>
+                    
                     <form th:action="@{/coordinador/buscar-actividades}" method="GET" class="space-y-4">
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase">Fecha de Impartición</label>
-                            <input type="date" name="fecha" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-purple-500">
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Fecha de Sesión</label>
+                            <input type="date" name="fecha" required 
+                                   class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-slate-900 transition-colors">
                         </div>
-                        <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-purple-700 transition-colors">Buscar</button>
+                        <button type="submit" class="w-full py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-purple-600 transition-colors">
+                            Filtrar Fecha
+                        </button>
                     </form>
                 </div>
+
             </div>
+
+            <!-- Footer de sección informativo -->
+            <div class="mt-12 p-6 bg-blue-50/50 rounded-2xl border border-blue-100/50 text-center">
+                <p class="text-xs text-blue-800 font-medium italic">
+                    <i class="fa-solid fa-circle-info mr-1"></i> 
+                    Las consultas se basan en los registros históricos del departamento de vinculación.
+                </p>
+            </div>
+
         </div>
-        
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>
 

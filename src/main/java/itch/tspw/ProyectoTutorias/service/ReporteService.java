@@ -15,12 +15,11 @@ public class ReporteService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    public byte[] generarReportePat(Map<String, Object> datos) {
+    public byte[] generarPdfDesdeHtml(String templateName, Map<String, Object> datos) {
         Context context = new Context();
         context.setVariables(datos);
         
-        // Generamos el HTML usando una vista dedicada (ej. templates/reportes/template-pat.html)
-        String htmlContent = templateEngine.process("reportes/template-pat", context);
+        String htmlContent = templateEngine.process(templateName, context);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();

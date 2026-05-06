@@ -2,6 +2,7 @@ package itch.tspw.ProyectoTutorias.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
 
 import java.util.List;
@@ -20,4 +21,7 @@ public interface GrupoTutoriaRepository extends JpaRepository<GrupoTutoria, Inte
     
     // Buscar grupos por el estado del periodo Y que no estén eliminados
     List<GrupoTutoria> findByPeriodo_EstatusActivoAndActivoTrue(Boolean estatusActivo);
+    
+    //Buscar tutor por ID	
+    List<GrupoTutoria> findByTutor_IdTutor(Integer idTutor);
 }

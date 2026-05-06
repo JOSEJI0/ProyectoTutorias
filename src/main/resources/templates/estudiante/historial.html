@@ -16,8 +16,12 @@
                     <p class="text-slate-500 mt-1">Registro detallado de tu asistencia y temas vistos en el semestre.</p>
                 </div>
                 
-                <!-- Resumen Rápido -->
-                <div class="flex gap-4">
+                <!-- Resumen Rápido y Descarga -->
+                <div class="flex items-center gap-4">
+                    <a th:href="@{/estudiante/historial/pdf}" class="bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-md transition-colors flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Imprimir Kardex
+                    </a>
+                    
                     <div class="bg-white px-5 py-2 rounded-xl shadow-sm border border-slate-200 text-center">
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Presente</p>
                         <p class="text-xl font-black text-emerald-600" th:text="${totalAsistencias}">0</p>

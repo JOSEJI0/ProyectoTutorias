@@ -1,12 +1,12 @@
 package itch.tspw.ProyectoTutorias.controller;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.service.*;
 import java.time.LocalDate;
 
 @Controller
@@ -25,7 +25,7 @@ public class PatCrudController {
     private PatGrupoService patGrupoService;
 
     @GetMapping
-    public String listarPats(Model model) {
+    public String obtenerListaPats(Model model) {
         model.addAttribute("pats", patService.listarTodos());
         model.addAttribute("periodos", periodoService.listarTodos());
         model.addAttribute("carreras", carreraService.listarTodas());
@@ -33,7 +33,7 @@ public class PatCrudController {
     }
 
     @PostMapping("/guardar")
-    public String guardarPat(@RequestParam("idPeriodo") Integer idPeriodo,
+    public String almacenarPat(@RequestParam("idPeriodo") Integer idPeriodo,
                              @RequestParam("idCarrera") Integer idCarrera,
                              @RequestParam("version") String version) {
         try {
@@ -62,7 +62,7 @@ public class PatCrudController {
 
     // NUEVO: Mostrar formulario de edición
     @GetMapping("/editar/{idPat}")
-    public String editarPat(@PathVariable("idPat") Integer idPat, Model model) {
+    public String prepararModificacionPat(@PathVariable("idPat") Integer idPat, Model model) {
         model.addAttribute("pat", patService.obtenerPorId(idPat));
         model.addAttribute("periodos", periodoService.listarTodos());
         model.addAttribute("carreras", carreraService.listarTodas());
@@ -71,7 +71,7 @@ public class PatCrudController {
 
     // NUEVO: Procesar la actualización
     @PostMapping("/actualizar")
-    public String actualizarPat(@RequestParam("idPat") Integer idPat,
+    public String guardarCambiosPat(@RequestParam("idPat") Integer idPat,
                                 @RequestParam("idPeriodo") Integer idPeriodo,
                                 @RequestParam("idCarrera") Integer idCarrera,
                                 @RequestParam("version") String version) {
@@ -89,7 +89,7 @@ public class PatCrudController {
     }
 
     @GetMapping("/eliminar/{idPat}")
-    public String eliminarPat(@PathVariable("idPat") Integer idPat) {
+    public String removerPat(@PathVariable("idPat") Integer idPat) {
         patService.eliminarLogico(idPat); 
         return "redirect:/coordinador/pat?exito=eliminado";
     }
@@ -98,14 +98,14 @@ public class PatCrudController {
     // 2. GESTIÓN DE ACTIVIDADES (DETALLE DEL MOLDE)
     // ==========================================
     @GetMapping("/{idPat}/actividades")
-    public String verActividades(@PathVariable("idPat") Integer idPat, Model model) {
+    public String obtenerActividades(@PathVariable("idPat") Integer idPat, Model model) {
         model.addAttribute("pat", patService.obtenerPorId(idPat));
         model.addAttribute("actividades", actividadService.listarPorPat(idPat));
         return "coordinador/pat-detalles";
     }
 
     @PostMapping("/{idPat}/actividades/guardar")
-    public String guardarActividad(@PathVariable("idPat") Integer idPat,
+    public String almacenarActividad(@PathVariable("idPat") Integer idPat,
                                    @RequestParam("titulo") String titulo,
                                    @RequestParam("descripcion") String descripcion,
                                    @RequestParam("semana") Integer semana) {
@@ -139,7 +139,7 @@ public class PatCrudController {
     }
 
     @GetMapping("/{idPat}/actividades/eliminar/{idActividad}")
-    public String eliminarActividad(@PathVariable("idPat") Integer idPat, 
+    public String removerActividad(@PathVariable("idPat") Integer idPat, 
                                     @PathVariable("idActividad") Integer idActividad) {
         actividadService.eliminarLogico(idActividad);
         return "redirect:/coordinador/pat/" + idPat + "/actividades?exito=actividad_eliminada";

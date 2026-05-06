@@ -1,13 +1,12 @@
 package itch.tspw.ProyectoTutorias.controller;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.repository.*;
-import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/grupos")
@@ -35,21 +34,21 @@ public class GrupoController {
     }
 
     @GetMapping
-    public String listarGrupos(@RequestParam(value = "activos", defaultValue = "true") boolean activos, Model model) {
+    public String obtenerListaGrupos(@RequestParam(value = "activos", defaultValue = "true") boolean activos, Model model) {
         model.addAttribute("grupos", grupoRepository.findByPeriodo_EstatusActivoAndActivoTrue(activos));
         model.addAttribute("mostrandoActivos", activos);
         return "coordinador/grupos-lista";
     }
 
     @GetMapping("/nuevo")
-    public String mostrarFormularioCreacion(Model model) {
+    public String prepararFormularioCreacion(Model model) {
         model.addAttribute("nuevoGrupo", new GrupoTutoria());
         cargarCatalogos(model);
         return "coordinador/grupos-crear";
     }
 
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEdicion(@PathVariable Integer id, Model model) {
+    public String prepararFormularioEdicion(@PathVariable Integer id, Model model) {
         GrupoTutoria grupo = grupoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado: " + id));
         
@@ -61,7 +60,7 @@ public class GrupoController {
     }
 
     @PostMapping("/guardar")
-    public String guardarGrupo(@ModelAttribute GrupoTutoria grupo) {
+    public String almacenarGrupo(@ModelAttribute GrupoTutoria grupo) {
         
         if (grupo.getIdGrupo() == null) {
             grupo.setPeriodo(periodoService.obtenerActivo());
@@ -89,7 +88,7 @@ public class GrupoController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarGrupo(@PathVariable Integer id) {
+    public String removerGrupo(@PathVariable Integer id) {
         try {
             grupoTutoriaService.eliminarGrupoSeguro(id);
             return "redirect:/coordinador/grupos?exito=grupo_eliminado";

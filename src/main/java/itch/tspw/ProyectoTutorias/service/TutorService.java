@@ -39,12 +39,20 @@ public class TutorService {
     @Transactional
     public void guardarTutor(Tutor tutor) {
         Usuario usuario = tutor.getUsuario();
+        
         if (usuario.getIdUsuario() == null) {
-            String hash = passwordEncoder.encode(usuario.getPasswordHash());
+            // Contraseña por defecto: El RFC del docente
+            String hash = passwordEncoder.encode(tutor.getRfcEmpleado());
             usuario.setPasswordHash(hash);
+            
             Perfil perfilTutor = perfilRepository.findByNombre("ROLE_TUTOR")
                     .orElseThrow(() -> new RuntimeException("El perfil ROLE_TUTOR no existe en la BD"));
-            usuario.agregarPerfil(perfilTutor);
+            
+            if(usuario.getPerfiles() == null) {
+                usuario.setPerfiles(new java.util.HashSet<>());
+            }
+            usuario.getPerfiles().add(perfilTutor);
+            usuario.setActivo(true);
         }
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);

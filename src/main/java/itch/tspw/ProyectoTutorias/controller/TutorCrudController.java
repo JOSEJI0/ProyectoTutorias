@@ -1,13 +1,13 @@
 package itch.tspw.ProyectoTutorias.controller;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/tutores")
@@ -23,13 +23,13 @@ public class TutorCrudController {
     private GrupoTutoriaService grupoTutoriaService;
 
     @GetMapping
-    public String listarTutores(Model model) {
+    public String cargarListaTutores(Model model) {
         model.addAttribute("tutores", tutorService.listarTodos());
         return "coordinador/tutores-lista";
     }
 
     @PostMapping("/guardar")
-    public String guardarTutor(@RequestParam("nombre") String nombre,
+    public String almacenarTutor(@RequestParam("nombre") String nombre,
                                @RequestParam("apellidos") String apellidos,
                                @RequestParam("correo") String correo,
                                @RequestParam("rfc") String rfc,
@@ -39,8 +39,7 @@ public class TutorCrudController {
             nuevoUsuario.setNombre(nombre);
             nuevoUsuario.setApellidos(apellidos);
             nuevoUsuario.setCorreoInstitucional(correo);
-            nuevoUsuario.setPasswordHash("1234");
-            nuevoUsuario.setActivo(true);
+            // La contraseña y el rol se asignan ahora en TutorService
 
             if (foto != null && !foto.isEmpty()) {
                 String nombreFoto = uploadFileService.guardarImagen(foto);
@@ -60,9 +59,8 @@ public class TutorCrudController {
         }
     }
 
-    // ACTUALIZACIÓN: Ahora soporta el cambio de foto
     @PostMapping("/actualizar")
-    public String actualizarTutor(@RequestParam("idTutor") Integer idTutor,
+    public String guardarCambiosTutor(@RequestParam("idTutor") Integer idTutor,
                                   @RequestParam("rfc") String rfc,
                                   @RequestParam("nombre") String nombre,
                                   @RequestParam("apellidos") String apellidos,
@@ -77,7 +75,6 @@ public class TutorCrudController {
             usuario.setApellidos(apellidos);
             usuario.setCorreoInstitucional(correo);
 
-            // Si se seleccionó una nueva foto, la procesamos
             if (foto != null && !foto.isEmpty()) {
                 String nombreFoto = uploadFileService.guardarImagen(foto);
                 usuario.setFotoPerfil(nombreFoto);
@@ -92,19 +89,19 @@ public class TutorCrudController {
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarTutor(@PathVariable("id") Integer id) {
+    public String removerTutor(@PathVariable("id") Integer id) {
         tutorService.eliminarTutor(id);
         return "redirect:/coordinador/tutores?exito=eliminado";
     }
 
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable("id") Integer id, Model model) {
+    public String prepararFormularioModificacion(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("tutor", tutorService.obtenerPorId(id));
         return "coordinador/tutores-editar";
     }
 
     @GetMapping("/detalle/{id}")
-    public String verDetalleTutor(@PathVariable("id") Integer id, Model model) {
+    public String obtenerDetalleTutor(@PathVariable("id") Integer id, Model model) {
         Tutor tutor = tutorService.obtenerPorId(id);
         model.addAttribute("tutor", tutor);
         model.addAttribute("grupos", grupoTutoriaService.obtenerGruposActivosPorTutor(id));

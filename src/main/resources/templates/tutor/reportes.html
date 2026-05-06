@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout :: encabezado('Mis Reportes')}"></th:block>
+</head>
+<body class="bg-[#EDF1F4] min-h-screen flex font-sans text-slate-800">
+
+    <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
+
+    <main class="flex-1 p-10 overflow-y-auto">
+        <div class="max-w-5xl mx-auto w-full">
+            
+            <header class="mb-8 mt-2">
+                <h2 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-print mr-2 text-blue-400"></i> Mis Reportes Docentes</h2>
+                <p class="text-slate-500 mt-1">Generación de evidencias y formatos oficiales para el periodo actual.</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <!-- 1. Lista de Asistencia (En Blanco) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center text-xl mb-3"><i class="fa-solid fa-clipboard-list"></i></div>
+                        <h3 class="text-lg font-bold text-[#0B2A4A]">Lista de Asistencia</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-4">Genera un formato en blanco para pasar asistencia manualmente en el aula.</p>
+                    </div>
+                    <form th:action="@{/tutor/reportes/lista-asistencia/pdf}" method="GET" class="mt-auto space-y-3">
+                        <select name="idGrupo" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-[#0B2A4A] font-bold outline-none">
+                            <option value="" disabled selected>Seleccione su grupo...</option>
+                            <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}"></option>
+                        </select>
+                        <button type="submit" class="w-full bg-[#0B2A4A] hover:bg-[#1a3a5a] text-white py-2.5 rounded-lg font-bold text-sm transition-colors shadow-md">
+                            <i class="fa-solid fa-download mr-1"></i> Descargar Formato
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 2. Reporte Final del Grupo -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center text-xl mb-3"><i class="fa-solid fa-chart-line"></i></div>
+                        <h3 class="text-lg font-bold text-[#0B2A4A]">Reporte Final</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-4">Evidencia final del semestre con el estatus de tus alumnos tutorados.</p>
+                    </div>
+                    <form th:action="@{/tutor/reportes/reporte-final/pdf}" method="GET" class="mt-auto space-y-3">
+                        <select name="idGrupo" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-[#0B2A4A] font-bold outline-none">
+                            <option value="" disabled selected>Seleccione su grupo...</option>
+                            <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}"></option>
+                        </select>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg font-bold text-sm transition-colors shadow-md">
+                            <i class="fa-solid fa-download mr-1"></i> Descargar Evidencia
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 3. Formato de Derivación (Necesidades) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col">
+                    <div class="mb-4">
+                        <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center text-xl mb-3"><i class="fa-solid fa-hand-holding-medical"></i></div>
+                        <h3 class="text-lg font-bold text-[#0B2A4A]">Hoja de Derivación</h3>
+                        <p class="text-xs text-slate-500 mt-1 mb-4">Imprime la solicitud formal para canalizar a un alumno al área correspondiente.</p>
+                    </div>
+                    <div class="mt-auto space-y-3">
+                        <div class="relative">
+                            <!-- Aquí usamos JavaScript simple para que el botón tome el ID del select -->
+                            <select id="selectNecesidad" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-[#0B2A4A] font-bold outline-none">
+                                <option value="" disabled selected>Seleccione un caso...</option>
+                                <option th:each="n : ${necesidades}" th:value="${n.idNecesidad}" th:text="${n.estudiante.usuario.nombre + ' (' + n.area + ')'}"></option>
+                            </select>
+                        </div>
+                        <button onclick="descargarNecesidad()" class="w-full bg-amber-500 hover:bg-amber-600 text-white py-2.5 rounded-lg font-bold text-sm transition-colors shadow-md">
+                            <i class="fa-solid fa-download mr-1"></i> Descargar Hoja
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function descargarNecesidad() {
+            const id = document.getElementById('selectNecesidad').value;
+            if(id) {
+                window.location.href = '/tutor/reportes/necesidad/pdf/' + id;
+            } else {
+                alert('Por favor, selecciona un caso primero.');
+            }
+        }
+    </script>
+</body>
+</html>

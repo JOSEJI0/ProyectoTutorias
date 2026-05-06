@@ -24,7 +24,8 @@ public class EstudianteController {
     @Autowired private PatGrupoService patGrupoService;
     @Autowired private SesionRepository sesionRepository;
     @Autowired private AsistenciaRepository asistenciaRepository;
-    @Autowired private NecesidadRepository necesidadRepository; // Agrega esto
+    @Autowired private NecesidadRepository necesidadRepository;
+    @Autowired private ReporteService reporteService;
 
     private Estudiante obtenerEstudianteLogueado(Authentication authentication) {
         Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName())
@@ -34,7 +35,7 @@ public class EstudianteController {
     }
 
     @GetMapping("/panel")
-    public String mostrarDashboardEstudiante(Model model, Authentication authentication) {
+    public String cargarDashboardEstudiante(Model model, Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
         model.addAttribute("estudiante", estudiante);
 
@@ -53,10 +54,8 @@ public class EstudianteController {
             // Obtenemos toooodo el historial de este alumno
             List<Asistencia> misAsistencias = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
             
-            // ¿Cuántas veces el maestro ha pasado lista para él? (Total de registros)
             int totalSesiones = misAsistencias.size();
-            
-            // ¿En cuántas de esas tuvo "Presente = true"?
+
             long asistenciasPositivas = misAsistencias.stream()
                     .filter(a -> Boolean.TRUE.equals(a.getPresente()))
                     .count();
@@ -78,13 +77,13 @@ public class EstudianteController {
     
     // Vista para el formulario
     @GetMapping("/deteccion-necesidades")
-    public String mostrarFormularioNecesidades(Model model, Authentication authentication) {
+    public String prepararFormularioNecesidades(Model model, Authentication authentication) {
         model.addAttribute("estudiante", obtenerEstudianteLogueado(authentication));
         return "estudiante/formulario-necesidades";
     }
 
     @PostMapping("/deteccion-necesidades/enviar")
-    public String enviarNecesidades(@RequestParam("area") String area, 
+    public String submitNecesidades(@RequestParam("area") String area, 
                                     @RequestParam("descripcion") String descripcion, 
                                     Authentication authentication) {
         
@@ -101,11 +100,11 @@ public class EstudianteController {
     }
     
     @GetMapping("/historial")
-    public String verHistorialAsistencias(Model model, Authentication authentication) {
+    public String obtenerHistorialAsistencias(Model model, Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
         model.addAttribute("estudiante", estudiante);
         
-        // Obtenemos su historial y lo ordenamos por fecha descendente (lo más nuevo primero)
+        // Obtenemos su historial y lo ordenamos por fecha descendente 
         List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
         historial.sort((a1, a2) -> a2.getSesion().getFechaImparticion().compareTo(a1.getSesion().getFechaImparticion()));
         
@@ -120,10 +119,76 @@ public class EstudianteController {
         
         return "estudiante/historial";
     }
+    
     @GetMapping("/perfil")
-    public String verPerfilEstudiante(Model model, Authentication authentication) {
+    public String obtenerPerfilEstudiante(Model model, Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
         model.addAttribute("estudiante", estudiante);
+        
+        // Calculamos su porcentaje de asistencia actual
+        List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
+        int totalSesiones = historial.size();
+        long asistencias = historial.stream().filter(a -> Boolean.TRUE.equals(a.getPresente())).count();
+        int porcentaje = totalSesiones > 0 ? (int) ((asistencias * 100) / totalSesiones) : 0;
+        
+        model.addAttribute("porcentajeAsistencia", porcentaje);
+        model.addAttribute("totalSesiones", totalSesiones);
+        
         return "estudiante/perfil";
+    }
+    
+    @GetMapping("/historial/pdf")
+    public org.springframework.http.ResponseEntity<byte[]> descargarHistorialPdf(Authentication authentication) {
+        Estudiante estudiante = obtenerEstudianteLogueado(authentication);
+        
+        List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
+        // Lo ordenamos del más antiguo al más nuevo para que tenga sentido en el PDF
+        historial.sort((a1, a2) -> a1.getSesion().getFechaImparticion().compareTo(a2.getSesion().getFechaImparticion()));
+        
+        long faltas = historial.stream().filter(a -> Boolean.FALSE.equals(a.getPresente())).count();
+        long asistencias = historial.size() - faltas;
+        
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("estudiante", estudiante);
+        variables.put("historial", historial);
+        variables.put("totalAsistencias", asistencias);
+        variables.put("totalFaltas", faltas);
+        variables.put("fechaImpresion", java.time.LocalDate.now());
+        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/estudiante-historial", variables);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Kardex_Tutorias_" + estudiante.getNumeroControl() + ".pdf");
+        
+        return new org.springframework.http.ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
+    }
+
+    @GetMapping("/constancia/pdf")
+    public org.springframework.http.ResponseEntity<byte[]> descargarConstanciaPdf(Authentication authentication) {
+        Estudiante estudiante = obtenerEstudianteLogueado(authentication);
+        
+        // Doble validación de seguridad: Verificamos que realmente tenga el 80%
+        List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
+        int totalSesiones = historial.size();
+        long asistencias = historial.stream().filter(a -> Boolean.TRUE.equals(a.getPresente())).count();
+        int porcentaje = totalSesiones > 0 ? (int) ((asistencias * 100) / totalSesiones) : 0;
+        
+        if (porcentaje < 80) {
+            throw new RuntimeException("Acceso denegado: Aún no cumples con el 80% de asistencia requerido.");
+        }
+        
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("estudiante", estudiante);
+        variables.put("grupo", estudiante.getGrupo());
+        variables.put("fechaImpresion", java.time.LocalDate.now());
+        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/estudiante-constancia", variables);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Constancia_Liberacion_" + estudiante.getNumeroControl() + ".pdf");
+        
+        return new org.springframework.http.ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
     }
 }

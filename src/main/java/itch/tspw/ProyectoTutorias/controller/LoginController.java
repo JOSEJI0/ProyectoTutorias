@@ -10,7 +10,7 @@ public class LoginController {
 
     // Mostrar la pantalla de login
     @GetMapping("/login")
-    public String mostrarPantallaLogin(@RequestParam(value = "error", required = false) String error,
+    public String cargarPantallaLogin(@RequestParam(value = "error", required = false) String error,
                                       Model model) {
         if (error != null) {
             model.addAttribute("error", "Credenciales inválidas o usuario inactivo.");

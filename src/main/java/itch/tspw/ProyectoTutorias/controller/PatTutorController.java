@@ -1,14 +1,14 @@
 package itch.tspw.ProyectoTutorias.controller;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.repository.*;
-import itch.tspw.ProyectoTutorias.service.*;
 import java.util.Optional;
 
 @Controller
@@ -31,7 +31,7 @@ public class PatTutorController {
     }
 
     @GetMapping
-    public String inicioPat(Model model, Authentication authentication) {
+    public String cargarInicioPat(Model model, Authentication authentication) {
         Tutor tutor = obtenerTutorLogueado(authentication);
         model.addAttribute("grupos", grupoService.obtenerGruposActivosPorTutor(tutor.getIdTutor()));
         model.addAttribute("patsInstitucionales", patService.listarTodos());
@@ -84,7 +84,7 @@ public class PatTutorController {
     }
 
     @GetMapping("/actividad/{id}/editar")
-    public String editarActividad(@PathVariable("id") Integer idActividad, Model model) {
+    public String prepararModificacionActividad(@PathVariable("id") Integer idActividad, Model model) {
         ActividadPatGrupo actividad = patGrupoService.obtenerActividadPorId(idActividad);
         model.addAttribute("actividad", actividad);
         model.addAttribute("idGrupo", actividad.getPatGrupo().getGrupo().getIdGrupo()); 
@@ -92,7 +92,7 @@ public class PatTutorController {
     }
 
     @PostMapping("/actividad/guardar")
-    public String guardarActividadEditada(@RequestParam("idActividadGrupo") Integer idActividadGrupo,
+    public String almacenarActividadEditada(@RequestParam("idActividadGrupo") Integer idActividadGrupo,
                                           @RequestParam("idGrupo") Integer idGrupo,
                                           @RequestParam("titulo") String titulo,
                                           @RequestParam("descripcion") String descripcion,
@@ -104,13 +104,13 @@ public class PatTutorController {
     }
 
     @PostMapping("/actividad/{id}/eliminar")
-    public String eliminarActividad(@PathVariable("id") Integer idActividad, @RequestParam("idGrupo") Integer idGrupo) {
+    public String removerActividad(@PathVariable("id") Integer idActividad, @RequestParam("idGrupo") Integer idGrupo) {
         patGrupoService.eliminarActividad(idActividad);
         return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=actividad_eliminada";
     }
 
     @PostMapping("/grupo/{idGrupo}/eliminar-pat")
-    public String eliminarPatGrupo(@PathVariable("idGrupo") Integer idGrupo) {
+    public String removerPatGrupo(@PathVariable("idGrupo") Integer idGrupo) {
         patGrupoService.eliminarPatDeGrupo(idGrupo);
         return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=pat_eliminado";
     }

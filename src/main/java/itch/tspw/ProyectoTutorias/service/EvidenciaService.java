@@ -1,11 +1,9 @@
 package itch.tspw.ProyectoTutorias.service;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import itch.tspw.ProyectoTutorias.model.EvidenciaSesion;
-import itch.tspw.ProyectoTutorias.repository.EvidenciaSesionRepository;
-
 import java.util.List;
 import java.util.Optional;
 

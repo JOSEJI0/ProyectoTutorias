@@ -2,6 +2,7 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

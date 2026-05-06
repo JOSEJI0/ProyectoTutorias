@@ -27,8 +27,11 @@ public class TutorController {
     @Autowired private SesionRepository sesionRepository;
     @Autowired private AsistenciaRepository asistenciaRepository;
     @Autowired private NecesidadRepository necesidadRepository;
+    @Autowired private GrupoTutoriaRepository grupoTutoriaRepository;
+    @Autowired private ReporteService reporteService;
+    @Autowired private NecesidadRepository necesidadRepo;
 
-    // Método auxiliar para evitar código repetido
+    
     private Tutor obtenerTutorLogueado(Authentication authentication) {
         Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -56,12 +59,10 @@ public class TutorController {
         model.addAttribute("grupos", grupoTutoriaService.obtenerGruposActivosPorTutor(tutor.getIdTutor()));
         return "tutor/mis-grupos";
     }
- // Este método atrapa el clic en la tarjeta del grupo para ver los alumnos
     @GetMapping("/grupo/{id}/detalle")
     public String verDetalleGrupo(@PathVariable("id") Integer idGrupo, Model model) {
         GrupoTutoria grupo = grupoTutoriaService.obtenerPorId(idGrupo);
         model.addAttribute("grupo", grupo);
-        // Mandamos la lista de alumnos activos a la vista
         model.addAttribute("estudiantes", grupo.getEstudiantes()); 
         return "tutor/grupo-detalle";
     }
@@ -118,6 +119,71 @@ public class TutorController {
         model.addAttribute("listaAsistencia", asistenciaRepository.findBySesion_IdSesion(idSesion));
         
         return "tutor/sesion-detalle";
+    }
+    
+    @GetMapping("/reportes")
+    public String verReportesTutor(Model model, Authentication authentication) {
+        Tutor tutor = obtenerTutorLogueado(authentication);
+        
+        // Pasamos sus grupos y las necesidades de sus alumnos para llenar los selects
+        model.addAttribute("grupos", grupoTutoriaRepository.findByTutor_IdTutor(tutor.getIdTutor()));
+        model.addAttribute("necesidades", necesidadRepository.findByEstudiante_Grupo_Tutor_IdTutorOrderByFechaSolicitudDesc(tutor.getIdTutor()));
+        
+        return "tutor/reportes";
+    }
+
+    @GetMapping("/reportes/lista-asistencia/pdf")
+    public org.springframework.http.ResponseEntity<byte[]> descargarListaAsistencia(@RequestParam("idGrupo") Integer idGrupo) {
+        GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo).orElseThrow();
+        
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("grupo", grupo);
+        variables.put("estudiantes", grupo.getEstudiantes());
+        variables.put("fechaImpresion", java.time.LocalDate.now());
+        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/tutor-lista-asistencia", variables);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Lista_Asistencia_" + grupo.getNombreGrupo() + ".pdf");
+        
+        return new org.springframework.http.ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
+    }
+
+    @GetMapping("/reportes/reporte-final/pdf")
+    public org.springframework.http.ResponseEntity<byte[]> descargarReporteFinal(@RequestParam("idGrupo") Integer idGrupo) {
+        GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo).orElseThrow();
+        
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("grupo", grupo);
+        variables.put("estudiantes", grupo.getEstudiantes());
+        variables.put("totalSesiones", sesionRepository.findByGrupo_IdGrupo(idGrupo).size());
+        variables.put("fechaImpresion", java.time.LocalDate.now());
+        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/tutor-reporte-final", variables);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Reporte_Final_" + grupo.getNombreGrupo() + ".pdf");
+        
+        return new org.springframework.http.ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
+    }
+
+    @GetMapping("/reportes/necesidad/pdf/{id}")
+    public org.springframework.http.ResponseEntity<byte[]> descargarNecesidad(@PathVariable("id") Integer idNecesidad) {
+        NecesidadEstudiante necesidad = necesidadRepository.findById(idNecesidad).orElseThrow();
+        
+        java.util.Map<String, Object> variables = new java.util.HashMap<>();
+        variables.put("necesidad", necesidad);
+        variables.put("fechaImpresion", java.time.LocalDate.now());
+        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/tutor-necesidad", variables);
+        
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.setContentType(org.springframework.http.MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "Derivacion_" + necesidad.getEstudiante().getNumeroControl() + ".pdf");
+        
+        return new org.springframework.http.ResponseEntity<>(pdfBytes, headers, org.springframework.http.HttpStatus.OK);
     }
 
     @GetMapping("/perfil")

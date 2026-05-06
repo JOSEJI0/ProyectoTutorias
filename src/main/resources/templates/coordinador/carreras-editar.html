@@ -1,44 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Editar Carrera')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Edición')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body class="bg-[#F8FAFC] min-h-screen flex font-sans text-slate-900">
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-2xl mx-auto w-full flex-1">
-            <a th:href="@{/coordinador/carreras}" class="text-blue-600 hover:underline mb-4 inline-block font-medium transition-colors">
-                <i class="fa-solid fa-arrow-left mr-1"></i> Volver al catálogo
-            </a>
+    <main class="flex-1 overflow-y-auto p-6 md:p-12">
+        <div class="max-w-xl mx-auto">
             
-            <header class="mb-8 mt-2">
-                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-book-bookmark mr-2"></i> Editar Carrera</h1>
-                <p class="text-slate-500 mt-2">Modifica los detalles del programa educativo.</p>
+            <header class="mb-10 text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-slate-900 text-white rounded-xl mb-4 shadow-lg shadow-slate-200">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <h1 class="text-2xl font-black text-slate-800 uppercase tracking-tighter">Modificar Carrera</h1>
+                <p class="text-slate-500 text-sm mt-1">Actualiza la información técnica del programa académico.</p>
             </header>
 
-            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200">
-                <form th:action="@{/coordinador/carreras/actualizar}" method="POST" class="space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                <form th:action="@{/coordinador/carreras/actualizar}" method="POST" class="p-8 space-y-6">
+                    <!-- Campo oculto necesario para la base de datos[cite: 8, 11] -->
                     <input type="hidden" name="idCarrera" th:value="${carrera.idCarrera}">
                     
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Clave Oficial <span class="text-red-500">*</span></label>
-                        <input type="text" name="clave" th:value="${carrera.claveOficial}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Clave de Registro</label>
+                        <input type="text" name="clave" th:value="${carrera.claveOficial}" required 
+                               placeholder="Ej. ISIC-2010-224"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-mono focus:border-slate-900 focus:bg-white outline-none transition-all">
                     </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Nombre de la Carrera <span class="text-red-500">*</span></label>
-                        <input type="text" name="nombre" th:value="${carrera.nombreCarrera}" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-[#0B2A4A]">
+
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Denominación del Programa</label>
+                        <input type="text" name="nombre" th:value="${carrera.nombreCarrera}" required 
+                               placeholder="Nombre completo de la carrera"
+                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:border-slate-900 focus:bg-white outline-none transition-all">
                     </div>
                     
-                    <div class="flex justify-end gap-4 pt-6 mt-6 border-t border-slate-100">
-                        <a th:href="@{/coordinador/carreras}" class="px-6 py-3 text-slate-500 font-medium hover:text-slate-700 transition-colors">Cancelar</a>
-                        <button type="submit" class="bg-[#0B2A4A] text-white px-8 py-3 rounded-lg font-bold shadow-md hover:bg-[#1a3a5a] transition-colors flex items-center">
-                            <i class="fa-solid fa-save mr-2"></i> Actualizar
+                    <div class="flex flex-col sm:flex-row items-center gap-3 pt-6">
+                        <button type="submit" class="w-full sm:w-auto flex-1 bg-slate-900 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 shadow-md transition-all active:scale-95">
+                            Guardar Cambios
                         </button>
+                        <a th:href="@{/coordinador/carreras}" class="w-full sm:w-auto px-8 py-3.5 text-center text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition-colors">
+                            Cancelar
+                        </a>
                     </div>
                 </form>
             </div>
+
+            <footer class="mt-8 text-center">
+                <p class="text-[10px] text-slate-400 font-medium italic">
+                    <i class="fa-solid fa-circle-info mr-1"></i> Todos los campos marcados son obligatorios para el sistema.
+                </p>
+            </footer>
+
         </div>
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>

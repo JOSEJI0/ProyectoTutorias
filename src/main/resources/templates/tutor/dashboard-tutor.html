@@ -1,85 +1,98 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Panel de Tutor')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Panel Tutor')}"></th:block>
 </head>
-<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
+<body class="bg-[#FBFCFD] min-h-screen flex font-sans text-slate-900">
 
     <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
-        <div class="max-w-6xl mx-auto w-full flex-1">
-            <header class="mb-8">
-                <h2 class="text-3xl font-bold text-[#0B2A4A]">Bienvenido, Docente</h2>
-                <p class="text-slate-500 mt-1">Hoy es un buen día para impulsar el éxito académico de tus grupos.</p>
+    <main class="flex-1 overflow-y-auto p-6 md:p-10">
+        <div class="max-w-5xl mx-auto">
+            
+            <!-- Saludo Inicial -->
+            <header class="mb-10">
+                <h1 class="text-2xl font-black text-slate-900">Buen día, Docente</h1>
+                <p class="text-slate-500 text-sm mt-1">Gestión y seguimiento de actividades de tutoría.</p>
             </header>
 
-            <div th:if="${param.exito != null}" class="mb-6 bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg shadow-sm">
-                <div class="flex items-center"><i class="fa-solid fa-circle-check text-emerald-500 mr-3"></i><p class="text-emerald-700 font-medium">Operación realizada con éxito.</p></div>
+            <!-- Alerta Simplificada -->
+            <div th:if="${param.exito != null}" class="mb-8 p-4 bg-emerald-500 text-white rounded-xl text-sm font-bold flex items-center gap-3">
+                <i class="fa-solid fa-check-double"></i>
+                La operación se completó correctamente.
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div><p class="text-slate-400 text-sm font-medium">Tutorados Activos</p><h3 class="text-3xl font-bold text-slate-800" th:text="${tutoradosActivos}">0</h3></div>
-                    <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center text-xl"><i class="fa-solid fa-user-check"></i></div>
+            <!-- Indicadores Numéricos -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                <div class="bg-white border border-slate-200 p-6 rounded-xl">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tutorados</span>
+                    <div class="text-3xl font-black mt-1" th:text="${tutoradosActivos}">0</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div><p class="text-slate-400 text-sm font-medium">Sesiones Impartidas</p><h3 class="text-3xl font-bold text-slate-800" th:text="${sesionesImpartidas}">0</h3></div>
-                    <div class="w-12 h-12 bg-green-50 text-green-500 rounded-full flex items-center justify-center text-xl"><i class="fa-solid fa-calendar-day"></i></div>
+                <div class="bg-white border border-slate-200 p-6 rounded-xl">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sesiones</span>
+                    <div class="text-3xl font-black mt-1" th:text="${sesionesImpartidas}">0</div>
                 </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
-                    <div><p class="text-slate-400 text-sm font-medium">Alertas</p><h3 class="text-3xl font-bold text-red-500" th:text="${alertas}">0</h3></div>
-                    <div class="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xl"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="bg-white border border-slate-200 p-6 rounded-xl border-l-4 border-l-orange-500">
+                    <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest">Alertas</span>
+                    <div class="text-3xl font-black mt-1" th:text="${alertas}">0</div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
-                        <h3 class="font-bold text-lg text-[#0B2A4A]">Grupos Asignados</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Tabla de Grupos Asignados -->
+                <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl overflow-hidden self-start">
+                    <div class="px-6 py-4 border-b border-slate-100">
+                        <h2 class="text-sm font-bold text-slate-800 uppercase tracking-tight">Carga Académica Actual</h2>
                     </div>
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase tracking-widest font-bold">
-                            <tr>
-                                <th class="px-6 py-4">Grupo</th>
-                                <th class="px-6 py-4">Carrera</th>
-                                <th class="px-6 py-4 text-center">ID</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <tr th:each="grupo : ${grupos}" class="hover:bg-slate-50/50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-slate-700" th:text="${grupo.nombreGrupo}">GRUPO</td>
-                                <td class="px-6 py-4 text-sm text-slate-500" th:text="${grupo.carrera.nombreCarrera}">CARRERA</td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold" th:text="${grupo.idGrupo}">1</span>
-                                </td>
-                            </tr>
-                            <tr th:if="${#lists.isEmpty(grupos)}">
-                                <td colspan="3" class="px-6 py-10 text-center text-slate-400 italic">No tienes grupos asignados para este periodo.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100 text-left">
+                                <tr>
+                                    <th class="px-6 py-3 font-semibold">Grupo</th>
+                                    <th class="px-6 py-3 font-semibold">Carrera</th>
+                                    <th class="px-6 py-3 font-semibold text-right">Identificador</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr th:each="grupo : ${grupos}" class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-6 py-4 font-bold text-slate-900" th:text="${grupo.nombreGrupo}">GRUPO</td>
+                                    <td class="px-6 py-4 text-slate-500" th:text="${grupo.carrera.nombreCarrera}">CARRERA</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <code class="bg-slate-100 px-2 py-1 rounded text-xs text-slate-600" th:text="${grupo.idGrupo}">ID</code>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(grupos)}">
+                                    <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic">No existen grupos vinculados a su cuenta.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 self-start sticky top-10">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center"><i class="fa-solid fa-plus"></i></div>
-                        <h3 class="font-bold text-lg text-[#0B2A4A]">Captura de Sesión</h3>
-                    </div>
-                    <p class="text-xs text-slate-500 mb-6">Selecciona un grupo para registrar la asistencia y evidencias de la semana.</p>
-                    
-                    <form th:action="@{/tutor/asistencia}" method="POST" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-400 mb-2 uppercase">Seleccionar Grupo</label>
-                            <select name="idGrupo" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-                                <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}">Grupo...</option>
+                <!-- Formulario de Acción Rápida -->
+                <div class="lg:col-span-4 space-y-4">
+                    <div class="bg-[#0B2A4A] p-6 rounded-xl text-white">
+                        <h3 class="font-bold text-lg mb-2">Pase de Lista</h3>
+                        <p class="text-xs text-blue-200/70 mb-6 leading-relaxed">Selecciona el grupo correspondiente para iniciar el registro de asistencia semanal.</p>
+                        
+                        <form th:action="@{/tutor/asistencia}" method="POST" class="space-y-4">
+                            <select name="idGrupo" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-sm text-white focus:bg-white focus:text-slate-900 outline-none transition-all">
+                                <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}" class="text-slate-900">Cargando grupos...</option>
                             </select>
-                        </div>
-                        <button type="submit" class="w-full bg-[#0B2A4A] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#1a3a5a] transition-all flex items-center justify-center gap-2">
-                            Iniciar Pase de Lista <i class="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
-                    </form>
+                            
+                            <button type="submit" class="w-full bg-white text-[#0B2A4A] py-3 rounded-lg font-black text-xs uppercase tracking-widest hover:bg-blue-50 transition-colors">
+                                Comenzar Registro
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="p-6 bg-slate-100 rounded-xl border border-dashed border-slate-300">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Recordatorio</p>
+                        <p class="text-xs text-slate-500 italic">Recuerda subir las evidencias del PAT antes del cierre de periodo.</p>
+                    </div>
                 </div>
+
             </div>
         </div>
         

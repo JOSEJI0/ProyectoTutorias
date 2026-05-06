@@ -1,12 +1,11 @@
 package itch.tspw.ProyectoTutorias.controller;
 
+import itch.tspw.ProyectoTutorias.model.*;
+import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.service.*;
 
 @Controller
 @RequestMapping("/coordinador/estudiantes")
@@ -20,9 +19,9 @@ public class EstudianteCrudController {
 
     // 1. LISTAR CON FILTRO DE SEMESTRE
     @GetMapping
-    public String listarEstudiantes(@RequestParam(value = "semestre", required = false) Integer semestre,
-                                    @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
-                                    Model model) {
+    public String cargarListaEstudiantes(@RequestParam(value = "semestre", required = false) Integer semestre,
+                                         @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+                                         Model model) {
         model.addAttribute("estudiantes", estudianteService.listarEstudiantes(semestre, idCarrera));
         model.addAttribute("carreras", carreraService.listarTodas()); 
         model.addAttribute("semestreFiltro", semestre);
@@ -32,7 +31,7 @@ public class EstudianteCrudController {
 
     // 2. GUARDAR NUEVO ESTUDIANTE
     @PostMapping("/guardar")
-    public String guardarEstudiante(@RequestParam("nombre") String nombre,
+    public String almacenarEstudiante(@RequestParam("nombre") String nombre,
                                     @RequestParam("apellidos") String apellidos,
                                     @RequestParam("correo") String correo,
                                     @RequestParam("numControl") String numControl,
@@ -65,7 +64,7 @@ public class EstudianteCrudController {
 
     // 3. MOSTRAR FORMULARIO DE EDICIÓN
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable("id") Integer id, Model model) {
+    public String prepararFormularioModificacion(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("estudiante", estudianteService.obtenerPorId(id));
         model.addAttribute("carreras", carreraService.listarTodas()); 
         return "coordinador/estudiantes-editar";
@@ -73,7 +72,7 @@ public class EstudianteCrudController {
 
     // 4. ACTUALIZAR ESTUDIANTE EXISTENTE
     @PostMapping("/actualizar")
-    public String actualizarEstudiante(@RequestParam("idEstudiante") Integer idEstudiante,
+    public String guardarCambiosEstudiante(@RequestParam("idEstudiante") Integer idEstudiante,
                                        @RequestParam("numControl") String numControl,
                                        @RequestParam("nombre") String nombre,
                                        @RequestParam("apellidos") String apellidos,
@@ -103,11 +102,10 @@ public class EstudianteCrudController {
         }
     }
 
-    // 5. ELIMINAR (BORRADO LÓGICO)
+    // 5. ELIMINAR 
     @GetMapping("/eliminar/{id}")
-    public String eliminarEstudiante(@PathVariable("id") Integer id) {
+    public String removerEstudiante(@PathVariable("id") Integer id) {
         try {
-            // Llamamos al método de borrado lógico en el Service
             estudianteService.eliminarEstudianteLogico(id);
             return "redirect:/coordinador/estudiantes?exito=eliminado";
         } catch (Exception e) {

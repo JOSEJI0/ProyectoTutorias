@@ -25,7 +25,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // Filtro de Rutas y Permisos
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, 
             CustomAuthenticationProvider customAuthenticationProvider,
