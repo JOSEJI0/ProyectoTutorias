@@ -1,72 +1,129 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <!-- Mantiene el fragmento de encabezado del layout base[cite: 1, 4] -->
     <th:block th:replace="~{fragments/layout :: encabezado('Detalle de Carrera')}"></th:block>
+    <style>
+        .header-gradient {
+            background: linear-gradient(135deg, #0B172A 0%, #1e293b 100%);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <!-- Mantiene la navegación lateral[cite: 1, 4] -->
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <div>
-            <!-- Información General de la Carrera[cite: 4] -->
-            <header>
-                <h1 th:text="${carrera.nombreCarrera}">Nombre de la Carrera</h1>
-                <p th:text="'Clave Oficial: ' + ${carrera.claveOficial}">Clave</p>
-                <a th:href="@{/coordinador/carreras}">Volver al Listado</a>
+        <main class="flex-1 flex flex-col min-w-0">
+            
+            <header class="bg-white border-b border-slate-200 p-4 px-10">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/coordinador/panel}" class="hover:text-blue-600">Panel</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <a th:href="@{/coordinador/carreras}" class="hover:text-blue-600">Carreras</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-slate-900">Detalle Académico</span>
+                </div>
             </header>
 
-            <section>
-                <div>
-                    <p>Clave de la Carrera</p>
-                    <h3 th:text="${carrera.claveOficial}">CLAVE</h3>
-                </div>
-                <div>
-                    <p>Alumnos Registrados</p>
-                    <h3 th:text="${#lists.size(estudiantes)}">0</h3>
-                </div>
-            </section>
-
-            <!-- Tabla de Estudiantes Inscritos[cite: 4] -->
-            <section>
-                <h2>Estudiantes Inscritos</h2>
+            <div class="p-10 max-w-6xl mx-auto w-full">
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No. Control</th>
-                            <th>Nombre Completo</th>
-                            <th>Semestre</th>
-                            <th>Estatus</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="e : ${estudiantes}">
-                            <td th:text="${e.numeroControl}"></td>
-                            <td th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></td>
-                            <td th:text="${e.semestreActual + '°'}"></td>
-                            <td>
-                                <!-- Lógica de estatus de asignación[cite: 4] -->
-                                <span th:if="${e.grupo != null}">Asignado</span>
-                                <span th:if="${e.grupo == null}">Sin Grupo</span>
-                            </td>
-                            <td>
-                                <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${e.idEstudiante})}">Ver/Editar</a>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(estudiantes)}">
-                            <td colspan="5">No hay estudiantes registrados en esta carrera actualmente.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-        </div>
+                <div class="header-gradient rounded-[2.5rem] p-10 text-white mb-8 shadow-xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <a th:href="@{/coordinador/carreras}" class="text-blue-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mb-4 hover:text-blue-300 transition-all">
+                            <i class="fa-solid fa-arrow-left"></i> Volver al listado
+                        </a>
+                        <h1 class="text-4xl font-black tracking-tight mb-2" th:text="${carrera.nombreCarrera}">Nombre de la Carrera</h1>
+                        <div class="flex items-center gap-4">
+                            <span class="bg-white/10 px-3 py-1 rounded-lg text-xs font-bold border border-white/10" 
+                                  th:text="'CLAVE: ' + ${carrera.claveOficial}">Clave</span>
+                            <span class="text-slate-400 text-sm font-medium">| Gestión de Alumnado</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-layer-group absolute -right-8 -bottom-8 text-white/5 text-9xl"></i>
+                </div>
 
-        <!-- Mantiene el pie de página del layout[cite: 1, 4] -->
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-6">
+                        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-id-card"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Identificador Oficial</p>
+                            <p class="text-2xl font-black text-slate-800" th:text="${carrera.claveOficial}">CLAVE</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex items-center gap-6">
+                        <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alumnos Inscritos</p>
+                            <p class="text-2xl font-black text-slate-800" th:text="${#lists.size(estudiantes)}">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h2 class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Lista de Estudiantes</h2>
+                        <span class="text-[10px] font-black text-slate-400 uppercase" th:text="${#lists.size(estudiantes)} + ' registros'"></span>
+                    </div>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">No. Control</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Nombre Completo</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Grado</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Estatus</th>
+                                    <th class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <tr th:each="e : ${estudiantes}" class="hover:bg-slate-50 transition-colors group">
+                                    <td class="px-8 py-4 font-mono text-xs font-bold text-blue-600" th:text="${e.numeroControl}"></td>
+                                    <td class="px-6 py-4 font-bold text-slate-700 text-sm" th:text="${e.usuario.nombre + ' ' + e.usuario.apellidos}"></td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="text-xs font-black text-slate-500" th:text="${e.semestreActual + '°'}"></span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span th:if="${e.grupo != null}" class="status-badge bg-emerald-100 text-emerald-700">
+                                            Asignado
+                                        </span>
+                                        <span th:if="${e.grupo == null}" class="status-badge bg-amber-100 text-amber-700">
+                                            Sin Grupo
+                                        </span>
+                                    </td>
+                                    <td class="px-8 py-4 text-right">
+                                        <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${e.idEstudiante})}" 
+                                           class="text-blue-600 hover:text-blue-800 text-xs font-black uppercase tracking-tighter">
+                                            Gestionar <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(estudiantes)}">
+                                    <td colspan="5" class="px-6 py-20 text-center">
+                                        <p class="text-slate-400 font-bold italic text-sm">No hay estudiantes registrados en esta carrera.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

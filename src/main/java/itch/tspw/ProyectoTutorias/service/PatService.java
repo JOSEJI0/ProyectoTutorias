@@ -2,15 +2,17 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class PatService {
-    @Autowired
-    private PatRepository patRepository;
+	
+	private final PatRepository patRepository;
 
+    public PatService(PatRepository patRepository) {
+        this.patRepository = patRepository;
+    }
 
     public PatInstitucional guardar(PatInstitucional pat) {
         return patRepository.save(pat);
@@ -33,8 +35,7 @@ public class PatService {
     }
 
     public void eliminarLogico(Integer idPat) {
-        PatInstitucional pat = patRepository.findById(idPat)
-            .orElseThrow(() -> new RuntimeException("PAT no encontrado"));
+    	PatInstitucional pat = obtenerPorId(idPat);
         pat.setActivo(false);
         patRepository.save(pat);
     }

@@ -1,81 +1,94 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Nuevo Tutorado')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado(${esEdicion} ? 'Editar Grupo' : 'Crear Grupo')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <header>
-            <a th:href="@{/coordinador/estudiantes}">Volver al listado</a>
-            <p>Registro de Matrícula</p>
-        </header>
-
-        <section>
-            <h1>Alta de Estudiante</h1>
-            <p>Completa el perfil para integrar al alumno al programa institucional de tutorías.</p>
-
-            <form th:action="@{/coordinador/estudiantes/guardar}" th:object="${estudiante}" method="POST">
-                
-                <!-- Sección 1: Información de Usuario (Relación con la entidad Usuario) -->
-                <fieldset>
-                    <legend>Información de Acceso al Sistema</legend>
-                    
-                    <label>Nombre(s)</label>
-                    <input type="text" th:field="*{usuario.nombre}" required>
-
-                    <br>
-
-                    <label>Apellido(s)</label>
-                    <input type="text" th:field="*{usuario.apellidos}" required>
-
-                    <br>
-
-                    <label>Correo Institucional</label>
-                    <input type="email" th:field="*{usuario.correoInstitucional}" required>
-
-                    <br>
-
-                    <label>Contraseña Temporal</label>
-                    <input type="password" name="password" required>
-                </fieldset>
-
-                <br>
-
-                <!-- Sección 2: Datos Académicos (Entidad Estudiante) -->
-                <fieldset>
-                    <legend>Credenciales Académicas</legend>
-
-                    <label>Número de Control</label>
-                    <input type="text" th:field="*{numeroControl}" required>
-
-                    <br>
-
-                    <label>Semestre Actual</label>
-                    <select th:field="*{semestreActual}">
-                        <option th:each="i : ${#numbers.sequence(1, 12)}" th:value="${i}" th:text="${i} + '° Semestre'"></option>
-                    </select>
-
-                    <br>
-
-                    <label>Programa Educativo (Carrera)</label>
-                    <select th:field="*{carrera.idCarrera}">
-                        <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}"></option>
-                    </select>
-                </fieldset>
-
-                <br>
-
-                <div>
-                    <a th:href="@{/coordinador/estudiantes}">Cancelar Registro</a>
-                    <button type="submit">Confirmar Alta</button>
+        <main class="flex-1 flex flex-col min-w-0">
+            
+            <header class="bg-white border-b border-slate-200 p-4 px-10">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/coordinador/grupos}" class="hover:text-blue-600">Grupos</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-slate-900" th:text="${esEdicion} ? 'Editar' : 'Nuevo Grupo'"></span>
                 </div>
-            </form>
-        </section>
+            </header>
 
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+            <div class="p-10 max-w-4xl mx-auto w-full">
+                
+                <div class="mb-8">
+                    <h1 class="text-3xl font-black text-[#0B172A]" 
+                        th:text="${esEdicion} ? 'Editar Grupo de Tutoría' : 'Aperturar Nuevo Grupo'"></h1>
+                    <p class="text-slate-500">Configura la carrera, el semestre y el tutor responsable.</p>
+                </div>
+
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                    
+                    <form th:action="@{/coordinador/grupos/guardar}" th:object="${nuevoGrupo}" method="POST" class="p-8 space-y-6">
+                        
+                        <input type="hidden" th:field="*{idGrupo}">
+                        <input type="hidden" th:field="*{activo}">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Nombre o Clave del Grupo *</label>
+                                <input type="text" th:field="*{nombreGrupo}" placeholder="Ej. 1A-SISC" required 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Carrera</label>
+                                <select th:field="*{carrera.idCarrera}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona carrera...</option>
+                                    <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}"></option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Semestre</label>
+                                <select th:field="*{semestre}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona semestre...</option>
+                                    <option th:each="i : ${#numbers.sequence(1, 12)}" th:value="${i}" th:text="${i} + '° Semestre'"></option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Horario de Sesión</label>
+                                <input type="text" th:field="*{horario}" placeholder="Ej. Lunes 10:00 - 11:00" required 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none font-bold">
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Docente Tutor</label>
+                                <select th:field="*{tutor.idTutor}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona docente...</option>
+                                    <option th:each="t : ${tutores}" th:value="${t.idTutor}" th:text="${t.usuario.nombre + ' ' + t.usuario.apellidos}"></option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="pt-6 flex items-center justify-end gap-4">
+                            <a th:href="@{/coordinador/grupos}" class="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-red-500">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="bg-amber-400 text-[#0B172A] px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-200 hover:bg-amber-500 transition-all">
+                                <span th:text="${esEdicion} ? 'Actualizar Grupo' : 'Crear Grupo'"></span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

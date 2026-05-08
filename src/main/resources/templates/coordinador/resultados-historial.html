@@ -1,45 +1,73 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <!-- Mantiene el fragmento de encabezado reutilizable[cite: 1, 4] -->
     <th:block th:replace="~{fragments/layout :: encabezado('Historial de Alumno')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <!-- Mantiene la navegación lateral del coordinador[cite: 1, 4] -->
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <a th:href="@{/coordinador/busquedas}">Volver a Búsquedas</a>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
             
-            <!-- Título dinámico con el ID del estudiante consultado -->
-            <h2 th:text="'Historial Académico del Alumno ID: ' + ${estudianteId}"></h2>
-            
-            <!-- Mensaje si el alumno no posee registros en la base de datos -->
-            <div th:if="${#lists.isEmpty(resultados)}">
-                Este alumno no tiene historial de tutorías registrado.
-            </div>
-
-            <!-- Listado de grupos en los que ha estado inscrito el alumno -->
-            <div>
-                <div th:each="g : ${resultados}">
-                    <hr>
-                    <!-- Nombre del grupo de tutoría -->
-                    <h3 th:text="${g.nombreGrupo}"></h3>
-                    
-                    <!-- Nombre del periodo escolar correspondiente -->
-                    <p th:text="${g.periodo.nombrePeriodo}"></p>
-                    
-                    <!-- Datos del tutor asignado en ese periodo[cite: 4] -->
-                    <p th:text="'Tutor: ' + ${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}"></p>
-                    <hr>
+            <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/coordinador/busquedas}" class="hover:text-blue-600 transition-colors">Centro de Búsquedas</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-[#0B172A]">Expediente Histórico</span>
                 </div>
-            </div>
-        </section>
-    </main>
+            </header>
 
-    <!-- Mantiene el fragmento de pie de página[cite: 1, 4] -->
-    <div th:replace="~{fragments/layout :: footer}"></div>
+            <div class="p-10 max-w-4xl mx-auto w-full">
+                
+                <div class="mb-12">
+                    <a th:href="@{/coordinador/busquedas}" class="group inline-flex items-center gap-2 text-slate-400 hover:text-[#0B172A] font-black text-[10px] uppercase tracking-[0.2em] mb-4 transition-all">
+                        <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-1"></i> 
+                        Nueva Búsqueda
+                    </a>
+                    <h1 class="text-3xl font-black text-[#0B172A] tracking-tight">Trayectoria de Tutorías</h1>
+                    <p class="text-slate-500 font-medium italic">Consultando expediente del Alumno ID: <span class="text-blue-600 font-bold" th:text="${estudianteId}">0</span></p>
+                </div>
+
+                <div class="relative border-l-2 border-slate-200 ml-4 space-y-8 pb-10">
+                    
+                    <div th:each="g : ${resultados}" class="relative pl-10 group">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-white border-4 border-blue-500 group-hover:border-amber-400 transition-colors shadow-sm"></div>
+                        
+                        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm group-hover:shadow-md group-hover:border-blue-100 transition-all">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1 block" th:text="${g.periodo.nombrePeriodo}">Periodo Escolar</span>
+                                    <h3 class="text-xl font-black text-[#0B172A]" th:text="${g.nombreGrupo}">Nombre del Grupo</h3>
+                                </div>
+                                
+                                <div class="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
+                                    <div class="w-8 h-8 rounded-lg bg-[#0B172A] text-amber-400 flex items-center justify-center text-xs shadow-sm">
+                                        <i class="fa-solid fa-chalkboard-user"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Tutor Asignado</p>
+                                        <p class="text-xs font-bold text-slate-700" th:text="${g.tutor.usuario.nombre + ' ' + g.tutor.usuario.apellidos}">Nombre del Tutor</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${#lists.isEmpty(resultados)}" class="ml-10 py-16 text-center bg-white rounded-[2.5rem] border border-dashed border-slate-300">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-200 mx-auto mb-4">
+                            <i class="fa-solid fa-folder-open text-4xl"></i>
+                        </div>
+                        <h3 class="text-slate-400 font-black uppercase tracking-widest text-xs">Sin registros históricos</h3>
+                        <p class="text-slate-400 text-[11px] mt-1 italic font-medium">Este alumno no ha sido asignado a grupos en periodos anteriores.</p>
+                    </div>
+
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

@@ -2,7 +2,6 @@ package itch.tspw.ProyectoTutorias.controller;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,15 +10,17 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/coordinador/estudiantes")
 public class EstudianteCrudController {
 
-    @Autowired
-    private EstudianteService estudianteService;
-    
-    @Autowired
-    private CarreraService carreraService;
+    private final EstudianteService estudianteService;
+    private final CarreraService carreraService;
+
+    public EstudianteCrudController(EstudianteService estudianteService, CarreraService carreraService) {
+        this.estudianteService = estudianteService;
+        this.carreraService = carreraService;
+    }
 
     @GetMapping
-    public String cargarListaEstudiantes(@RequestParam(value = "semestre", required = false) Integer semestre,
-                                         @RequestParam(value = "idCarrera", required = false) Integer idCarrera,
+    public String cargarListaEstudiantes(@RequestParam(required = false) Integer semestre,
+                                         @RequestParam(required = false) Integer idCarrera,
                                          Model model) {
         model.addAttribute("estudiantes", estudianteService.listarEstudiantes(semestre, idCarrera));
         model.addAttribute("carreras", carreraService.listarTodas()); 
@@ -29,27 +30,19 @@ public class EstudianteCrudController {
     }
 
     @PostMapping("/guardar")
-    public String almacenarEstudiante(@RequestParam("nombre") String nombre,
-                                    @RequestParam("apellidos") String apellidos,
-                                    @RequestParam("correo") String correo,
-                                    @RequestParam("numControl") String numControl,
-                                    @RequestParam("semestre") Integer semestre,
-                                    @RequestParam("idCarrera") Integer idCarrera) {
+    public String almacenarEstudiante(@RequestParam("numControl") String numeroControl,
+                                      @RequestParam("nombre") String nombre,
+                                      @RequestParam("apellidos") String apellidos,
+                                      @RequestParam("correo") String correo,
+                                      @RequestParam("semestre") Integer semestre,
+                                      @RequestParam("idCarrera") Integer idCarrera) {
         try {
             Estudiante estudiante = new Estudiante();
-            estudiante.setNumeroControl(numControl);
-            estudiante.setSemestreActual(semestre);
-            Carrera carrera = carreraService.obtenerPorId(idCarrera);
-            estudiante.setCarrera(carrera);
-            Usuario usuario = new Usuario();
-            usuario.setNombre(nombre);
-            usuario.setApellidos(apellidos);
-            usuario.setCorreoInstitucional(correo);
-            estudiante.setUsuario(usuario);
+            estudiante.setUsuario(new Usuario());
+            aplicarDatosFormulario(estudiante, numeroControl, nombre, apellidos, correo, semestre, idCarrera);
             estudianteService.guardarEstudiante(estudiante);
             return "redirect:/coordinador/estudiantes?exito=guardado";
         } catch (Exception e) {
-            e.printStackTrace();
             return "redirect:/coordinador/estudiantes?error=duplicado";
         }
     }
@@ -63,29 +56,41 @@ public class EstudianteCrudController {
 
     @PostMapping("/actualizar")
     public String guardarCambiosEstudiante(@RequestParam("idEstudiante") Integer idEstudiante,
-                                       @RequestParam("numControl") String numControl,
-                                       @RequestParam("nombre") String nombre,
-                                       @RequestParam("apellidos") String apellidos,
-                                       @RequestParam("correo") String correo,
-                                       @RequestParam("semestre") Integer semestre,
-                                       @RequestParam("idCarrera") Integer idCarrera,
-                                       @RequestParam(value = "activo", defaultValue = "true") Boolean activo) {
+                                           @RequestParam("numControl") String numeroControl,
+                                           @RequestParam("nombre") String nombre,
+                                           @RequestParam("apellidos") String apellidos,
+                                           @RequestParam("correo") String correo,
+                                           @RequestParam("semestre") Integer semestre,
+                                           @RequestParam("idCarrera") Integer idCarrera) {
         try {
             Estudiante estudiante = estudianteService.obtenerPorId(idEstudiante);
-            estudiante.setNumeroControl(numControl);
-            estudiante.setSemestreActual(semestre);
-            estudiante.setActivo(activo);
-            Carrera carrera = carreraService.obtenerPorId(idCarrera);
-            estudiante.setCarrera(carrera);
-            Usuario usuario = estudiante.getUsuario();
-            usuario.setNombre(nombre);
-            usuario.setApellidos(apellidos);
-            usuario.setCorreoInstitucional(correo);
+            aplicarDatosFormulario(estudiante, numeroControl, nombre, apellidos, correo, semestre, idCarrera);
             estudianteService.guardarEstudiante(estudiante);
             return "redirect:/coordinador/estudiantes?exito=actualizado";
         } catch (Exception e) {
             return "redirect:/coordinador/estudiantes/editar/" + idEstudiante + "?error=duplicado";
         }
+    }
+
+    private void aplicarDatosFormulario(Estudiante estudiante,
+                                        String numeroControl,
+                                        String nombre,
+                                        String apellidos,
+                                        String correo,
+                                        Integer semestre,
+                                        Integer idCarrera) {
+        Usuario usuario = estudiante.getUsuario();
+        if (usuario == null) {
+            usuario = new Usuario();
+            estudiante.setUsuario(usuario);
+        }
+
+        estudiante.setNumeroControl(numeroControl.trim());
+        estudiante.setSemestreActual(semestre);
+        estudiante.setCarrera(carreraService.obtenerPorId(idCarrera));
+        usuario.setNombre(nombre.trim());
+        usuario.setApellidos(apellidos.trim());
+        usuario.setCorreoInstitucional(correo.trim());
     }
 
     @GetMapping("/eliminar/{id}")

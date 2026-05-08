@@ -1,6 +1,5 @@
 package itch.tspw.ProyectoTutorias.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import itch.tspw.ProyectoTutorias.repository.AsistenciaRepository;
@@ -8,14 +7,15 @@ import itch.tspw.ProyectoTutorias.repository.AsistenciaRepository;
 @Service
 public class AsistenciaService {
 
-    @Autowired
-    private AsistenciaRepository asistenciaRepository;
-    
-    private static final int TOTAL_SESIONES_SEMESTRE = 10;
+	private final AsistenciaRepository asistenciaRepository;
+    private static final int SESIONES_SEMESTRE = 10;
 
+    public AsistenciaService(AsistenciaRepository asistenciaRepository) {
+        this.asistenciaRepository = asistenciaRepository;
+    }
     public double calcularPorcentajeAsistencia(Integer idEstudiante) {
         long asistencias = asistenciaRepository.countByEstudiante_IdEstudianteAndPresenteTrue(idEstudiante);
-        return ((double) asistencias / TOTAL_SESIONES_SEMESTRE) * 100.0;
+        return ((double) asistencias / SESIONES_SEMESTRE) * 100.0;
     }
 
     public boolean esCandidatoALiberacion(Integer idEstudiante) {

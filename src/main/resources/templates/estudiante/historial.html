@@ -3,73 +3,92 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Mi Historial de Sesiones')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
 
-    <main>
-        <section>
-            <header>
-                <h1>Historial de Sesiones</h1>
-                <p>Registro detallado de tu asistencia y temas vistos en el semestre.</p>
-                
-                <!-- Acciones de descarga (PDF) -->
-                <div>
-                    <a th:href="@{/estudiante/historial/pdf}">Imprimir Kardex</a>
-                    
-                    <!-- Resumen rápido de métricas -->
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+            
+            <header class="bg-white border-b border-slate-200 p-6 px-10 sticky top-0 z-30">
+                <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                     <div>
-                        <p>Presente: <strong th:text="${totalAsistencias}">0</strong></p>
-                        <p>Faltas: <strong th:text="${totalFaltas}">0</strong></p>
+                        <h1 class="text-2xl font-black text-[#0B172A] tracking-tight">Historial de Sesiones</h1>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Registro de asistencia y temas vistos</p>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="flex gap-2">
+                            <div class="bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-100 text-center">
+                                <p class="text-[8px] font-black text-emerald-600 uppercase">Asistencias</p>
+                                <p class="text-sm font-black text-emerald-700" th:text="${totalAsistencias}">0</p>
+                            </div>
+                            <div class="bg-red-50 px-3 py-1 rounded-lg border border-red-100 text-center">
+                                <p class="text-[8px] font-black text-red-600 uppercase">Faltas</p>
+                                <p class="text-sm font-black text-red-700" th:text="${totalFaltas}">0</p>
+                            </div>
+                        </div>
+                        <a th:href="@{/estudiante/historial/pdf}" class="bg-[#0B172A] text-white p-3 rounded-xl hover:bg-blue-800 transition-all shadow-lg shadow-blue-100">
+                            <i class="fa-solid fa-file-pdf"></i>
+                        </a>
                     </div>
                 </div>
             </header>
 
-            <br>
+            <div class="p-10 max-w-5xl mx-auto w-full">
+                
+                <div class="space-y-8 relative">
+                    <div class="absolute left-[30px] top-0 bottom-0 w-0.5 bg-slate-200 hidden md:block"></div>
 
-            <!-- Listado de Sesiones -->
-            <section>
-                <div th:each="asistencia : ${historial}">
-                    <hr>
-                    <!-- Información de Tiempo -->
-                    <div>
-                        <span th:text="'Semana ' + ${asistencia.sesion.semanaNumero}"></span>
-                        <h3 th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'dd')}"></h3>
-                        <p th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'MMM yyyy')}"></p>
+                    <div th:each="asistencia : ${historial}" class="relative flex flex-col md:flex-row gap-8 group">
+                        
+                        <div class="md:w-16 flex flex-col items-center justify-start shrink-0 relative z-10">
+                            <div class="bg-white border-2 border-slate-200 w-16 h-20 rounded-2xl flex flex-col items-center justify-center shadow-sm group-hover:border-[#0B172A] transition-colors">
+                                <span class="text-[8px] font-black text-slate-400 uppercase" th:text="'Sem ' + ${asistencia.sesion.semanaNumero}"></span>
+                                <span class="text-2xl font-black text-[#0B172A]" th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'dd')}">00</span>
+                                <span class="text-[8px] font-black text-slate-400 uppercase" th:text="${#temporals.format(asistencia.sesion.fechaImparticion, 'MMM')}">Mes</span>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-black text-slate-800 leading-tight" 
+                                        th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.titulo : 'Sesión de Seguimiento Académico'}"></h3>
+                                    <p class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
+                                        Tutor: <span class="text-slate-600" th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}"></span>
+                                    </p>
+                                </div>
+                                
+                                <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+                                      th:classappend="${asistencia.presente ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}"
+                                      th:text="${asistencia.presente ? 'Presente' : 'Falta'}"></span>
+                            </div>
+
+                            <p class="text-xs text-slate-500 leading-relaxed mb-6" 
+                               th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.descripcion : 'Sesión de revisión de avances y atención personalizada.'}">
+                            </p>
+
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-50">
+                                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                                    Registro: <span th:text="${asistencia.sesion.estatusRegistro}"></span>
+                                </span>
+                                <i class="fa-solid fa-circle-info text-slate-200"></i>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Detalle de la Actividad -->
-                    <div>
-                        <h4 th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.titulo : 'Sesión de Seguimiento'}"></h4>
-                        
-                        <!-- Estatus de Asistencia -->
-                        <p>
-                            Estatus: 
-                            <span th:if="${asistencia.presente}">Presente</span>
-                            <span th:unless="${asistencia.presente}">Falta</span>
-                        </p>
-                        
-                        <p th:text="${asistencia.sesion.actividad != null ? asistencia.sesion.actividad.descripcion : 'Sin descripción detallada.'}"></p>
-                        
-                        <!-- Información del Tutor y Registro -->
-                        <ul>
-                            <li>Tutor: <span th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}"></span></li>
-                            <li>Estatus de Sesión: <span th:text="${asistencia.sesion.estatusRegistro}"></span></li>
-                        </ul>
+                    <div th:if="${#lists.isEmpty(historial)}" class="py-24 text-center bg-white rounded-[3rem] border border-dashed border-slate-300">
+                        <i class="fa-solid fa-calendar-xmark text-4xl text-slate-200 mb-4 block"></i>
+                        <h3 class="text-slate-400 font-black uppercase tracking-widest text-xs">Aún no hay sesiones</h3>
+                        <p class="text-slate-400 text-[11px] mt-1 italic">Tu historial se actualizará cuando tu tutor registre el pase de lista.</p>
                     </div>
-                    <hr>
                 </div>
 
-                <!-- Caso de historial vacío -->
-                <div th:if="${#lists.isEmpty(historial)}">
-                    <h3>No hay sesiones registradas</h3>
-                    <p>Tu historial de asistencias aparecerá aquí en cuanto el tutor comience a pasar lista.</p>
-                </div>
-            </section>
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
 
-        </section>
-        
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
 </body>
 </html>

@@ -3,87 +3,131 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Centro de Reportes')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <header>
-            <h1>Centro de Reportes y Constancias</h1>
-            <p>Emisión de documentos oficiales en formato PDF.</p>
-        </header>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+            
+            <header class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-[0.15em]">
+                    <a th:href="@{/coordinador/panel}" class="hover:text-blue-600 transition-colors">Dashboard</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-[#0B172A]">Centro de Reportes</span>
+                </div>
+            </header>
 
-        <section>
-            <!-- 1. Reportes Generales (Enlaces Directos) -->
-            <div>
-                <h3>Listado de Grupos</h3>
-                <p>Genera un PDF con todos los grupos de tutoría activos, sus carreras y horarios.</p>
-                <a th:href="@{/coordinador/reportes/grupos/pdf}">Generar PDF</a>
+            <div class="p-10 max-w-7xl mx-auto w-full">
+                
+                <div class="mb-10 text-center md:text-left">
+                    <h1 class="text-4xl font-black text-[#0B172A] tracking-tight">Centro de Reportes y Constancias</h1>
+                    <p class="text-slate-500 mt-1 font-medium italic">Emisión de documentos oficiales del ITCH en formato PDF.</p>
+                </div>
+
+                <div class="mb-12">
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i> Reportes Institucionales Generales
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-2">Listado de Grupos</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed mb-6">Genera un PDF con todos los grupos de tutoría activos, carreras y horarios.</p>
+                            </div>
+                            <a th:href="@{/coordinador/reportes/grupos/pdf}" 
+                               class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-[#0B172A] hover:text-white transition-all">
+                                Descargar Grupos
+                            </a>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-2">Plantilla Docente</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed mb-6">Directorio completo de los tutores y su información de contacto institucional.</p>
+                            </div>
+                            <a th:href="@{/coordinador/reportes/tutores/pdf}" 
+                               class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-[#0B172A] hover:text-white transition-all">
+                                Descargar Tutores
+                            </a>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg mb-2">Catálogo de PATs</h3>
+                                <p class="text-xs text-slate-500 leading-relaxed mb-6">Resumen de todos los Planes de Acción Tutorial institucionales creados.</p>
+                            </div>
+                            <a th:href="@{/coordinador/reportes/pats/pdf}" 
+                               class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest text-center hover:bg-[#0B172A] hover:text-white transition-all">
+                                Descargar Planes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200 mb-12">
+
+                <div>
+                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-filter"></i> Reportes por Filtro Específico
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                            <h3 class="font-bold text-[#0B172A] mb-2 leading-tight">Detalle de Grupo <br>(Alumnos)</h3>
+                            <p class="text-xs text-slate-400 mb-6">Imprime la lista oficial de estudiantes de un grupo.</p>
+                            
+                            <form th:action="@{/coordinador/reportes/grupo-detalle/pdf}" method="GET" class="space-y-4">
+                                <select name="idGrupo" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                                    <option value="" disabled selected>Elegir grupo...</option>
+                                    <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo + ' — ' + g.carrera.nombreCarrera}"></option>
+                                </select>
+                                <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
+                                    Generar Lista
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                            <h3 class="font-bold text-[#0B172A] mb-2 leading-tight">Cronograma <br>de un PAT</h3>
+                            <p class="text-xs text-slate-400 mb-6">Descarga la tabla de actividades del Plan Institucional.</p>
+                            
+                            <form th:action="@{/coordinador/reportes/pat-detalle/pdf}" method="GET" class="space-y-4">
+                                <select name="idPat" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+                                    <option value="" disabled selected>Elegir PAT...</option>
+                                    <option th:each="p : ${patsInstitucionales}" th:value="${p.idPat}" th:text="${p.version + ' — ' + p.carrera.nombreCarrera}"></option>
+                                </select>
+                                <button type="submit" class="w-full py-3 bg-blue-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
+                                    Generar Temario
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="bg-[#0B172A] p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                            <h3 class="font-bold text-white mb-2 leading-tight">Constancias de <br>Liberación (80%)</h3>
+                            <p class="text-xs text-slate-400 mb-6">Emite certificados para alumnos con ≥ 80% asistencia.</p>
+                            
+                            <form th:action="@{/coordinador/reportes/constancias/pdf}" method="GET" class="space-y-4 relative z-10">
+                                <select name="idGrupo" required class="w-full bg-slate-800 border border-slate-700 text-white rounded-xl px-4 py-3 text-xs font-bold outline-none focus:ring-2 focus:ring-amber-400 transition-all">
+                                    <option value="" disabled selected class="text-slate-500">Elegir grupo...</option>
+                                    <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}"></option>
+                                </select>
+                                <button type="submit" class="w-full py-3 bg-amber-400 text-[#0B172A] rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-500 shadow-xl shadow-amber-400/20 transition-all">
+                                    Emitir Constancias
+                                </button>
+                            </form>
+                            <i class="fa-solid fa-award absolute -right-4 -bottom-4 text-white/5 text-7xl"></i>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
             </div>
+        </main>
+    </div>
 
-            <br>
-
-            <div>
-                <h3>Plantilla Docente</h3>
-                <p>Directorio completo de los tutores y su información de contacto institucional.</p>
-                <a th:href="@{/coordinador/reportes/tutores/pdf}">Generar PDF</a>
-            </div>
-
-            <br>
-
-            <div>
-                <h3>Catálogo de PATs</h3>
-                <p>Resumen de todos los Planes de Acción Tutorial institucionales creados.</p>
-                <a th:href="@{/coordinador/reportes/pats/pdf}">Generar PDF</a>
-            </div>
-
-            <br>
-            <hr>
-            <br>
-
-            <!-- 2. Reportes Específicos (Formularios con Selección)[cite: 4, 5] -->
-            <div>
-                <h3>Detalle de Grupo (Alumnos)</h3>
-                <p>Selecciona un grupo para imprimir su lista oficial de estudiantes.</p>
-                <form th:action="@{/coordinador/reportes/grupo-detalle/pdf}" method="GET">
-                    <select name="idGrupo" required>
-                        <option value="" disabled selected>Seleccione un grupo...</option>
-                        <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo + ' - ' + g.carrera.nombreCarrera}"></option>
-                    </select>
-                    <button type="submit">Descargar Lista</button>
-                </form>
-            </div>
-
-            <br>
-
-            <div>
-                <h3>Cronograma de un PAT</h3>
-                <p>Descarga la tabla de actividades completa de un Plan Institucional específico.</p>
-                <form th:action="@{/coordinador/reportes/pat-detalle/pdf}" method="GET">
-                    <select name="idPat" required>
-                        <option value="" disabled selected>Seleccione un PAT...</option>
-                        <option th:each="p : ${patsInstitucionales}" th:value="${p.idPat}" th:text="${p.version + ' - ' + p.carrera.nombreCarrera}"></option>
-                    </select>
-                    <button type="submit">Descargar Cronograma</button>
-                </form>
-            </div>
-
-            <br>
-
-            <div>
-                <h3>Constancias de Liberación (80%)</h3>
-                <p>Genera los certificados para los estudiantes del grupo que alcanzaron el ≥ 80% de asistencia.</p>
-                <form th:action="@{/coordinador/reportes/constancias/pdf}" method="GET">
-                    <select name="idGrupo" required>
-                        <option value="" disabled selected>Seleccione un grupo a evaluar...</option>
-                        <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}"></option>
-                    </select>
-                    <button type="submit">Emitir Constancias</button>
-                </form>
-            </div>
-        </section>
-
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
 </body>
 </html>

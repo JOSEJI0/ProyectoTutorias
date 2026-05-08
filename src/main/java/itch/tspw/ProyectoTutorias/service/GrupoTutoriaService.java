@@ -2,51 +2,39 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import jakarta.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class GrupoTutoriaService {
 
-    @Autowired
-    private GrupoTutoriaRepository grupoTutoriaRepository;
-    
-    @Autowired
-    private EstudianteRepository estudianteRepository;
-    
-    @Autowired
-    private SesionRepository sesionRepository;
-    
+    private final GrupoTutoriaRepository grupoTutoriaRepository;
+    private final EstudianteRepository estudianteRepository;
+    private final SesionRepository sesionRepository;
+
+    public GrupoTutoriaService(GrupoTutoriaRepository grupoTutoriaRepository,
+                               EstudianteRepository estudianteRepository,
+                               SesionRepository sesionRepository) {
+        this.grupoTutoriaRepository = grupoTutoriaRepository;
+        this.estudianteRepository = estudianteRepository;
+        this.sesionRepository = sesionRepository;
+    }
+
+    @Transactional(readOnly = true)
     public List<GrupoTutoria> listarTodos() {
         return grupoTutoriaRepository.findAll();
     }
 
     @Transactional
     public GrupoTutoria asignarGrupo(GrupoTutoria grupo, List<Integer> idEstudiantes) {
-        GrupoTutoria grupoGuardado;
-
-        if (grupo.getIdGrupo() != null) {
-            grupoGuardado = grupoTutoriaRepository.findById(grupo.getIdGrupo()).orElse(grupo);
-            grupoGuardado.setNombreGrupo(grupo.getNombreGrupo());
-            grupoGuardado.setCarrera(grupo.getCarrera());
-            grupoGuardado.setSemestre(grupo.getSemestre());
-            grupoGuardado.setHorario(grupo.getHorario());
-            grupoGuardado.setTutor(grupo.getTutor());
-            grupoGuardado = grupoTutoriaRepository.save(grupoGuardado);
-        } else {
-            grupoGuardado = grupoTutoriaRepository.save(grupo);
-        }
+        final GrupoTutoria grupoGuardado = grupoTutoriaRepository.save(grupo);
 
         if (idEstudiantes != null && !idEstudiantes.isEmpty()) {
-            List<Estudiante> estudiantesSeleccionados = estudianteRepository.findAllById(idEstudiantes);
-            for (Estudiante estudiante : estudiantesSeleccionados) {
-                estudiante.setGrupo(grupoGuardado);
-            }
-            estudianteRepository.saveAll(estudiantesSeleccionados);
+            List<Estudiante> estudiantes = estudianteRepository.findAllById(idEstudiantes);
+            estudiantes.forEach(e -> e.setGrupo(grupoGuardado));
+            estudianteRepository.saveAll(estudiantes);
         }
         
         return grupoGuardado;
@@ -57,19 +45,14 @@ public class GrupoTutoriaService {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado"));
 
-        List<Estudiante> estudiantes = grupo.getEstudiantes();
-        if (estudiantes != null && !estudiantes.isEmpty()) {
-            for (Estudiante e : estudiantes) {
-                e.setGrupo(null);
-            }
-            estudianteRepository.saveAll(estudiantes);
+        if (grupo.getEstudiantes() != null) {
+            grupo.getEstudiantes().forEach(e -> e.setGrupo(null));
+            estudianteRepository.saveAll(grupo.getEstudiantes());
         }
 
         List<Sesion> sesiones = sesionRepository.findByGrupo_IdGrupo(idGrupo);
         if (!sesiones.isEmpty()) {
-            for (Sesion s : sesiones) {
-                s.setEstatusRegistro("Cancelada");
-            }
+            sesiones.forEach(s -> s.setEstatusRegistro("Cancelada"));
             sesionRepository.saveAll(sesiones);
         }
 
@@ -77,22 +60,27 @@ public class GrupoTutoriaService {
         grupoTutoriaRepository.save(grupo);
     }
     
+    @Transactional(readOnly = true)
     public GrupoTutoria obtenerPorId(Integer idGrupo) {
         return grupoTutoriaRepository.findById(idGrupo).orElse(null);
     }
     
+    @Transactional(readOnly = true)
     public List<GrupoTutoria> obtenerGruposActivosPorTutor(Integer idTutor) {
         return grupoTutoriaRepository.findByTutor_IdTutorAndPeriodo_EstatusActivoTrueAndActivoTrue(idTutor);
     }
 
+    @Transactional(readOnly = true)
     public List<GrupoTutoria> buscarTutoriasPorPeriodo(Integer idPeriodo) {
         return grupoTutoriaRepository.findByPeriodo_IdPeriodoAndActivoTrue(idPeriodo);
     }
 
+    @Transactional(readOnly = true)
     public List<GrupoTutoria> buscarHistorialTutoriasDeEstudiante(Integer idEstudiante) {
         return grupoTutoriaRepository.findByEstudiantes_IdEstudianteAndActivoTrue(idEstudiante);
     }
     
+    @Transactional(readOnly = true)
     public List<GrupoTutoria> listarGruposPorEstatus(boolean activo) {
         return grupoTutoriaRepository.findByPeriodo_EstatusActivoAndActivoTrue(activo);
     }

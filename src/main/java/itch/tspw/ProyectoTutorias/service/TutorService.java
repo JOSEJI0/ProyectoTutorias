@@ -2,69 +2,67 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class TutorService {
 
-    @Autowired
-    private TutorRepository tutorRepository;
+    private final TutorRepository tutorRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PerfilRepository perfilRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public TutorService(TutorRepository tutorRepository, 
+                        UsuarioRepository usuarioRepository, 
+                        PerfilRepository perfilRepository, 
+                        PasswordEncoder passwordEncoder) {
+        this.tutorRepository = tutorRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.perfilRepository = perfilRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     public Tutor obtenerPorId(Integer idTutor) {
         return tutorRepository.findById(idTutor)
-                .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Tutor no encontrado con ID: " + idTutor));
     }
 
     public List<Tutor> listarTodos() {
         return tutorRepository.findAll().stream()
-                .filter(tutor -> tutor.getUsuario() != null && tutor.getUsuario().getActivo()) 
+                .filter(t -> t.getUsuario() != null && Boolean.TRUE.equals(t.getUsuario().getActivo()))
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public void guardarTutor(Tutor tutor) {
         Usuario usuario = tutor.getUsuario();
-        
         if (usuario.getIdUsuario() == null) {
-            String hash = passwordEncoder.encode(tutor.getRfcEmpleado());
-            usuario.setPasswordHash(hash);
-            
-            Perfil perfilTutor = perfilRepository.findByNombre("ROLE_TUTOR")
-                    .orElseThrow(() -> new RuntimeException("El perfil ROLE_TUTOR no existe en la BD"));
-            
-            if(usuario.getPerfiles() == null) {
-                usuario.setPerfiles(new java.util.HashSet<>());
-            }
-            usuario.getPerfiles().add(perfilTutor);
-            usuario.setActivo(true);
+            configurarNuevoUsuario(usuario, tutor.getRfcEmpleado());
         }
-
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
-        tutor.setUsuario(usuarioGuardado);
+        tutor.setUsuario(usuarioRepository.save(usuario));
         tutorRepository.save(tutor);
     }
 
-    @Transactional
+    private void configurarNuevoUsuario(Usuario usuario, String rfc) {
+        usuario.setPasswordHash(passwordEncoder.encode(rfc));
+        usuario.setActivo(true);
+        Perfil perfilTutor = perfilRepository.findByNombre("ROLE_TUTOR")
+                .orElseThrow(() -> new RuntimeException("Error crítico: El perfil ROLE_TUTOR no existe en la base de datos"));
+
+        if (usuario.getPerfiles() == null) {
+            usuario.setPerfiles(new HashSet<>());
+        }
+        usuario.getPerfiles().add(perfilTutor);
+    }
+
     public void eliminarTutor(Integer idTutor) {
-        Tutor tutor = tutorRepository.findById(idTutor)
-                .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
-        Usuario usuario = tutor.getUsuario();
-        usuario.setActivo(false); 
+        Tutor tutor = obtenerPorId(idTutor);
+        Usuario usuario = tutor.getUsuario();        
+        usuario.setActivo(false);
         usuarioRepository.save(usuario);
     }
 }

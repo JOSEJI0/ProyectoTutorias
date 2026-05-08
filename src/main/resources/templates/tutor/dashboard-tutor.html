@@ -1,94 +1,144 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <!-- Mantenemos el fragmento de encabezado institucional[cite: 1] -->
-    <th:block th:replace="~{fragments/layout :: encabezado('Panel Tutor')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Panel del Tutor')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <!-- Sidebar de navegación docente[cite: 1] -->
-    <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-    <main>
-        <header>
-            <h1>Buen día, Docente</h1>
-            <p>Gestión y seguimiento de actividades de tutoría.</p>
-        </header>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+            
+            <header class="bg-white border-b border-slate-200 p-8 px-10 sticky top-0 z-30">
+                <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-black text-[#0B172A] tracking-tight">
+                            Buen día, <span th:text="${tutor.usuario.nombre}" class="text-blue-600">Docente</span>
+                        </h1>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Gestión y Seguimiento Académico</p>
+                    </div>
+                    
+                    <div th:if="${param.exito != null}" class="bg-emerald-50 text-emerald-700 px-6 py-2 rounded-2xl border border-emerald-100 text-xs font-bold animate-fade-in">
+                        <i class="fa-solid fa-check-circle mr-2"></i> Operación completada con éxito.
+                    </div>
+                </div>
+            </header>
 
-        <!-- Mensaje de confirmación de operaciones -->
-        <div th:if="${param.exito != null}">
-            La operación se completó correctamente.
-        </div>
+            <div class="p-10 max-w-7xl mx-auto w-full space-y-10">
 
-        <!-- Indicadores de Seguimiento (RF3, RF5) -->
-        <section>
-            <div>
-                <p>Tutorados Activos</p>
-                <strong th:text="${tutoradosActivos}">0</strong>
+                <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 flex items-center gap-6">
+                        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Tutorados Activos</p>
+                            <p class="text-3xl font-black text-[#0B172A]" th:text="${tutoradosActivos}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 flex items-center gap-6">
+                        <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center text-2xl shadow-inner">
+                            <i class="fa-solid fa-calendar-check"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Sesiones Impartidas</p>
+                            <p class="text-3xl font-black text-[#0B172A]" th:text="${sesionesImpartidas}">0</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#0B172A] p-8 rounded-[2.5rem] shadow-xl flex items-center gap-6 text-white relative overflow-hidden">
+                        <div class="w-16 h-16 bg-amber-400 text-[#0B172A] rounded-3xl flex items-center justify-center text-2xl shadow-lg relative z-10">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="relative z-10">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Estado de Grupos</p>
+                            <p class="text-3xl font-black text-amber-400" th:text="${grupos.size()}">0</p>
+                        </div>
+                        <i class="fa-solid fa-triangle-exclamation absolute -right-4 -bottom-4 text-white/5 text-7xl"></i>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    
+                    <div class="lg:col-span-8">
+                        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                                <h2 class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Mi Carga Académica</h2>
+                                <span class="text-[10px] font-bold text-slate-400" th:text="${#lists.size(grupos)} + ' Grupos'"></span>
+                            </div>
+                            
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead>
+                                        <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-50">
+                                            <th class="px-8 py-5">Grupo</th>
+                                            <th class="px-6 py-5">Carrera</th>
+                                            <th class="px-6 py-5 text-center">ID de Grupo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-50">
+                                        <tr th:each="grupo : ${grupos}" class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-8 py-5 font-bold text-[#0B172A]" th:text="${grupo.nombreGrupo}"></td>
+                                            <td class="px-6 py-5 text-xs font-bold text-slate-500" th:text="${grupo.carrera.nombreCarrera}"></td>
+                                            <td class="px-6 py-5 text-center">
+                                                <code class="bg-slate-100 text-blue-600 px-3 py-1 rounded-lg text-xs font-bold" th:text="${grupo.idGrupo}">ID</code>
+                                            </td>
+                                        </tr>
+                                        <tr th:if="${#lists.isEmpty(grupos)}">
+                                            <td colspan="3" class="px-8 py-16 text-center text-slate-400 italic text-sm">
+                                                No tienes grupos asignados para este periodo.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-4">
+                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                            <div class="flex items-center gap-3 mb-8">
+                                <div class="w-10 h-10 bg-amber-400 text-[#0B172A] rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fa-solid fa-list-check"></i>
+                                </div>
+                                <h3 class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Pase de Lista</h3>
+                            </div>
+                            
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">Selecciona el grupo para iniciar el registro de asistencia semanal y evidencias.</p>
+                            
+                            <form th:action="@{/tutor/asistencia}" method="POST" class="space-y-6">
+                                <div class="relative">
+                                    <select name="idGrupo" required 
+                                            class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 appearance-none cursor-pointer">
+                                        <option value="" disabled selected>Elegir grupo...</option>
+                                        <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}"></option>
+                                    </select>
+                                    <div class="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <i class="fa-solid fa-chevron-down text-xs"></i>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="w-full bg-[#0B172A] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-200">
+                                    Comenzar Registro
+                                </button>
+                            </form>
+                            
+                            <div class="mt-8 pt-6 border-t border-slate-100">
+                                <p class="text-[10px] text-slate-400 font-medium italic text-center">
+                                    <i class="fa-solid fa-info-circle mr-1 text-amber-500"></i> Recuerda subir evidencias antes del cierre de periodo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
             </div>
-            <div>
-                <p>Sesiones Impartidas</p>
-                <strong th:text="${sesionesImpartidas}">0</strong>
-            </div>
-            <div>
-                <p>Alertas de Necesidades</p>
-                <strong th:text="${alertas}">0</strong>
-            </div>
-        </section>
+        </main>
+    </div>
 
-        <br>
-
-        <section>
-            <!-- Tabla de Carga Académica -->
-            <div>
-                <h2>Carga Académica Actual</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Grupo</th>
-                            <th>Carrera</th>
-                            <th>Identificador</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Itera sobre los grupos asignados al tutor -->
-                        <tr th:each="grupo : ${grupos}">
-                            <td th:text="${grupo.nombreGrupo}"></td>
-                            <td th:text="${grupo.carrera.nombreCarrera}"></td>
-                            <td>
-                                <code th:text="${grupo.idGrupo}">ID</code>
-                            </td>
-                        </tr>
-                        <!-- Caso sin grupos asignados -->
-                        <tr th:if="${#lists.isEmpty(grupos)}">
-                            <td colspan="3">No existen grupos vinculados a su cuenta.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <br>
-
-            <!-- Acceso Rápido al Pase de Lista (RF3) -->
-            <div>
-                <h3>Pase de Lista</h3>
-                <p>Selecciona el grupo para iniciar el registro de asistencia semanal.</p>
-                
-                <form th:action="@{/tutor/asistencia}" method="POST">
-                    <select name="idGrupo" required>
-                        <option th:each="g : ${grupos}" th:value="${g.idGrupo}" th:text="${g.nombreGrupo}">Cargando grupos...</option>
-                    </select>
-                    <br><br>
-                    <button type="submit">Comenzar Registro</button>
-                </form>
-            </div>
-        </section>
-
-        <br>
-        <p><em>Recuerda subir las evidencias del PAT antes del cierre de periodo.</em></p>
-        
-        <!-- Pie de página institucional[cite: 1] -->
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
 </body>
 </html>

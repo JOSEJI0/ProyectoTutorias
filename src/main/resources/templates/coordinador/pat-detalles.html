@@ -3,101 +3,130 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detalles y Temario PAT')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <a th:href="@{/coordinador/pat}">Volver al Catálogo de Planes</a>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
             
-            <header>
-                <h1>Detalles del Plan Institucional</h1>
-                <p>Agrega las actividades de las 10 semanas que los tutores deberán impartir.</p>
+            <header class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-[0.15em]">
+                    <a th:href="@{/coordinador/panel}" class="hover:text-blue-600 transition-colors">Panel</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <a th:href="@{/coordinador/pat}" class="hover:text-blue-600 transition-colors">Planes Institucionales</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-[#0B172A]">Constructor de Temario</span>
+                </div>
             </header>
 
-            <!-- Resumen del PAT -->
-            <section>
-                <div>
-                    <p>Carrera</p>
-                    <strong th:text="${pat.carrera.nombreCarrera}"></strong>
-                </div>
-                <div>
-                    <p>Periodo</p>
-                    <strong th:text="${pat.periodo.nombrePeriodo}"></strong>
-                </div>
-                <div>
-                    <p>Versión</p>
-                    <code th:text="${pat.version}"></code>
-                </div>
-            </section>
-
-            <br>
-
-            <!-- Notificaciones de Backend -->
-            <div th:if="${param.exito != null}">
-                Tema asignado y guardado correctamente.
-            </div>
-
-            <div th:if="${param.error != null}">
-                <p th:if="${param.error[0] == 'semana_invalida'}">
-                    <strong>Error:</strong> La semana debe estar entre el rango permitido (1 a 10).
-                </p>
-                <p th:if="${param.error[0] == 'semana_ocupada'}">
-                    <strong>Atención:</strong> Ya has asignado un tema para esa semana.
-                </p>
-                <p th:if="${param.error[0] == 'titulo_duplicado'}">
-                    <strong>Atención:</strong> Ya existe un tema con ese título.
-                </p>
-            </div>
-
-            <br>
-
-            <!-- FORMULARIO DE ASIGNACIÓN DE ACTIVIDADES -->
-            <section>
-                <h3>Asignar Tema</h3>
-                <form th:action="@{/coordinador/pat/{id}/actividades/guardar(id=${pat.idPat})}" method="POST">
-                    <div>
-                        <label>Semana (1 al 10) *</label>
-                        <input type="number" min="1" max="10" name="semana" placeholder="Ej. 1" required>
-                    </div>
-                    <br>
-                    <div>
-                        <label>Título del Tema *</label>
-                        <input type="text" name="titulo" placeholder="Ej. Integración Grupal" required>
-                    </div>
-                    <br>
-                    <div>
-                        <label>Descripción General *</label>
-                        <textarea name="descripcion" rows="4" required></textarea>
-                    </div>
-                    <br>
-                    <button type="submit">Añadir a la lista</button>
-                </form>
-            </section>
-
-            <br>
-
-            <!-- LISTA DE ACTIVIDADES PROGRAMADAS[cite: 4, 5] -->
-            <section>
-                <h3>Temario Programado</h3>
-                <div th:each="a : ${actividades}">
-                    <hr>
-                    <p><strong th:text="'Semana ' + ${a.semanaProgramada}"></strong></p>
-                    <h4 th:text="${a.titulo}"></h4>
-                    <p th:text="${a.descripcion}"></p>
-                    <a th:href="@{/coordinador/pat/{idPat}/actividades/eliminar/{idAct}(idPat=${pat.idPat}, idAct=${a.idActividad})}" 
-                       onclick="return confirm('¿Eliminar actividad de este molde?');">
-                       Eliminar
+            <div class="p-10 max-w-7xl mx-auto w-full">
+                
+                <div class="mb-10">
+                    <a th:href="@{/coordinador/pat}" class="group inline-flex items-center gap-2 text-slate-400 hover:text-[#0B172A] font-black text-[10px] uppercase tracking-[0.2em] mb-4 transition-all">
+                        <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-1"></i> 
+                        Volver al Catálogo
                     </a>
+                    <h1 class="text-3xl font-black text-[#0B172A] tracking-tight">Plan de Acción Tutorial (PAT)</h1>
+                    <p class="text-slate-500 font-medium">Configura el molde de 10 semanas para los tutores de esta carrera.</p>
                 </div>
 
-                <div th:if="${#lists.isEmpty(actividades)}">
-                    <p><em>Aún no has asignado actividades para este temario.</em></p>
-                </div>
-            </section>
+                <section class="bg-[#0B172A] rounded-[2rem] p-8 text-white mb-10 shadow-xl flex flex-wrap gap-12 relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Carrera Destino</p>
+                        <p class="text-xl font-bold" th:text="${pat.carrera.nombreCarrera}">Carrera</p>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Periodo Escolar</p>
+                        <p class="text-xl font-bold" th:text="${pat.periodo.nombrePeriodo}">Periodo</p>
+                    </div>
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Versión</p>
+                        <p class="text-xl font-mono font-bold text-amber-400" th:text="${pat.version}">V1.0</p>
+                    </div>
+                    <i class="fa-solid fa-file-signature absolute -right-4 -bottom-4 text-white/5 text-8xl"></i>
+                </section>
 
-        </section>
-    </main>
+                <div th:if="${param.exito != null}" class="mb-6 bg-emerald-50 border border-emerald-100 text-emerald-700 px-6 py-3 rounded-2xl text-sm font-bold animate-pulse">
+                    <i class="fa-solid fa-circle-check mr-2"></i> Tema asignado y guardado correctamente.
+                </div>
+
+                <div th:if="${param.error != null}" class="mb-6 bg-red-50 border border-red-100 text-red-700 px-6 py-3 rounded-2xl text-sm font-bold">
+                    <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                    <span th:if="${param.error[0] == 'semana_invalida'}">La semana debe estar en el rango de 1 a 10.</span>
+                    <span th:if="${param.error[0] == 'semana_ocupada'}">Ya existe un tema para esa semana.</span>
+                    <span th:if="${param.error[0] == 'titulo_duplicado'}">Ya existe un tema con ese título.</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    
+                    <div class="lg:col-span-5">
+                        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 sticky top-24">
+                            <h3 class="font-black text-[#0B172A] uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                                <i class="fa-solid fa-plus-circle text-blue-600"></i> Añadir Tema al Molde
+                            </h3>
+
+                            <form th:action="@{/coordinador/pat/{id}/actividades/guardar(id=${pat.idPat})}" method="POST" class="space-y-6">
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Número de Semana *</label>
+                                    <input type="number" min="1" max="10" name="semanaProgramada" placeholder="1-10" required
+                                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Título de la Actividad *</label>
+                                    <input type="text" name="titulo" placeholder="Ej. Integración Grupal" required
+                                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Descripción del Tema *</label>
+                                    <textarea name="descripcion" rows="4" required placeholder="Describe brevemente el objetivo del tema..."
+                                              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-medium text-sm"></textarea>
+                                </div>
+
+                                <button type="submit" class="w-full bg-amber-400 text-[#0B172A] py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-200/50 hover:bg-amber-500 transition-all">
+                                    Añadir al Temario
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs">Temario Programado</h3>
+                                <span class="text-[10px] font-black text-blue-600" th:text="${#lists.size(actividades)} + ' de 10 Temas'"></span>
+                            </div>
+
+                            <div class="p-4 space-y-4">
+                                <div th:each="a : ${actividades}" class="p-6 bg-slate-50 border border-slate-100 rounded-3xl hover:bg-white hover:shadow-md transition-all group">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <span class="text-[10px] font-black text-amber-600 uppercase tracking-widest" th:text="'Semana ' + ${a.semanaProgramada}">Semana 1</span>
+                                        <a th:href="@{/coordinador/pat/{idPat}/actividades/eliminar/{idAct}(idPat=${pat.idPat}, idAct=${a.idActividad})}" 
+                                           onclick="return confirm('¿Eliminar actividad de este molde?');"
+                                           class="text-slate-300 hover:text-red-500 transition-colors">
+                                            <i class="fa-solid fa-trash-can text-sm"></i>
+                                        </a>
+                                    </div>
+                                    <h4 class="font-bold text-slate-800 mb-2" th:text="${a.titulo}">Título</h4>
+                                    <p class="text-xs text-slate-500 leading-relaxed" th:text="${a.descripcion}">Descripción...</p>
+                                </div>
+
+                                <div th:if="${#lists.isEmpty(actividades)}" class="py-20 text-center">
+                                    <i class="fa-solid fa-list-check text-4xl text-slate-200 mb-4 block"></i>
+                                    <p class="text-slate-400 font-bold italic text-sm">Aún no has asignado actividades para este temario institucional.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

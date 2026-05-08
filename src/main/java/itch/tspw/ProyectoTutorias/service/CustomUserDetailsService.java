@@ -1,6 +1,5 @@
 package itch.tspw.ProyectoTutorias.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -18,8 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+
+    public CustomUserDetailsService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
@@ -30,6 +32,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(perfil -> new SimpleGrantedAuthority(perfil.getNombre()))
                 .collect(Collectors.toList());
 
-        return new User(usuario.getCorreoInstitucional(), usuario.getPasswordHash(), authorities);
+        return new User(
+                usuario.getCorreoInstitucional(), 
+                usuario.getPasswordHash(), 
+                authorities
+        );
     }
 }

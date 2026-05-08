@@ -3,25 +3,35 @@ package itch.tspw.ProyectoTutorias.controller;
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
 import itch.tspw.ProyectoTutorias.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/tutor/pat")
 public class PatTutorController {
 
-    @Autowired private GrupoTutoriaService grupoService;
-    @Autowired private PatGrupoService patGrupoService;
-    @Autowired private PatService patService;
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private TutorRepository tutorRepository;
-    @Autowired private PatRepository patRepository;
-    @Autowired private ActividadPatService actividadPatService;
+    private final GrupoTutoriaService grupoService;
+    private final PatGrupoService patGrupoService;
+    private final PatService patService;
+    private final UsuarioRepository usuarioRepository;
+    private final TutorRepository tutorRepository;
+    private final PatRepository patRepository;
+    private final ActividadPatService actividadPatService;
+
+    public PatTutorController(GrupoTutoriaService grupoService, PatGrupoService patGrupoService,
+                              PatService patService, UsuarioRepository usuarioRepository,
+                              TutorRepository tutorRepository, PatRepository patRepository,
+                              ActividadPatService actividadPatService) {
+        this.grupoService = grupoService;
+        this.patGrupoService = patGrupoService;
+        this.patService = patService;
+        this.usuarioRepository = usuarioRepository;
+        this.tutorRepository = tutorRepository;
+        this.patRepository = patRepository;
+        this.actividadPatService = actividadPatService;
+    }
 
     private Tutor obtenerTutorLogueado(Authentication authentication) {
         Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName())
@@ -39,30 +49,27 @@ public class PatTutorController {
     }
 
     @PostMapping("/seleccionar")
-    public String seleccionarGrupo(@RequestParam("idGrupo") Integer idGrupo) {
+    public String seleccionarGrupo(@RequestParam Integer idGrupo) {
         return "redirect:/tutor/pat/grupo/" + idGrupo;
     }
 
     @GetMapping("/grupo/{idGrupo}")
-    public String gestionarPatGrupo(@PathVariable("idGrupo") Integer idGrupo, Model model) {
+    public String gestionarPatGrupo(@PathVariable Integer idGrupo, Model model) {
         GrupoTutoria grupo = grupoService.obtenerPorId(idGrupo);
         PatGrupo patGrupo = patGrupoService.obtenerPatDeGrupo(idGrupo);
 
         model.addAttribute("grupo", grupo);
 
-        // CAMBIO CLAVE: Usamos el método blindado que exige Activo=True
-        Optional<PatInstitucional> patInstOpt = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
+        patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
                 grupo.getPeriodo().getIdPeriodo(), 
                 grupo.getCarrera().getIdCarrera()
+        ).ifPresentOrElse(
+            patInst -> {
+                model.addAttribute("patInstitucional", patInst);
+                model.addAttribute("actividadesBase", actividadPatService.listarPorPat(patInst.getIdPat()));
+            },
+            () -> model.addAttribute("errorPatBase", true)
         );
-
-        if (patInstOpt.isPresent()) {
-            PatInstitucional patInst = patInstOpt.get();
-            model.addAttribute("patInstitucional", patInst);
-            model.addAttribute("actividadesBase", actividadPatService.listarPorPat(patInst.getIdPat()));
-        } else {
-            model.addAttribute("errorPatBase", true);
-        }
 
         if (patGrupo != null) {
             model.addAttribute("patGrupo", patGrupo);
@@ -73,8 +80,7 @@ public class PatTutorController {
     }
 
     @PostMapping("/grupo/{idGrupo}/clonar")
-    public String clonarPat(@PathVariable("idGrupo") Integer idGrupo, 
-                            @RequestParam("idPatInstitucional") Integer idPatInstitucional) {
+    public String clonarPat(@PathVariable Integer idGrupo, @RequestParam Integer idPatInstitucional) {
         try {
             patGrupoService.clonarPatParaGrupo(idGrupo, idPatInstitucional);
             return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=clonado";
@@ -92,25 +98,27 @@ public class PatTutorController {
     }
 
     @PostMapping("/actividad/guardar")
-    public String almacenarActividadEditada(@RequestParam("idActividadGrupo") Integer idActividadGrupo,
-                                          @RequestParam("idGrupo") Integer idGrupo,
-                                          @RequestParam("titulo") String titulo,
-                                          @RequestParam("descripcion") String descripcion,
-                                          @RequestParam("estatus") String estatus,
-                                          @RequestParam("semanaProgramada") Integer semanaProgramada) {
+    public String almacenarActividadEditada(@ModelAttribute ActividadPatGrupo actividad, 
+                                            @RequestParam Integer idGrupo) {
         
-        patGrupoService.actualizarActividadCompleta(idActividadGrupo, titulo, descripcion, estatus, semanaProgramada);
+        patGrupoService.actualizarActividadCompleta(
+            actividad.getIdActividadGrupo(), 
+            actividad.getTitulo(), 
+            actividad.getDescripcion(), 
+            actividad.getEstatus(), 
+            actividad.getSemanaProgramada()
+        );
         return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=actividad_actualizada";
     }
 
     @PostMapping("/actividad/{id}/eliminar")
-    public String removerActividad(@PathVariable("id") Integer idActividad, @RequestParam("idGrupo") Integer idGrupo) {
+    public String removerActividad(@PathVariable("id") Integer idActividad, @RequestParam Integer idGrupo) {
         patGrupoService.eliminarActividad(idActividad);
         return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=actividad_eliminada";
     }
 
     @PostMapping("/grupo/{idGrupo}/eliminar-pat")
-    public String removerPatGrupo(@PathVariable("idGrupo") Integer idGrupo) {
+    public String removerPatGrupo(@PathVariable Integer idGrupo) {
         patGrupoService.eliminarPatDeGrupo(idGrupo);
         return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=pat_eliminado";
     }

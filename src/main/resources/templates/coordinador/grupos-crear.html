@@ -1,100 +1,87 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <!-- Mantenemos el encabezado dinámico según el estado de edición -->
     <th:block th:replace="~{fragments/layout :: encabezado(${esEdicion} ? 'Editar Grupo' : 'Crear Grupo')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <!-- Sidebar de navegación institucional[cite: 1] -->
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <a th:href="@{/coordinador/grupos}">Volver al Listado</a>
+        <main class="flex-1 flex flex-col min-w-0">
             
-            <header>
-                <!-- Título dinámico basado en la variable esEdicion -->
-                <h1 th:text="${esEdicion} ? 'Editar Grupo de Tutoría' : 'Aperturar Grupo de Tutoría'"></h1>
-                <p>Configura los detalles del grupo académico.</p>
-            </header>
-
-            <form th:action="@{/coordinador/grupos/guardar}" th:object="${nuevoGrupo}" method="POST">
+            <div class="p-10 max-w-4xl mx-auto w-full">
                 
-                <!-- Campos ocultos para integridad de la base de datos[cite: 4, 7] -->
-                <input type="hidden" th:field="*{idGrupo}">
-                <input type="hidden" th:field="*{activo}">
+                <a th:href="@{/coordinador/grupos}" class="text-blue-600 text-sm font-bold flex items-center gap-2 mb-6 hover:underline">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+                </a>
 
-                <fieldset>
-                    <legend>Datos del Grupo</legend>
+                <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                    
+                    <div class="bg-[#0B172A] p-8 text-white">
+                        <h1 class="text-2xl font-black tracking-tight" 
+                            th:text="${esEdicion} ? 'Editar Grupo de Tutoría' : 'Aperturar Nuevo Grupo'"></h1>
+                        <p class="text-slate-400 text-sm">Configura los detalles básicos del grupo académico.</p>
+                    </div>
 
-                    <!-- Identificador/Nombre del grupo -->
-                    <label>Nombre del Grupo (Clave)</label>
-                    <br>
-                    <input type="text" th:field="*{nombreGrupo}" placeholder="Ej. 1A-SISC" required>
+                    <form th:action="@{/coordinador/grupos/guardar}" th:object="${nuevoGrupo}" method="POST" class="p-8 space-y-6">
+                        
+                        <input type="hidden" th:field="*{idGrupo}">
+                        <input type="hidden" th:field="*{activo}">
 
-                    <br><br>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Nombre del Grupo (Clave)</label>
+                                <input type="text" th:field="*{nombreGrupo}" placeholder="Ej. 1A-SISC" required 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                            </div>
 
-                    <!-- Asociación con Carrera -->
-                    <label>Carrera Asignada</label>
-                    <br>
-                    <select th:field="*{carrera.idCarrera}" required>
-                        <option value="" disabled selected>Selecciona la carrera...</option>
-                        <option th:each="c : ${carreras}" 
-                                th:value="${c.idCarrera}" 
-                                th:text="${c.nombreCarrera}">Ingeniería</option>
-                    </select>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Carrera Asignada</label>
+                                <select th:field="*{carrera.idCarrera}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona la carrera...</option>
+                                    <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}">Carrera</option>
+                                </select>
+                            </div>
 
-                    <br><br>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Semestre</label>
+                                <select th:field="*{semestre}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona...</option>
+                                    <option th:each="i : ${#numbers.sequence(1, 9)}" th:value="${i}" th:text="${i + '° Semestre'}"></option>
+                                </select>
+                            </div>
 
-                    <!-- Selección de Semestre[cite: 4, 8] -->
-                    <label>Semestre Permitido</label>
-                    <br>
-                    <select th:field="*{semestre}" required>
-                        <option value="" disabled selected>Selecciona...</option>
-                        <option value="1">1° Semestre</option>
-                        <option value="2">2° Semestre</option>
-                        <option value="3">3° Semestre</option>
-                        <option value="4">4° Semestre</option>
-                        <option value="5">5° Semestre</option>
-                        <option value="6">6° Semestre</option>
-                        <option value="7">7° Semestre</option>
-                        <option value="8">8° Semestre</option>
-                        <option value="9">9° Semestre</option>
-                    </select>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Horario de Sesión</label>
+                                <input type="text" th:field="*{horario}" placeholder="Ej. Lunes 10:00 - 11:00" required 
+                                       class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                            </div>
 
-                    <br><br>
+                            <div>
+                                <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Docente Tutor</label>
+                                <select th:field="*{tutor.idTutor}" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none font-bold">
+                                    <option value="" disabled selected>Selecciona al docente...</option>
+                                    <option th:each="t : ${tutores}" th:value="${t.idTutor}" th:text="${t.usuario.nombre + ' ' + t.usuario.apellidos}">Tutor</option>
+                                </select>
+                            </div>
 
-                    <!-- Horario de la sesión de tutoría[cite: 4] -->
-                    <label>Horario de Sesión</label>
-                    <br>
-                    <input type="text" th:field="*{horario}" placeholder="Ej. Lunes 10:00 - 11:00" required>
+                        </div>
 
-                    <br><br>
+                        <div class="pt-6 flex justify-end">
+                            <button type="submit" class="bg-amber-400 text-[#0B172A] px-10 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-100 hover:bg-amber-500 transition-all">
+                                <span th:text="${esEdicion} ? 'Actualizar Cambios' : 'Crear Grupo'"></span>
+                            </button>
+                        </div>
 
-                    <!-- Asignación del Tutor responsable[cite: 4, 7] -->
-                    <label>Docente Tutor</label>
-                    <br>
-                    <select th:field="*{tutor.idTutor}" required>
-                        <option value="" disabled selected>Selecciona al docente...</option>
-                        <option th:each="t : ${tutores}" 
-                                th:value="${t.idTutor}" 
-                                th:text="${t.usuario.nombre + ' ' + t.usuario.apellidos}">Nombre del Tutor</option>
-                    </select>
-                </fieldset>
-
-                <br>
-
-                <div>
-                    <button type="submit">
-                        <span th:text="${esEdicion} ? 'Actualizar Cambios' : 'Crear Grupo'"></span>
-                    </button>
+                    </form>
                 </div>
 
-            </form>
-        </section>
-        
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

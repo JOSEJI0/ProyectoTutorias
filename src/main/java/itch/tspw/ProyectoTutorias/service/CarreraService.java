@@ -1,8 +1,6 @@
 package itch.tspw.ProyectoTutorias.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import itch.tspw.ProyectoTutorias.model.Carrera;
 import itch.tspw.ProyectoTutorias.repository.CarreraRepository;
 
@@ -11,9 +9,11 @@ import java.util.List;
 @Service
 public class CarreraService {
 
-    @Autowired
-    private CarreraRepository carreraRepository;
+	private final CarreraRepository carreraRepository;
 
+    public CarreraService(CarreraRepository carreraRepository) {
+        this.carreraRepository = carreraRepository;
+    }
     public List<Carrera> listarTodas() {
         return carreraRepository.findAll();
     }

@@ -2,66 +2,80 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PatGrupoService {
 
-    @Autowired private PatGrupoRepository patGrupoRepository;
-    @Autowired private ActividadPatGrupoRepository actividadPatGrupoRepository;
-    @Autowired private PatService patService;
-    @Autowired private ActividadPatService actividadPatService;
-    @Autowired private GrupoTutoriaService grupoService;
-    @Autowired private PatRepository patRepository;
-    @Autowired private GrupoTutoriaRepository grupoTutoriaRepository;
+    private final PatGrupoRepository patGrupoRepository;
+    private final ActividadPatGrupoRepository actividadPatGrupoRepository;
+    private final PatService patService;
+    private final ActividadPatService actividadPatService;
+    private final GrupoTutoriaService grupoService;
+    private final PatRepository patRepository;
+    private final GrupoTutoriaRepository grupoTutoriaRepository;
+
+    public PatGrupoService(PatGrupoRepository patGrupoRepository,
+                           ActividadPatGrupoRepository actividadPatGrupoRepository,
+                           PatService patService,
+                           ActividadPatService actividadPatService,
+                           GrupoTutoriaService grupoService,
+                           PatRepository patRepository,
+                           GrupoTutoriaRepository grupoTutoriaRepository) {
+        this.patGrupoRepository = patGrupoRepository;
+        this.actividadPatGrupoRepository = actividadPatGrupoRepository;
+        this.patService = patService;
+        this.actividadPatService = actividadPatService;
+        this.grupoService = grupoService;
+        this.patRepository = patRepository;
+        this.grupoTutoriaRepository = grupoTutoriaRepository;
+    }
 
     @Transactional
     public PatGrupo clonarPatParaGrupo(Integer idGrupo, Integer idPatInstitucional) {
-        Optional<PatGrupo> patExistente = patGrupoRepository.findByGrupo_IdGrupo(idGrupo);
-        if (patExistente.isPresent()) {
+        if (patGrupoRepository.findByGrupo_IdGrupo(idGrupo).isPresent()) {
             throw new RuntimeException("Este grupo ya cuenta con un PAT adaptado.");
         }
 
         GrupoTutoria grupo = grupoService.obtenerPorId(idGrupo);
         PatInstitucional patInst = patService.obtenerPorId(idPatInstitucional);
-
         PatGrupo nuevoPatGrupo = new PatGrupo();
         nuevoPatGrupo.setGrupo(grupo);
         nuevoPatGrupo.setPatInstitucionalOrigen(patInst);
-        nuevoPatGrupo.setFechaAdaptacion(LocalDate.now());
-        
+        nuevoPatGrupo.setFechaAdaptacion(LocalDate.now());        
         PatGrupo patGuardado = patGrupoRepository.save(nuevoPatGrupo);
+        List<ActividadPat> actividadesBase = actividadPatService.listarPorPat(idPatInstitucional);
+        List<ActividadPatGrupo> actividadesClonadas = new ArrayList<>();
 
-        List<ActividadPat> actividadesInstitucionales = actividadPatService.listarPorPat(idPatInstitucional);
-
-        for (ActividadPat actInst : actividadesInstitucionales) {
+        for (ActividadPat actInst : actividadesBase) {
             ActividadPatGrupo actGrupo = new ActividadPatGrupo();
             actGrupo.setPatGrupo(patGuardado);
             actGrupo.setTitulo(actInst.getTitulo());
             actGrupo.setDescripcion(actInst.getDescripcion());
             actGrupo.setSemanaProgramada(actInst.getSemanaProgramada());
             actGrupo.setEstatus("Pendiente"); 
-            
-            actividadPatGrupoRepository.save(actGrupo);
+            actividadesClonadas.add(actGrupo);
         }
-
+        actividadPatGrupoRepository.saveAll(actividadesClonadas);
         return patGuardado;
     }
 
+    @Transactional(readOnly = true)
     public PatGrupo obtenerPatDeGrupo(Integer idGrupo) {
         return patGrupoRepository.findByGrupo_IdGrupo(idGrupo).orElse(null);
     }
     
+    @Transactional(readOnly = true)
     public List<ActividadPatGrupo> obtenerActividadesDeGrupo(Integer idPatGrupo) {
         return actividadPatGrupoRepository.findByPatGrupo_IdPatGrupoOrderBySemanaProgramadaAsc(idPatGrupo);
     }
 
+    @Transactional(readOnly = true)
     public ActividadPatGrupo obtenerActividadPorId(Integer idActividad) {
         return actividadPatGrupoRepository.findById(idActividad)
                 .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
@@ -87,23 +101,20 @@ public class PatGrupoService {
         PatGrupo pat = patGrupoRepository.findByGrupo_IdGrupo(idGrupo)
                 .orElseThrow(() -> new RuntimeException("PAT no encontrado"));
         
-        List<ActividadPatGrupo> actividades = obtenerActividadesDeGrupo(pat.getIdPatGrupo());
-        actividadPatGrupoRepository.deleteAll(actividades);
+        actividadPatGrupoRepository.deleteAll(obtenerActividadesDeGrupo(pat.getIdPatGrupo()));
         patGrupoRepository.delete(pat);
     }
 
     @Transactional
     public void asignarPatAutomatico(GrupoTutoria grupo) {
-        Optional<PatInstitucional> patInst = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
+        patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
                 grupo.getPeriodo().getIdPeriodo(), 
                 grupo.getCarrera().getIdCarrera()
-        );
-
-        if (patInst.isPresent()) {
+        ).ifPresent(patInst -> {
             if (patGrupoRepository.findByGrupo_IdGrupo(grupo.getIdGrupo()).isEmpty()) {
-                clonarPatParaGrupo(grupo.getIdGrupo(), patInst.get().getIdPat());
+                clonarPatParaGrupo(grupo.getIdGrupo(), patInst.getIdPat());
             }
-        }
+        });
     }
 
     @Transactional

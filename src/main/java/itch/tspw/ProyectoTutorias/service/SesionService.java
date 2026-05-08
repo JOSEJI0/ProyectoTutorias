@@ -2,27 +2,32 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class SesionService {
 
-    @Autowired
-    private SesionRepository sesionRepository;
+    private final SesionRepository sesionRepository;
+    private final AsistenciaRepository asistenciaRepository;
+    private final GrupoTutoriaRepository grupoTutoriaRepository;
+    private final ActividadPatRepository actividadPatRepository;
 
-    @Autowired
-    private AsistenciaRepository asistenciaRepository;
-
-    @Autowired
-    private GrupoTutoriaRepository grupoTutoriaRepository;
-
-    @Autowired
-    private ActividadPatRepository actividadPatRepository;
+    public SesionService(SesionRepository sesionRepository, 
+                         AsistenciaRepository asistenciaRepository,
+                         GrupoTutoriaRepository grupoTutoriaRepository, 
+                         ActividadPatRepository actividadPatRepository) {
+        this.sesionRepository = sesionRepository;
+        this.asistenciaRepository = asistenciaRepository;
+        this.grupoTutoriaRepository = grupoTutoriaRepository;
+        this.actividadPatRepository = actividadPatRepository;
+    }
 
     public List<Sesion> obtenerSesionesPorGrupo(Integer idGrupo) {
         return sesionRepository.findByGrupo_IdGrupo(idGrupo);
@@ -43,6 +48,7 @@ public class SesionService {
                 
         ActividadPat actividad = actividadPatRepository.findById(idActividad)
                 .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
+        Set<Integer> presentes = idEstudiantesPresentes == null ? Set.of() : new HashSet<>(idEstudiantesPresentes);
 
         Sesion nuevaSesion = new Sesion();
         nuevaSesion.setFechaImparticion(LocalDate.now());
@@ -51,20 +57,28 @@ public class SesionService {
         nuevaSesion.setGrupo(grupo);
         nuevaSesion.setActividad(actividad);
         
-        nuevaSesion = sesionRepository.save(nuevaSesion);
+        final Sesion sesionGuardada = sesionRepository.save(nuevaSesion);
 
+        List<Asistencia> listaAsistencia = new ArrayList<>();
+        
         for (Estudiante estudiante : grupo.getEstudiantes()) {
+            if (!Boolean.TRUE.equals(estudiante.getActivo())) {
+                continue;
+            }
+
             Asistencia registro = new Asistencia();
-            registro.setSesion(nuevaSesion);
+            registro.setSesion(sesionGuardada);
             registro.setEstudiante(estudiante);
             
-            boolean asistio = idEstudiantesPresentes != null && idEstudiantesPresentes.contains(estudiante.getIdEstudiante());
+            boolean asistio = presentes.contains(estudiante.getIdEstudiante());
             registro.setPresente(asistio);
             
-            asistenciaRepository.save(registro);
+            listaAsistencia.add(registro);
         }
         
-        return nuevaSesion;
+        asistenciaRepository.saveAll(listaAsistencia);
+        
+        return sesionGuardada;
     }
 
     public long contarSesionesPorTutor(Integer idTutor) {

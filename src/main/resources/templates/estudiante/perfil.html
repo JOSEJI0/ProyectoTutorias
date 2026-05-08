@@ -1,114 +1,154 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Mi Perfil')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Mi Perfil Académico')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarEstudiante}"></div>
 
-    <main>
-        <header>
-            <h2>Mi Perfil</h2>
-            <p>Consulta tu información personal y académica.</p>
-        </header>
-
-        <!-- Información Personal del Estudiante -->
-        <section>
-            <div>
-                <!-- Inicial del nombre -->
-                <h3 th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">E</h3>
-                <h1 th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Completo</h1>
-                <p th:text="${estudiante.usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</p>
-                <span>Estudiante Activo</span>
-            </div>
-        </section>
-
-        <br>
-
-        <!-- Información Académica -->
-        <section>
-            <h3>Información Académica</h3>
-            <ul>
-                <li>
-                    <strong>Número de Control:</strong> 
-                    <span th:text="${estudiante.numeroControl}">00000000</span>
-                </li>
-                <li>
-                    <strong>Programa Educativo:</strong> 
-                    <span th:text="${estudiante.carrera.nombreCarrera}">Ingeniería</span>
-                </li>
-                <li>
-                    <strong>Semestre Actual:</strong> 
-                    <span th:text="${estudiante.semestreActual + '° Semestre'}">1° Semestre</span>
-                </li>
-            </ul>
-        </section>
-
-        <br>
-
-        <!-- Asignación de Tutoría (RF2) -->
-        <section>
-            <h3>Asignación de Tutoría</h3>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
             
-            <!-- Si TIENE grupo asignado -->
-            <div th:if="${estudiante.grupo != null}">
-                <p>Grupo: <strong th:text="${estudiante.grupo.nombreGrupo}">1A</strong></p>
-                <p>Horario: <span th:text="${estudiante.grupo.horario}">Horario</span></p>
-                <p>Docente Tutor: <strong th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}">Nombre del Tutor</strong></p>
-                <a th:href="'mailto:' + ${estudiante.grupo.tutor.usuario.correoInstitucional}">Enviar correo</a>
+            <header class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/estudiante/panel}" class="hover:text-blue-600 transition-colors">Panel</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-[#0B172A]">Mi Perfil</span>
+                </div>
+            </header>
+
+            <div class="p-10 max-w-6xl mx-auto w-full">
+                
+                <div class="bg-[#0B172A] rounded-[2.5rem] p-10 text-white mb-8 shadow-xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                    <div class="w-32 h-32 rounded-full bg-amber-400 flex items-center justify-center text-5xl font-black text-[#0B172A] shadow-inner border-4 border-white/10 shrink-0">
+                        <span th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">E</span>
+                    </div>
+                    
+                    <div class="text-center md:text-left flex-1 relative z-10">
+                        <span class="bg-blue-500/20 text-blue-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-500/30">
+                            Estudiante Activo
+                        </span>
+                        <h1 class="text-4xl font-black tracking-tight mt-3 mb-1" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre Completo</h1>
+                        <p class="text-slate-400 font-medium" th:text="${estudiante.usuario.correoInstitucional}">correo@itchilpancingo.edu.mx</p>
+                    </div>
+
+                    <div class="bg-white/5 p-6 rounded-3xl border border-white/10 text-center relative z-10">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Semestre</p>
+                        <p class="text-3xl font-black text-amber-400" th:text="${estudiante.semestreActual}">1</p>
+                    </div>
+                    <i class="fa-solid fa-user-graduate absolute -right-4 -bottom-4 text-white/5 text-9xl"></i>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                        <h3 class="font-black text-[#0B172A] uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                            <i class="fa-solid fa-address-card text-blue-600"></i> Datos Académicos
+                        </h3>
+                        <ul class="space-y-6">
+                            <li class="flex justify-between border-b border-slate-50 pb-4">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No. de Control</span>
+                                <span class="font-mono font-bold text-slate-700" th:text="${estudiante.numeroControl}">00000000</span>
+                            </li>
+                            <li class="flex flex-col gap-1 border-b border-slate-50 pb-4">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Programa Educativo</span>
+                                <span class="font-bold text-slate-700" th:text="${estudiante.carrera.nombreCarrera}">Ingeniería</span>
+                            </li>
+                        </ul>
+
+                        <div class="mt-8 p-6 rounded-3xl border-2 border-dashed transition-all"
+                             th:classappend="${porcentajeAsistencia >= 80 ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-100'}">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Liberación de Tutoría</span>
+                                <span class="text-xl font-black" th:classappend="${porcentajeAsistencia >= 80 ? 'text-emerald-600' : 'text-slate-400'}" 
+                                      th:text="${porcentajeAsistencia} + '%'">0%</span>
+                            </div>
+                            
+                            <div th:if="${porcentajeAsistencia >= 80}">
+                                <a th:href="@{/estudiante/constancia/pdf}" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
+                                    <i class="fa-solid fa-certificate"></i> Descargar Constancia
+                                </a>
+                            </div>
+                            <div th:unless="${porcentajeAsistencia >= 80}" class="text-[10px] font-bold text-slate-400 text-center italic">
+                                <i class="fa-solid fa-lock mr-1"></i> Se requiere el 80% para habilitar constancia.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                        <h3 class="font-black text-[#0B172A] uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                            <i class="fa-solid fa-user-group text-blue-600"></i> Mi Tutoría
+                        </h3>
+                        
+                        <div th:if="${estudiante.grupo != null}" class="space-y-6">
+                            <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl">
+                                <div class="w-10 h-10 bg-[#0B172A] text-amber-400 rounded-xl flex items-center justify-center font-black" th:text="${estudiante.grupo.nombreGrupo}">1A</div>
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-400 uppercase">Grupo</p>
+                                    <p class="text-sm font-bold text-slate-700" th:text="${estudiante.grupo.horario}">Horario</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-4">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Docente Tutor</span>
+                                    <span class="font-bold text-slate-800" th:text="${estudiante.grupo.tutor.usuario.nombre + ' ' + estudiante.grupo.tutor.usuario.apellidos}">Nombre Tutor</span>
+                                </div>
+                                <a th:href="'mailto:' + ${estudiante.grupo.tutor.usuario.correoInstitucional}" class="text-blue-600 text-xs font-black uppercase tracking-widest hover:text-blue-800 transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-envelope"></i> Enviar correo institucional
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:unless="${estudiante.grupo != null}" class="text-center py-10">
+                            <div class="w-16 h-16 bg-slate-50 text-slate-200 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </div>
+                            <p class="text-slate-400 text-xs font-bold italic">Asignación de grupo pendiente por coordinación.</p>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                        <h3 class="font-black text-[#0B172A] uppercase tracking-widest text-xs mb-8 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-amber-500"></i> Seguridad de la Cuenta
+                        </h3>
+
+                        <div th:if="${param.error != null}" class="mb-6 p-4 bg-red-50 border border-red-100 text-red-700 rounded-2xl text-xs font-bold">
+                            <i class="fa-solid fa-circle-exclamation mr-2"></i>
+                            <span th:if="${param.error[0] == 'no_coinciden'}">Las contraseñas nuevas no coinciden.</span>
+                            <span th:if="${param.error[0] == 'password_incorrecta'}">La contraseña actual es incorrecta.</span>
+                        </div>
+                        <div th:if="${param.exito != null}" class="mb-6 p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 rounded-2xl text-xs font-bold animate-pulse">
+                            <i class="fa-solid fa-circle-check mr-2"></i> ¡Contraseña actualizada exitosamente!
+                        </div>
+
+                        <form th:action="@{/usuario/cambiar-password}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Contraseña Actual</label>
+                                <input type="password" name="passwordActual" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Nueva Contraseña</label>
+                                <input type="password" name="nuevaPassword" required minlength="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all">
+                            </div>
+                            <div class="flex flex-col">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Confirmar Nueva</label>
+                                <input type="password" name="confirmarPassword" required minlength="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 font-bold transition-all mb-4">
+                            </div>
+                            <div class="md:col-span-3 flex justify-end">
+                                <button type="submit" class="bg-[#0B172A] text-white px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                                    Guardar Nueva Contraseña
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
             </div>
-
-            <!-- Si NO TIENE grupo asignado -->
-            <div th:unless="${estudiante.grupo != null}">
-                <p>Sin grupo asignado. La coordinación aún no te ha asignado a un grupo de tutoría.</p>
-            </div>
-        </section>
-
-        <br>
-
-        <!-- Liberación de Tutorías (RF6) -->
-        <section>
-            <h3>Liberación de Tutorías</h3>
-            <p>Porcentaje de asistencia alcanzado: <strong th:text="${porcentajeAsistencia} + '%'">0%</strong></p>
-            
-            <!-- Requisito de acreditación del 80% -->
-            <div th:if="${porcentajeAsistencia >= 80}">
-                <a th:href="@{/estudiante/constancia/pdf}">Descargar Constancia</a>
-            </div>
-            
-            <div th:unless="${porcentajeAsistencia >= 80}">
-                <p>Requiere mínimo 80% para descargar constancia.</p>
-            </div>
-        </section>
-
-        <br>
-
-        <!-- Seguridad de la Cuenta -->
-        <section>
-            <h3>Seguridad de la Cuenta</h3>
-
-            <!-- Alertas de Cambio de Contraseña -->
-            <div th:if="${param.error != null and param.error[0] == 'no_coinciden'}">Las contraseñas nuevas no coinciden.</div>
-            <div th:if="${param.error != null and param.error[0] == 'password_incorrecta'}">La contraseña actual es incorrecta.</div>
-            <div th:if="${param.exito != null and param.exito[0] == 'password_cambiada'}">¡Contraseña actualizada exitosamente!</div>
-
-            <form th:action="@{/usuario/cambiar-password}" method="POST">
-                <label>Contraseña Actual</label>
-                <input type="password" name="passwordActual" required>
-                <br>
-                <label>Nueva Contraseña</label>
-                <input type="password" name="nuevaPassword" required minlength="4">
-                <br>
-                <label>Confirmar Nueva</label>
-                <input type="password" name="confirmarPassword" required minlength="4">
-                <br>
-                <button type="submit">Actualizar Contraseña</button>
-            </form>
-        </section>
-
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+        </main>
+    </div>
 
 </body>
 </html>

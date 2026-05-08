@@ -3,7 +3,6 @@ package itch.tspw.ProyectoTutorias.controller;
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
 import itch.tspw.ProyectoTutorias.service.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,28 +12,28 @@ import org.springframework.web.bind.annotation.*;
 public class GrupoController {
 
     private final PatGrupoService patGrupoService;
+    private final GrupoTutoriaRepository grupoRepository;
+    private final GrupoTutoriaService grupoTutoriaService;
+    private final TutorService tutorService;
+    private final CarreraService carreraService;
+    private final PeriodoEscolarService periodoService;
 
-    @Autowired
-    private GrupoTutoriaRepository grupoRepository;
-
-    @Autowired
-    private GrupoTutoriaService grupoTutoriaService;
-
-    @Autowired
-    private TutorService tutorService;
-
-    @Autowired
-    private CarreraService carreraService;
-
-    @Autowired
-    private PeriodoEscolarService periodoService;
-
-    GrupoController(PatGrupoService patGrupoService) {
+    public GrupoController(PatGrupoService patGrupoService, 
+                           GrupoTutoriaRepository grupoRepository,
+                           GrupoTutoriaService grupoTutoriaService, 
+                           TutorService tutorService,
+                           CarreraService carreraService, 
+                           PeriodoEscolarService periodoService) {
         this.patGrupoService = patGrupoService;
+        this.grupoRepository = grupoRepository;
+        this.grupoTutoriaService = grupoTutoriaService;
+        this.tutorService = tutorService;
+        this.carreraService = carreraService;
+        this.periodoService = periodoService;
     }
 
     @GetMapping
-    public String obtenerListaGrupos(@RequestParam(value = "activos", defaultValue = "true") boolean activos, Model model) {
+    public String obtenerListaGrupos(@RequestParam(defaultValue = "true") boolean activos, Model model) {
         model.addAttribute("grupos", grupoRepository.findByPeriodo_EstatusActivoAndActivoTrue(activos));
         model.addAttribute("mostrandoActivos", activos);
         return "coordinador/grupos-lista";
@@ -66,22 +65,20 @@ public class GrupoController {
             grupo.setPeriodo(periodoService.obtenerActivo());
             grupo.setActivo(true); 
         } else {
-            GrupoTutoria grupoDb = grupoRepository.findById(grupo.getIdGrupo()).orElseThrow();
-            grupo.setPeriodo(grupoDb.getPeriodo());
-            grupo.setActivo(grupoDb.getActivo()); 
-            
-            if(grupo.getSemestre() == null || grupo.getSemestre() == 0) {
-                 grupo.setSemestre(grupoDb.getSemestre());
-            }
-            if(grupo.getHorario() == null || grupo.getHorario().isEmpty()) {
-                 grupo.setHorario(grupoDb.getHorario());
-            }
+            grupoRepository.findById(grupo.getIdGrupo()).ifPresent(grupoDb -> {
+                grupo.setPeriodo(grupoDb.getPeriodo());
+                grupo.setActivo(grupoDb.getActivo()); 
+                
+                if (grupo.getSemestre() == null || grupo.getSemestre() == 0) {
+                    grupo.setSemestre(grupoDb.getSemestre());
+                }
+                if (grupo.getHorario() == null || grupo.getHorario().isEmpty()) {
+                    grupo.setHorario(grupoDb.getHorario());
+                }
+            });
         }
         
-        // CAMBIO CLAVE: Atrapamos el grupo ya guardado (con su ID generado)
         GrupoTutoria grupoGuardado = grupoTutoriaService.asignarGrupo(grupo, null);
-        
-        // Le mandamos el grupoGuardado a la lógica del PAT para evitar el error nulo
         patGrupoService.asignarPatAutomatico(grupoGuardado);
         
         return "redirect:/coordinador/grupos?exito=grupo_actualizado";
@@ -93,7 +90,7 @@ public class GrupoController {
             grupoTutoriaService.eliminarGrupoSeguro(id);
             return "redirect:/coordinador/grupos?exito=grupo_eliminado";
         } catch (Exception e) {
-            return "redirect:/coordinador/grupos?error=No se pudo eliminar el grupo";
+            return "redirect:/coordinador/grupos?error=No_se_pudo_eliminar_el_grupo";
         }
     }
 

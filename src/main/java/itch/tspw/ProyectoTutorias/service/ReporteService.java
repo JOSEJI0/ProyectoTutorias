@@ -1,7 +1,6 @@
 package itch.tspw.ProyectoTutorias.service;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -12,13 +11,15 @@ import java.util.Map;
 @Service
 public class ReporteService {
 
-    @Autowired
-    private TemplateEngine templateEngine;
+    private final TemplateEngine templateEngine;
+
+    public ReporteService(TemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
 
     public byte[] generarPdfDesdeHtml(String templateName, Map<String, Object> datos) {
         Context context = new Context();
-        context.setVariables(datos);
-        
+        context.setVariables(datos);        
         String htmlContent = templateEngine.process(templateName, context);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -27,9 +28,10 @@ public class ReporteService {
             builder.withHtmlContent(htmlContent, "/");
             builder.toStream(outputStream);
             builder.run();
+            
             return outputStream.toByteArray();
         } catch (Exception e) {
-            throw new RuntimeException("Error al compilar el PDF", e);
+            throw new RuntimeException("Error crítico al generar el PDF: " + templateName, e);
         }
     }
 }

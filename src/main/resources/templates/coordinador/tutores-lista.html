@@ -1,79 +1,100 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Editar Tutor')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Gestión de Tutores')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen flex font-sans text-slate-800">
 
     <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <a th:href="@{/coordinador/tutores}">Volver al listado</a>
-            
-            <header>
-                <h1>Editar Tutor</h1>
-                <p>Actualiza la información personal, académica o la fotografía del docente.</p>
+    <main class="flex-1 p-10 overflow-y-auto flex flex-col">
+        <div class="max-w-6xl mx-auto w-full flex-1">
+            <header class="mb-8 mt-2">
+                <h1 class="text-3xl font-bold text-[#0B2A4A]"><i class="fa-solid fa-chalkboard-user mr-2"></i> Gestión de Tutores</h1>
+                <p class="text-slate-500 mt-2">Administración del catálogo de docentes tutores.</p>
             </header>
-
-            <form th:action="@{/coordinador/tutores/actualizar}" method="POST" enctype="multipart/form-data">
-                <!-- Identificador único del tutor -->
-                <input type="hidden" name="idTutor" th:value="${tutor.idTutor}">
-                
-                <!-- Gestión de Fotografía -->
-                <section>
-                    <div>
-                        <p>Foto actual:</p>
-                        <img th:src="@{'/uploads/' + ${tutor.usuario.fotoPerfil}}" alt="Foto actual" width="100">
-                    </div>
-                    <div>
-                        <label>Cambiar Foto de Perfil</label>
-                        <input type="file" name="foto" accept="image/*">
-                        <p><small>Deja este campo vacío si no deseas cambiar la imagen actual.</small></p>
-                    </div>
-                </section>
-
-                <hr>
-
-                <!-- Datos del Formulario -->
-                <fieldset>
-                    <legend>Datos Personales y Académicos</legend>
-                    
-                    <div>
-                        <label>RFC del Empleado *</label>
-                        <input type="text" name="rfc" th:value="${tutor.rfcEmpleado}" required>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <label>Correo Institucional *</label>
-                        <input type="email" name="correo" th:value="${tutor.usuario.correoInstitucional}" required>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <label>Nombre(s) *</label>
-                        <input type="text" name="nombre" th:value="${tutor.usuario.nombre}" required>
-                    </div>
-
-                    <br>
-
-                    <div>
-                        <label>Apellidos *</label>
-                        <input type="text" name="apellidos" th:value="${tutor.usuario.apellidos}" required>
-                    </div>
-                </fieldset>
-                
-                <br>
-
-                <div>
-                    <a th:href="@{/coordinador/tutores}">Cancelar</a>
-                    <button type="submit">Guardar Cambios</button>
+            
+            <div th:if="${param.exito != null}" class="mb-6">
+                <div th:if="${param.exito[0] == 'guardado'}" class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-circle-check text-green-500 mr-3"></i><p class="text-green-700 font-medium">Tutor registrado correctamente.</p></div>
                 </div>
-            </form>
-        </section>
+                <div th:if="${param.exito[0] == 'eliminado'}" class="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-user-slash text-orange-500 mr-3"></i><p class="text-orange-700 font-medium">El tutor ha sido dado de baja (oculto).</p></div>
+                </div>
+                <div th:if="${param.exito[0] == 'actualizado'}" class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-pen-to-square text-blue-500 mr-3"></i><p class="text-blue-700 font-medium">Datos del tutor actualizados con éxito.</p></div>
+                </div>
+            </div>
+
+            <div th:if="${param.error != null}" class="mb-6">
+                <div th:if="${param.error[0] == 'duplicado'}" class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
+                    <div class="flex items-center"><i class="fa-solid fa-circle-exclamation text-red-500 mr-3"></i><p class="text-red-700 font-medium"><strong>¡Error!</strong> El correo o RFC ingresado ya existe, o hubo un error al subir la foto.</p></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                <h3 class="font-bold text-[#0B2A4A] mb-4 border-b pb-2">Registrar Nuevo Tutor</h3>
+                <form th:action="@{/coordinador/tutores/guardar}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">RFC <span class="text-red-500">*</span></label>
+                        <input type="text" name="rfcEmpleado" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Nombre(s) <span class="text-red-500">*</span></label>
+                        <input type="text" name="usuario.nombre" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Apellidos <span class="text-red-500">*</span></label>
+                        <input type="text" name="usuario.apellidos" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Correo <span class="text-red-500">*</span></label>
+                        <input type="email" name="usuario.correoInstitucional" required class="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="text-xs font-bold text-slate-400 uppercase">Foto Perfil (Opcional)</label>
+                        <input type="file" name="foto" accept="image/*" class="w-full mt-1 text-sm text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                    </div>
+                    <div class="md:col-span-1">
+                        <button type="submit" class="w-full bg-[#0B2A4A] text-white py-2 rounded-lg font-bold text-sm hover:bg-[#1a3a5a] transition-colors"><i class="fa-solid fa-plus mr-1"></i> Guardar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 bg-slate-50 border-b border-slate-200"><h3 class="font-bold text-slate-700">Catálogo Actual</h3></div>
+                <table class="w-full text-left text-sm">
+                    <thead class="text-slate-400 font-bold border-b border-slate-100 uppercase text-xs">
+                        <tr><th class="px-6 py-4">Foto</th><th class="px-6 py-4">RFC</th><th class="px-6 py-4">Nombre Completo</th><th class="px-6 py-4">Correo</th><th class="px-6 py-4 text-center">Acciones</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr th:each="t : ${tutores}" class="hover:bg-slate-50 transition-colors">
+                            <td class="px-6 py-3">
+                                <img th:src="@{'/uploads/' + ${t.usuario.fotoPerfil}}" alt="Perfil" class="w-10 h-10 rounded-full object-cover border border-slate-200 shadow-sm">
+                            </td>
+                            <td class="px-6 py-4 font-mono text-slate-500" th:text="${t.rfcEmpleado}"></td>
+                            <td class="px-6 py-4 font-bold text-[#0B2A4A]" th:text="${t.usuario.nombre + ' ' + t.usuario.apellidos}"></td>
+                            <td class="px-6 py-4 text-slate-500" th:text="${t.usuario.correoInstitucional}"></td>
+                            <td class="px-6 py-4 text-center space-x-4">
+                                <a th:href="@{/coordinador/tutores/detalle/{id}(id=${t.idTutor})}" title="Ver Detalles y Grupos" class="text-emerald-500 hover:text-emerald-700 transition-colors">
+                                    <i class="fa-solid fa-eye text-lg"></i>
+                                </a>
+                                <a th:href="@{/coordinador/tutores/editar/{id}(id=${t.idTutor})}" class="text-blue-400 hover:text-blue-600 transition-colors" title="Editar Tutor">
+                                    <i class="fa-solid fa-pen-to-square text-lg"></i>
+                                </a>
+                                <a th:href="@{/coordinador/tutores/eliminar/{id}(id=${t.idTutor})}" class="text-red-400 hover:text-red-600 transition-colors" onclick="return confirm('¿Seguro que deseas dar de baja a este tutor?');" title="Eliminar Tutor">
+                                    <i class="fa-solid fa-trash-can text-lg"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(tutores)}">
+                            <td colspan="5" class="px-6 py-10 text-center text-slate-400 italic">No hay tutores activos registrados en el sistema.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
         
         <div th:replace="~{fragments/layout :: footer}"></div>
     </main>

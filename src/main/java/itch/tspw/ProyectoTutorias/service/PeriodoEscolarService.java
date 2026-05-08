@@ -2,15 +2,17 @@ package itch.tspw.ProyectoTutorias.service;
 
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
 public class PeriodoEscolarService {
+	
+	private final PeriodoEscolarRepository periodoRepository;
 
-    @Autowired
-    private PeriodoEscolarRepository periodoRepository;
+    public PeriodoEscolarService(PeriodoEscolarRepository periodoRepository) {
+        this.periodoRepository = periodoRepository;
+    }
 
     public List<PeriodoEscolar> listarTodos() {
         return periodoRepository.findAll();

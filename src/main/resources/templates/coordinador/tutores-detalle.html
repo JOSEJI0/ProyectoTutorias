@@ -3,85 +3,101 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detalle del Tutor')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <header>
-                <h1>Expediente del Docente Tutor</h1>
-                <a th:href="@{/coordinador/tutores}">Volver al Listado</a>
+        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+            
+            <header class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/coordinador/tutores}" class="hover:text-blue-600 transition-colors">Tutores</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-[#0B172A]">Expediente Docente</span>
+                </div>
             </header>
 
-            <!-- Datos Personales del Tutor -->
-            <section>
-                <div>
-                    <!-- Visualización de la foto de perfil almacenada en el servidor -->
-                    <img th:src="@{'/uploads/' + ${tutor.usuario.fotoPerfil}}" alt="Foto de perfil" width="120">
-                </div>
-                <div>
-                    <h2 th:text="${tutor.usuario.nombre + ' ' + tutor.usuario.apellidos}">Nombre Completo</h2>
-                    <p th:text="${tutor.usuario.correoInstitucional}">correo@institucion.edu.mx</p>
-                    
-                    <ul>
-                        <li>
-                            <strong>RFC:</strong> 
-                            <span th:text="${tutor.rfcEmpleado}">RFC000000</span>
-                        </li>
-                        <li>
-                            <strong>Estatus:</strong> Activo
-                        </li>
-                        <li>
-                            <!-- Conteo dinámico de la lista de grupos asignados -->
-                            <strong>Grupos Asignados:</strong> 
-                            <span th:text="${#lists.size(grupos)}">0</span>
-                        </li>
-                    </ul>
-                </div>
-            </section>
-
-            <hr>
-
-            <!-- Tabla de Grupos de Tutoría Actuales -->
-            <section>
-                <h2>Grupos de Tutoría Actuales</h2>
+            <div class="p-10 max-w-6xl mx-auto w-full">
                 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nombre del Grupo</th>
-                            <th>Carrera</th>
-                            <th>Alumnos Inscritos</th>
-                            <th>Semestre Escolar</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Itera sobre los grupos donde el docente es responsable -->
-                        <tr th:each="g : ${grupos}">
-                            <td th:text="${g.nombreGrupo}"></td>
-                            <td th:text="${g.carrera.nombreCarrera}"></td>
-                            <td th:text="${#lists.size(g.estudiantes)}">0</td>
-                            <td th:text="${g.periodo.nombrePeriodo}"></td>
-                            <td>
-                                <!-- Enlace directo a la gestión administrativa del grupo[cite: 4] -->
-                                <a th:href="@{/coordinador/grupo/{id}/detalle(id=${g.idGrupo})}">
-                                    Administrar Grupo
-                                </a>
-                            </td>
-                        </tr>
-                        <!-- Caso de tutor sin carga académica asignada[cite: 4] -->
-                        <tr th:if="${#lists.isEmpty(grupos)}">
-                            <td colspan="5">El docente no tiene grupos de tutoría activos asignados en este momento.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+                <a th:href="@{/coordinador/tutores}" class="group inline-flex items-center gap-2 text-slate-400 hover:text-[#0B172A] font-black text-[10px] uppercase tracking-[0.2em] mb-8 transition-all">
+                    <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-1"></i> 
+                    Volver al Listado
+                </a>
 
-        </section>
-        
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+                <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-200 mb-10 flex flex-col md:flex-row items-center gap-10 relative overflow-hidden">
+                    <div class="relative shrink-0">
+                        <div class="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md">
+                            <img th:src="${tutor.usuario.fotoPerfil != null ? '/uploads/' + tutor.usuario.fotoPerfil : '/img/default-avatar.png'}" 
+                                 alt="Foto de perfil" class="w-full h-full object-cover">
+                        </div>
+                        <div class="absolute -bottom-2 -right-2 bg-emerald-500 w-6 h-6 rounded-full border-4 border-white" title="Docente Activo"></div>
+                    </div>
+
+                    <div class="text-center md:text-left flex-1">
+                        <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-lg">Personal Académico</span>
+                        <h1 class="text-4xl font-black text-[#0B172A] tracking-tight mt-3 mb-1" th:text="${tutor.usuario.nombre + ' ' + tutor.usuario.apellidos}">Nombre</h1>
+                        <p class="text-slate-500 font-medium mb-6" th:text="${tutor.usuario.correoInstitucional}">correo@institucion.edu.mx</p>
+                        
+                        <div class="flex flex-wrap justify-center md:justify-start gap-8">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">RFC Empleado</p>
+                                <p class="font-mono font-bold text-slate-700" th:text="${tutor.rfcEmpleado}">RFC000000</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Carga Actual</p>
+                                <p class="font-bold text-slate-700" th:text="${#lists.size(grupos)} + ' Grupos'"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                        <h2 class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Grupos de Tutoría Bajo su Cargo</h2>
+                        <i class="fa-solid fa-chalkboard text-slate-300"></i>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <th class="px-8 py-5">Grupo</th>
+                                    <th class="px-6 py-5">Carrera</th>
+                                    <th class="px-6 py-5 text-center">Inscritos</th>
+                                    <th class="px-6 py-5">Periodo</th>
+                                    <th class="px-8 py-5 text-right">Gestión</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <tr th:each="g : ${grupos}" class="hover:bg-blue-50/30 transition-colors group">
+                                    <td class="px-8 py-5 font-bold text-[#0B172A]" th:text="${g.nombreGrupo}"></td>
+                                    <td class="px-6 py-5 text-sm text-slate-500" th:text="${g.carrera.nombreCarrera}"></td>
+                                    <td class="px-6 py-5 text-center">
+                                        <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-xs font-black" th:text="${#lists.size(g.estudiantes)}">0</span>
+                                    </td>
+                                    <td class="px-6 py-5 text-xs font-bold text-slate-400" th:text="${g.periodo.nombrePeriodo}"></td>
+                                    <td class="px-8 py-5 text-right">
+                                        <a th:href="@{/coordinador/grupo/{id}/detalle(id=${g.idGrupo})}" 
+                                           class="text-blue-600 hover:text-blue-800 text-xs font-black uppercase tracking-tighter">
+                                            Administrar <i class="fa-solid fa-arrow-right ml-1"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(grupos)}">
+                                    <td colspan="5" class="px-8 py-20 text-center">
+                                        <p class="text-slate-400 font-bold italic text-sm">El docente no tiene grupos de tutoría activos asignados.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

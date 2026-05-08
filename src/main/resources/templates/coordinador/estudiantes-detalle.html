@@ -3,71 +3,99 @@
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Detalle del Estudiante')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <section>
-            <a th:href="@{/coordinador/estudiantes}">Volver al Listado</a>
+        <main class="flex-1 flex flex-col min-w-0">
             
-            <header>
-                <h1>Perfil del Estudiante</h1>
+            <header class="bg-white border-b border-slate-200 p-4 px-10">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <a th:href="@{/coordinador/estudiantes}" class="hover:text-blue-600">Estudiantes</a>
+                    <i class="fa-solid fa-chevron-right text-[8px]"></i>
+                    <span class="text-slate-900">Expediente Alumno</span>
+                </div>
             </header>
 
-            <!-- Datos Personales del Estudiante -->
-            <section>
-                <div>
-                    <p>Nombre Completo</p>
-                    <strong th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}"></strong>
-                </div>
-                <div>
-                    <p>No. Control</p>
-                    <code th:text="${estudiante.numeroControl}"></code>
-                </div>
-                <div>
-                    <p>Carrera y Semestre</p>
-                    <p th:text="${estudiante.carrera.nombreCarrera + ' - ' + estudiante.semestreActual + '° Semestre'}"></p>
-                </div>
-                <div>
-                    <p>Correo Institucional</p>
-                    <p th:text="${estudiante.usuario.correoInstitucional}"></p>
-                </div>
-                <br>
-                <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${estudiante.idEstudiante})}">Editar Perfil</a>
-            </section>
+            <div class="p-10 max-w-6xl mx-auto w-full">
+                
+                <a th:href="@{/coordinador/estudiantes}" class="text-blue-600 text-sm font-bold flex items-center gap-2 mb-6 hover:underline">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+                </a>
 
-            <hr>
+                <div class="bg-[#0B172A] rounded-[2rem] p-10 text-white mb-8 shadow-lg flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                    <div class="w-24 h-24 rounded-full bg-blue-500 flex items-center justify-center text-4xl font-black shadow-lg">
+                        <span th:text="${#strings.substring(estudiante.usuario.nombre,0,1)}">E</span>
+                    </div>
+                    
+                    <div class="text-center md:text-left flex-1">
+                        <h1 class="text-3xl font-black tracking-tight mb-2" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Nombre</h1>
+                        <div class="flex flex-wrap justify-center md:justify-start gap-3">
+                            <span class="bg-white/10 px-3 py-1 rounded-lg text-xs font-bold" th:text="'ID: ' + ${estudiante.numeroControl}">0000</span>
+                            <span class="bg-amber-400 text-[#0B172A] px-3 py-1 rounded-lg text-xs font-black uppercase" th:text="${estudiante.semestreActual + '° Semestre'}">1°</span>
+                        </div>
+                    </div>
 
-            <!-- Historial de Tutorías -->
-            <section>
-                <h3>Historial de Tutorías</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Periodo</th>
-                            <th>Tutor Asignado</th>
-                            <th>Grupo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Itera sobre el historial de tutorías del modelo -->
-                        <tr th:each="grupo : ${historialTutorias}">
-                            <td th:text="${grupo.periodo.nombrePeriodo}"></td>
-                            <td th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}"></td>
-                            <td th:text="${grupo.nombreGrupo}"></td>
-                        </tr>
-                        <!-- Caso de lista vacía[cite: 8] -->
-                        <tr th:if="${#lists.isEmpty(historialTutorias)}">
-                            <td colspan="3">No hay registros de tutorías anteriores para este estudiante.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
+                    <a th:href="@{/coordinador/estudiantes/editar/{id}(id=${estudiante.idEstudiante})}" 
+                       class="bg-white text-[#0B172A] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-amber-400 transition-all">
+                        <i class="fa-solid fa-user-pen mr-1"></i> Editar Perfil
+                    </a>
+                </div>
 
-        </section>
-        
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200">
+                        <h3 class="font-black text-slate-400 uppercase tracking-widest text-[10px] mb-6">Información Académica</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <p class="text-[10px] font-black text-slate-300 uppercase mb-1">Carrera</p>
+                                <p class="text-sm font-bold text-slate-700" th:text="${estudiante.carrera.nombreCarrera}">Carrera</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-slate-300 uppercase mb-1">Correo Institucional</p>
+                                <p class="text-sm font-bold text-blue-600" th:text="${estudiante.usuario.correoInstitucional}">correo@itch.edu.mx</p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100">
+                                <span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Estatus: Activo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <h3 class="font-black text-slate-800 uppercase tracking-widest text-xs">Historial de Tutorías</h3>
+                        </div>
+
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-50">
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Periodo</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase">Tutor</th>
+                                    <th class="px-6 py-4 text-[10px] font-black text-slate-400 uppercase text-center">Grupo</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50">
+                                <tr th:each="grupo : ${historialTutorias}" class="hover:bg-blue-50 transition-colors">
+                                    <td class="px-6 py-4 font-bold text-slate-700 text-sm" th:text="${grupo.periodo.nombrePeriodo}">Periodo</td>
+                                    <td class="px-6 py-4 text-sm text-slate-600" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Tutor</td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-xs font-black" th:text="${grupo.nombreGrupo}">Grupo</span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(historialTutorias)}">
+                                    <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic">No hay registros de tutorías anteriores.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div th:replace="~{fragments/layout :: footer}"></div>
+            </div>
+        </main>
+    </div>
+
 </body>
 </html>

@@ -1,6 +1,5 @@
 package itch.tspw.ProyectoTutorias.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import itch.tspw.ProyectoTutorias.model.ActividadPat;
 import itch.tspw.ProyectoTutorias.repository.ActividadPatRepository;
@@ -9,9 +8,12 @@ import java.util.List;
 
 @Service
 public class ActividadPatService {
-    @Autowired
-    private ActividadPatRepository actividadRepository;
+	
+	private final ActividadPatRepository actividadRepository;
 
+    public ActividadPatService(ActividadPatRepository actividadRepository) {
+        this.actividadRepository = actividadRepository;
+    }
 
     public void guardar(ActividadPat actividad) {
         actividadRepository.save(actividad);

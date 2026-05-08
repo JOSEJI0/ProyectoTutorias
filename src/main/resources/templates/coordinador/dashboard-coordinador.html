@@ -1,85 +1,114 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Dashboard Coordinador')}"></th:block>
+    <th:block th:replace="~{fragments/layout :: encabezado('Panel de Control - Coordinador')}"></th:block>
 </head>
-<body>
+<body class="bg-slate-50 font-sans text-slate-800">
 
-    <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
+    <div class="flex min-h-screen">
+        <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
-    <main>
-        <header>
-            <h2>Panel de Control</h2>
-            <p>Resumen general del programa de tutorías.</p>
-            <p>Periodo Activo: <span>Ene-Jun 2026</span></p>
-        </header>
+        <main class="flex-1 p-10 bg-slate-50 min-w-0 overflow-y-auto custom-scrollbar">
 
-        <!-- Métricas Principales -->
-        <section>
-            <div>
-                <p>Grupos Activos</p>
-                <h3 th:text="${totalGruposActivos}">0</h3>
+            <div class="flex justify-end mb-8">
+                <div class="bg-blue-50 px-5 py-2.5 rounded-2xl border border-blue-100 flex items-center gap-3 shadow-sm">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-black text-blue-800 uppercase tracking-[0.15em]">Periodo Escolar Activo 2026</span>
+                </div>
             </div>
-            <div>
-                <p>Alumnos sin Grupo</p>
-                <h3 th:text="${alumnosSinGrupo}">0</h3>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex items-center justify-between px-2">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-calendar-day text-slate-400 text-sm"></i>
+                            <h2 class="text-xs font-black text-[#0B172A] uppercase tracking-[0.2em]">Agenda de Grupos Activos</h2>
+                        </div>
+                        <a th:href="@{/coordinador/busquedas}" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 uppercase tracking-tighter transition-colors flex items-center gap-1">
+                            Explorar historial <i class="fa-solid fa-arrow-right-long"></i>
+                        </a>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div th:each="grupo : ${gruposActivos}" 
+                             class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 flex items-center justify-between hover:shadow-md transition-all group">
+                            
+                            <div class="flex items-center gap-6">
+                                <div class="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100 text-center min-w-[90px] group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
+                                    <p class="text-[11px] font-black text-[#0B172A]" th:text="${grupo.horario}">00:00</p>
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Horario</p>
+                                </div>
+                                
+                                <div>
+                                    <h3 class="text-lg font-black text-[#0B172A] group-hover:text-blue-600 transition-colors leading-none mb-2" th:text="${grupo.nombreGrupo}">Nombre del Grupo</h3>
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-chalkboard-user text-[10px] text-slate-300"></i>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                            Tutor: <span class="text-slate-600" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre Docente</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a th:href="@{/coordinador/grupo/{id}/detalle(id=${grupo.idGrupo})}" 
+                               class="bg-[#0B172A] text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:-translate-x-1 transition-all shadow-lg shadow-slate-200">
+                                Gestionar
+                            </a>
+                        </div>
+
+                        <div th:if="${#lists.isEmpty(gruposActivos)}" class="bg-white p-16 rounded-[3rem] border-2 border-dashed border-slate-200 text-center">
+                            <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-solid fa-inbox text-slate-200 text-3xl"></i>
+                            </div>
+                            <h4 class="text-slate-500 font-black uppercase text-xs tracking-widest">Sin actividad operativa</h4>
+                            <p class="text-slate-400 font-medium text-sm mt-1">No se encontraron grupos activos para este periodo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="flex items-center gap-3 px-2">
+                        <i class="fa-solid fa-bolt-lightning text-amber-400 text-sm"></i>
+                        <h2 class="text-xs font-black text-[#0B172A] uppercase tracking-[0.2em]">Acciones Rápidas</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <a th:href="@{/coordinador/grupos/nuevo}" 
+                           class="flex items-center justify-between p-7 bg-amber-400 rounded-[2.5rem] shadow-xl shadow-amber-200/50 hover:bg-amber-500 hover:-translate-y-1 transition-all group">
+                            <div>
+                                <span class="block font-black text-[#0B172A] text-sm uppercase tracking-wider">Aperturar Grupo</span>
+                                <span class="text-[9px] font-bold text-[#0B172A]/60 uppercase">Alta de nueva tutoría</span>
+                            </div>
+                            <div class="w-12 h-12 bg-[#0B172A] text-amber-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:rotate-90 transition-transform">
+                                <i class="fa-solid fa-plus text-sm"></i>
+                            </div>
+                        </a>
+
+                        <a th:href="@{/coordinador/asignaciones}" 
+                           class="flex items-center justify-between p-7 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all group">
+                            <span class="font-black text-slate-700 text-sm uppercase tracking-wider group-hover:text-blue-600 transition-colors">Asignar Alumnos</span>
+                            <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                <i class="fa-solid fa-user-plus text-sm"></i>
+                            </div>
+                        </a>
+
+                        <a th:href="@{/coordinador/estudiantes}" 
+                           class="flex items-center justify-between p-7 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 hover:shadow-md hover:border-blue-100 transition-all group">
+                            <span class="font-black text-slate-700 text-sm uppercase tracking-wider group-hover:text-blue-600 transition-colors">Ver Alumnado</span>
+                            <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                                <i class="fa-solid fa-users-viewfinder text-sm"></i>
+                            </div>
+                        </a>
+                    </div>
+
+                </div>
+
             </div>
-            <div>
-                <p>Evidencias PAT</p>
-                <h3 th:text="${#lists.size(evidenciasPendientes)}">0</h3>
-            </div>
-            <div>
-                <p>Tutores</p>
-                <h3 th:text="${totalTutores}">0</h3>
-            </div>
-        </section>
 
-        <br>
+            <div th:replace="~{fragments/layout :: footer}"></div>
+        </main>
+    </div>
 
-        <!-- Agenda de Grupos -->
-        <section>
-            <h3>Agenda de Grupos</h3>
-            <a th:href="@{/coordinador/grupos}">Ver todos</a>
-            
-            <ul>
-                <li th:each="grupo : ${gruposActivos}">
-                    <span th:text="${grupo.horario}">Horario</span>
-                    <strong th:text="${grupo.nombreGrupo}">Nombre del Grupo</strong>
-                    <span th:text="${'Tutor: ' + grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre Docente</span>
-                    <a th:href="@{/coordinador/grupo/{id}/detalle(id=${grupo.idGrupo})}">Detalles</a>
-                </li>
-            </ul>
-            
-            <p th:if="${#lists.isEmpty(gruposActivos)}">
-                No hay grupos configurados para este periodo.
-            </p>
-        </section>
-
-        <br>
-
-        <!-- Acciones Rápidas -->
-        <nav>
-            <h3>Acciones Rápidas</h3>
-            <ul>
-                <li>
-                    <a th:href="@{/coordinador/grupos/nuevo}">Aperturar Grupo</a>
-                </li>
-                <li>
-                    <a th:href="@{/coordinador/asignacion}">
-                        Asignar Alumnos 
-                        <span th:if="${alumnosSinGrupo > 0}" th:text="'(' + ${alumnosSinGrupo} + ' pendientes)'"></span>
-                    </a>
-                </li>
-                <li>
-                    <a th:href="@{/coordinador/estudiantes}">Ver Alumnado</a>
-                </li>
-                <li>
-                    <a th:href="@{/coordinador/reportes/descargar-pat}">Reporte Global (PDF)</a>
-                </li>
-            </ul>
-        </nav>
-
-        <div th:replace="~{fragments/layout :: footer}"></div>
-    </main>
 </body>
 </html>

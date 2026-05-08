@@ -1,30 +1,33 @@
 package itch.tspw.ProyectoTutorias.service;
 
-
 import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 
 @Service
 public class EstudianteService {
 
-    @Autowired
-    private EstudianteRepository estudianteRepository;
+    private final EstudianteRepository estudianteRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    public EstudianteService(EstudianteRepository estudianteRepository,
+                             UsuarioRepository usuarioRepository,
+                             PerfilRepository perfilRepository,
+                             PasswordEncoder passwordEncoder) {
+        this.estudianteRepository = estudianteRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.perfilRepository = perfilRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-    @Autowired
-    private PerfilRepository perfilRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
+    @Transactional(readOnly = true)
     public List<Estudiante> listarEstudiantes(Integer semestre, Integer idCarrera) {
         if (semestre != null && idCarrera != null) {
             return estudianteRepository.findBySemestreActualAndCarrera_IdCarreraAndActivoTrue(semestre, idCarrera);
@@ -36,9 +39,10 @@ public class EstudianteService {
         return estudianteRepository.findByActivoTrue();
     }
 
+    @Transactional(readOnly = true)
     public Estudiante obtenerPorId(Integer id) {
         return estudianteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));
     }
 
     @Transactional
@@ -46,23 +50,25 @@ public class EstudianteService {
         Usuario usuario = estudiante.getUsuario();
 
         if (usuario.getIdUsuario() == null) {
-            String hash = passwordEncoder.encode(estudiante.getNumeroControl());
-            usuario.setPasswordHash(hash);
-            
-            Perfil perfilEstudiante = perfilRepository.findByNombre("ROLE_ESTUDIANTE")
-                    .orElseThrow(() -> new RuntimeException("El perfil ROLE_ESTUDIANTE no existe en la BD"));
-            
-            if(usuario.getPerfiles() == null) {
-                usuario.setPerfiles(new java.util.HashSet<>());
-            }
-            usuario.getPerfiles().add(perfilEstudiante);
-            usuario.setActivo(true);
+            configurarNuevoUsuario(usuario, estudiante.getNumeroControl());
         }
 
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
-        estudiante.setUsuario(usuarioGuardado);
+        estudiante.setUsuario(usuarioRepository.save(usuario));
         estudiante.setActivo(true);
         estudianteRepository.save(estudiante);
+    }
+
+    private void configurarNuevoUsuario(Usuario usuario, String numeroControl) {
+        usuario.setPasswordHash(passwordEncoder.encode(numeroControl));
+        usuario.setActivo(true);
+        
+        Perfil perfil = perfilRepository.findByNombre("ROLE_ESTUDIANTE")
+                .orElseThrow(() -> new RuntimeException("Error: ROLE_ESTUDIANTE no configurado en BD"));
+
+        if (usuario.getPerfiles() == null) {
+            usuario.setPerfiles(new HashSet<>());
+        }
+        usuario.getPerfiles().add(perfil);
     }
 
     @Transactional
@@ -70,7 +76,6 @@ public class EstudianteService {
         Estudiante estudiante = obtenerPorId(idEstudiante);
         
         estudiante.setGrupo(null);
-        
         estudiante.setActivo(false);
         
         if (estudiante.getUsuario() != null) {
@@ -81,6 +86,7 @@ public class EstudianteService {
         estudianteRepository.save(estudiante);
     }
 
+    @Transactional(readOnly = true)
     public List<Estudiante> listarSinGrupo() {
         return estudianteRepository.findByGrupoIsNullAndActivoTrue();
     }
