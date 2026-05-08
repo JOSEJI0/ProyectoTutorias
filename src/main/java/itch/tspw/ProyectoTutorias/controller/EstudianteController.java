@@ -117,18 +117,25 @@ public class EstudianteController {
     @GetMapping("/constancia/pdf")
     public ResponseEntity<byte[]> descargarConstanciaPdf(Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
+        
+        // 1. Obtener historial para validar el 80% (Lógica existente)
         List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
-
         if (calcularPorcentajeAsistencia(historial) < 80) {
             throw new RuntimeException("Acceso denegado: Aún no cumples con el 80% de asistencia requerido.");
         }
 
+        // 2. Preparar el mapa de variables para Thymeleaf
         Map<String, Object> variables = new HashMap<>();
         variables.put("estudiante", estudiante);
-        variables.put("grupo", estudiante.getGrupo());
+        // IMPORTANTE: Aseguramos que el grupo vaya al contexto para acceder a tutor, carrera y periodo
+        variables.put("grupo", estudiante.getGrupo()); 
         variables.put("fechaImpresion", LocalDate.now());
+        variables.put("logoTecNM", reporteService.obtenerImagenComoDataUri("templates/logos/logoTecNM.jpg"));
+        variables.put("logoITCH", reporteService.obtenerImagenComoDataUri("templates/logos/logotecnmchilpancingo.png"));
 
-        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/estudiante-constancia", variables);
+        // 3. Generar el PDF (Asegúrate de que la ruta coincida con la ubicación del HTML)
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("documentos/estudiante-constancia", variables);
+        
         return crearPdfResponse(pdfBytes, "Constancia_Liberacion_" + estudiante.getNumeroControl() + ".pdf");
     }
 

@@ -97,8 +97,6 @@
                             </div>
                         </div>
 
-                        </div>
-
                         <div class="lg:col-span-2 space-y-8">
                             
                             <div class="bg-white rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden">
@@ -120,7 +118,7 @@
                                             <div class="flex justify-between items-start mb-2">
                                                 <h4 class="font-black text-slate-800 text-sm uppercase tracking-tight" th:text="${act.titulo}">Título</h4>
                                                 <span class="text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest"
-                                                      th:classappend="${act.estatus == 'COMPLETADO' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}"
+                                                      th:classappend="${act.estatus == 'Completado' ? 'bg-emerald-100 text-emerald-700' : (act.estatus == 'En Proceso' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500')}"
                                                       th:text="${act.estatus}">Pendiente</span>
                                             </div>
                                             <p class="text-xs text-slate-500 leading-relaxed" th:text="${act.descripcion}">Descripción...</p>

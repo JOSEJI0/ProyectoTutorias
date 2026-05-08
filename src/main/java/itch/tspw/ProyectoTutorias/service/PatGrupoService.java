@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PatGrupoService {
@@ -62,6 +63,54 @@ public class PatGrupoService {
             actividadesClonadas.add(actGrupo);
         }
         actividadPatGrupoRepository.saveAll(actividadesClonadas);
+        return patGuardado;
+    }
+
+    @Transactional
+    public PatGrupo sincronizarPatInstitucional(Integer idGrupo) {
+        GrupoTutoria grupo = grupoService.obtenerPorId(idGrupo);
+        PatInstitucional patInst = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
+                grupo.getPeriodo().getIdPeriodo(),
+                grupo.getCarrera().getIdCarrera()
+        ).orElseThrow(() -> new RuntimeException("PAT institucional no encontrado para este grupo."));
+
+        PatGrupo patGrupo = patGrupoRepository.findByGrupo_IdGrupo(idGrupo)
+                .orElseGet(() -> {
+                    PatGrupo nuevoPatGrupo = new PatGrupo();
+                    nuevoPatGrupo.setGrupo(grupo);
+                    nuevoPatGrupo.setFechaAdaptacion(LocalDate.now());
+                    return nuevoPatGrupo;
+                });
+
+        patGrupo.setPatInstitucionalOrigen(patInst);
+        patGrupo.setFechaAdaptacion(LocalDate.now());
+        PatGrupo patGuardado = patGrupoRepository.save(patGrupo);
+
+        List<ActividadPatGrupo> actividadesGrupo = actividadPatGrupoRepository
+                .findByPatGrupo_IdPatGrupoOrderBySemanaProgramadaAsc(patGuardado.getIdPatGrupo());
+        List<ActividadPatGrupo> nuevasActividades = new ArrayList<>();
+
+        for (ActividadPat actInst : actividadPatService.listarPorPat(patInst.getIdPat())) {
+            boolean yaExiste = actividadesGrupo.stream().anyMatch(actGrupo ->
+                    Objects.equals(actInst.getSemanaProgramada(), actGrupo.getSemanaProgramada())
+                            || actInst.getTitulo().equalsIgnoreCase(actGrupo.getTitulo())
+            );
+
+            if (!yaExiste) {
+                ActividadPatGrupo actGrupo = new ActividadPatGrupo();
+                actGrupo.setPatGrupo(patGuardado);
+                actGrupo.setTitulo(actInst.getTitulo());
+                actGrupo.setDescripcion(actInst.getDescripcion());
+                actGrupo.setSemanaProgramada(actInst.getSemanaProgramada());
+                actGrupo.setEstatus("Pendiente");
+                nuevasActividades.add(actGrupo);
+            }
+        }
+
+        if (!nuevasActividades.isEmpty()) {
+            actividadPatGrupoRepository.saveAll(nuevasActividades);
+        }
+
         return patGuardado;
     }
 

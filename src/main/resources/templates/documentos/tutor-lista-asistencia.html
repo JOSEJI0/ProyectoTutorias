@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+<meta charset="UTF-8" />
+<style>
+@page {
+	size: letter portrait;
+	margin: 1cm;
+}
+
+body {
+	font-family: sans-serif;
+	font-size: 9pt;
+	color: #333;
+}
+
+.logos-header {
+	width: 100%;
+	height: 80px;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.logo-izquierdo {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 60px;
+}
+
+.logo-derecho {
+	position: absolute;
+	right: 0;
+	top: 0;
+	height: 60px;
+}
+
+.container {
+	border: 1px solid #000;
+	padding: 20px;
+	position: relative;
+}
+
+.header {
+	text-align: center;
+	margin-bottom: 20px;
+	border-bottom: 2px solid #0B172A;
+	padding-bottom: 10px;
+}
+
+.header h2 {
+	color: #2A4F73;
+	margin: 0;
+	font-size: 16pt;
+	text-transform: uppercase;
+}
+
+.header h3 {
+	color: #689BBE;
+	margin: 5px 0 0 0;
+	font-size: 12pt;
+	font-weight: normal;
+}
+
+.info-box {
+	margin-bottom: 20px;
+	background-color: #f8fafc;
+	padding: 10px;
+	border: 1px solid #e2e8f0;
+}
+
+.info-grid {
+	display: table;
+	width: 100%;
+}
+
+.info-row {
+	display: table-row;
+}
+
+.info-cell {
+	display: table-cell;
+	padding: 4px 0;
+	width: 50%;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+
+th {
+	background-color: #0B172A;
+	color: white;
+	padding: 8px;
+	font-size: 8pt;
+	text-transform: uppercase;
+}
+
+td {
+	border: 1px solid #cbd5e1;
+	padding: 6px;
+}
+
+.asistencia-mark {
+	text-align: center;
+	font-weight: bold;
+	color: #059669;
+}
+
+.falta-mark {
+	text-align: center;
+	font-weight: bold;
+	color: #dc2626;
+}
+
+.firma-seccion {
+	margin-top: 60px;
+	text-align: center;
+}
+
+.linea-firma {
+	border-top: 1px solid #333;
+	display: inline-block;
+	width: 250px;
+	padding-top: 5px;
+	font-weight: bold;
+}
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="logos-header">
+		<img th:src="${logoTecNM}" class="logo-izquierdo" alt="TecNM"/>
+                    <img th:src="${logoITCH}" class="logo-derecho" alt="ITCH"/>
+                    </div>
+
+		<div class="header">
+			<h2>Instituto Tecnológico de Chilpancingo</h2>
+			<h3>Registro de Asistencia por Sesión</h3>
+		</div>
+
+		<div class="info-box">
+			<div class="info-grid">
+				<div class="info-row">
+					<div class="info-cell">
+						<strong>Grupo:</strong> <span th:text="${grupo.nombreGrupo}"></span>
+					</div>
+					<div class="info-cell">
+						<strong>Periodo:</strong> <span
+							th:text="${grupo.periodo.nombrePeriodo}"></span>
+					</div>
+				</div>
+				<div class="info-row">
+					<div class="info-cell">
+						<strong>Semana:</strong> <span th:text="${sesion.semanaNumero}"></span>
+					</div>
+					<div class="info-cell">
+						<strong>Fecha de Registro:</strong> <span
+							th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}"></span>
+					</div>
+				</div>
+			</div>
+			<div style="margin-top: 8px;">
+				<strong>Actividad:</strong> <span
+					th:text="${sesion.actividad.titulo}"></span>
+			</div>
+		</div>
+
+		<table>
+			<thead>
+				<tr>
+					<th style="width: 20%;">No. Control</th>
+					<th style="width: 60%;">Nombre del Estudiante</th>
+					<th style="width: 20%; text-align: center;">Estatus</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="asistencia : ${listaAsistencia}">
+					<td th:text="${asistencia.estudiante.numeroControl}"></td>
+					<td
+						th:text="${asistencia.estudiante.usuario.nombre + ' ' + asistencia.estudiante.usuario.apellidos}"></td>
+					<td class="text-center"><span th:if="${asistencia.presente}"
+						class="asistencia-mark">PRESENTE</span> <span
+						th:if="${!asistencia.presente}" class="falta-mark">FALTA</span></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="firma-seccion">
+			<div class="linea-firma">
+				<span
+					th:text="${sesion.grupo.tutor.usuario.nombre + ' ' + sesion.grupo.tutor.usuario.apellidos}"></span>
+			</div>
+			<br /> <span style="font-size: 8pt; color: #666;">Docente
+				Tutor del Grupo</span>
+		</div>
+	</div>
+</body>
+</html>

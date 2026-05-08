@@ -20,6 +20,7 @@ public class CoordinadorController {
     private final EvidenciaService evidenciaService;
     private final GrupoTutoriaService grupoTutoriaService;
     private final SesionService sesionService;
+    private final PeriodoEscolarService periodoEscolarService;
     private final ReporteService reporteService;
     private final PatGrupoService patGrupoService;    
     private final TutorRepository tutorRepository;
@@ -33,6 +34,7 @@ public class CoordinadorController {
 
     public CoordinadorController(EvidenciaService evidenciaService, GrupoTutoriaService grupoTutoriaService,
                                  SesionService sesionService, ReporteService reporteService,
+                                 PeriodoEscolarService periodoEscolarService,
                                  TutorRepository tutorRepository, EstudianteRepository estudianteRepository,
                                  CarreraRepository carreraRepository, GrupoTutoriaRepository grupoTutoriaRepository,
                                  SesionRepository sesionRepository, PatRepository patRepository,
@@ -42,6 +44,7 @@ public class CoordinadorController {
         this.evidenciaService = evidenciaService;
         this.grupoTutoriaService = grupoTutoriaService;
         this.sesionService = sesionService;
+        this.periodoEscolarService = periodoEscolarService;
         this.reporteService = reporteService;
         this.tutorRepository = tutorRepository;
         this.estudianteRepository = estudianteRepository;
@@ -67,12 +70,15 @@ public class CoordinadorController {
     }
 
     @GetMapping("/busquedas")
-    public String cargarCentroDeBusquedas() {
+    public String cargarCentroDeBusquedas(Model model) {
+        model.addAttribute("periodos", periodoEscolarService.listarTodos());
+        model.addAttribute("estudiantes", estudianteRepository.findByActivoTrue());
         return "coordinador/busquedas";
     }
 
     @GetMapping("/buscar-tutores")
     public String buscarTutoresPorSemestre(@RequestParam Integer idPeriodo, Model model) {
+        model.addAttribute("periodo", periodoEscolarService.obtenerPorId(idPeriodo));
         model.addAttribute("resultados", grupoTutoriaService.buscarTutoriasPorPeriodo(idPeriodo));
         model.addAttribute("periodoId", idPeriodo);
         return "coordinador/resultados-tutores";
@@ -80,6 +86,8 @@ public class CoordinadorController {
 
     @GetMapping("/buscar-historial-alumno")
     public String buscarHistorialAlumno(@RequestParam Integer idEstudiante, Model model) {
+        estudianteRepository.findById(idEstudiante)
+                .ifPresent(estudiante -> model.addAttribute("estudiante", estudiante));
         model.addAttribute("resultados", grupoTutoriaService.buscarHistorialTutoriasDeEstudiante(idEstudiante));
         model.addAttribute("estudianteId", idEstudiante);
         return "coordinador/resultados-historial";

@@ -25,7 +25,6 @@
                         <i class="fa-solid fa-magnifying-glass-chart text-2xl"></i>
                     </div>
                     <h1 class="text-4xl font-black text-[#0B172A] tracking-tight">Centro de Búsquedas</h1>
-                    <p class="text-slate-500 mt-2 max-w-xl mx-auto font-medium">Consulta operativa para el seguimiento detallado de tutorías y alumnos.</p>
                 </div>
 
                 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -40,9 +39,14 @@
                         
                         <form th:action="@{/coordinador/buscar-tutores}" method="GET" class="space-y-6 flex-1 flex flex-col justify-between">
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">ID Periodo Escolar</label>
-                                <input type="number" name="idPeriodo" placeholder="Ej. 1" required
-                                       class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold transition-all">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Periodo Escolar</label>
+                                <select name="idPeriodo" required
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white font-bold transition-all">
+                                    <option value="">Selecciona un periodo</option>
+                                    <option th:each="periodo : ${periodos}"
+                                            th:value="${periodo.idPeriodo}"
+                                            th:text="${periodo.nombrePeriodo}">Periodo</option>
+                                </select>
                             </div>
                             <button type="submit" class="w-full py-4 bg-[#0B172A] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-800 transition-all shadow-lg shadow-blue-100">
                                 <i class="fa-solid fa-search mr-2"></i> Consultar
@@ -60,9 +64,14 @@
                         
                         <form th:action="@{/coordinador/buscar-historial-alumno}" method="GET" class="space-y-6 flex-1 flex flex-col justify-between">
                             <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">ID del Estudiante</label>
-                                <input type="number" name="idEstudiante" placeholder="Ej. 1" required
-                                       class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-bold transition-all">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Tutorado</label>
+                                <select name="idEstudiante" required
+                                        class="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white font-bold transition-all">
+                                    <option value="">Selecciona un tutorado</option>
+                                    <option th:each="estudiante : ${estudiantes}"
+                                            th:value="${estudiante.idEstudiante}"
+                                            th:text="${estudiante.numeroControl + ' - ' + estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">Tutorado</option>
+                                </select>
                             </div>
                             <button type="submit" class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100">
                                 <i class="fa-solid fa-history mr-2"></i> Ver Historial

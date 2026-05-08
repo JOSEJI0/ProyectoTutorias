@@ -9,63 +9,78 @@
         <div th:replace="~{fragments/layout :: sidebarCoordinador}"></div>
 
         <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
-            
+
             <header class="bg-white/80 backdrop-blur-md border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
                 <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
                     <a th:href="@{/coordinador/busquedas}" class="hover:text-blue-600 transition-colors">Centro de Búsquedas</a>
                     <i class="fa-solid fa-chevron-right text-[8px]"></i>
-                    <span class="text-[#0B172A]">Resultados de Sesiones</span>
+                    <span class="text-[#0B172A]">Actividades por Fecha</span>
                 </div>
             </header>
 
             <div class="p-10 max-w-5xl mx-auto w-full">
-                
+
                 <div class="mb-10 flex flex-col md:flex-row justify-between items-end gap-4">
                     <div>
                         <a th:href="@{/coordinador/busquedas}" class="group inline-flex items-center gap-2 text-slate-400 hover:text-[#0B172A] font-black text-[10px] uppercase tracking-[0.2em] mb-4 transition-all">
-                            <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-1"></i> 
+                            <i class="fa-solid fa-arrow-left-long transition-transform group-hover:-translate-x-1"></i>
                             Nueva Búsqueda
                         </a>
-                        <h1 class="text-3xl font-black text-[#0B172A] tracking-tight">Reporte de Sesiones Diarias</h1>
-                        <p class="text-slate-500 font-medium">Sesiones registradas el: <span class="text-blue-600 font-bold" th:text="${fechaBusqueda}">00/00/0000</span></p>
+                        <h1 class="text-3xl font-black text-[#0B172A] tracking-tight">Actividades Registradas</h1>
+                        <p class="text-slate-500 font-medium">Actividades impartidas el: <span class="text-blue-600 font-bold" th:text="${fechaBusqueda}">00/00/0000</span></p>
                     </div>
-                    
+
                     <div class="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl text-xs font-black uppercase border border-blue-100">
-                        <span th:text="${#lists.size(resultados)} + ' Sesiones Encontradas'">0</span>
+                        <span th:text="${#lists.size(resultados)} + ' Actividades'">0</span>
                     </div>
                 </div>
 
                 <div class="space-y-4">
-                    
-                    <div th:each="s : ${resultados}" class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row justify-between items-center gap-6">
-                        
-                        <div class="flex items-center gap-6 w-full">
-                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
-                                 th:classappend="${s.estatusRegistro == 'COMPLETADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
-                                <i th:class="${s.estatusRegistro == 'COMPLETADO' ? 'fa-solid fa-calendar-check' : 'fa-solid fa-calendar-day'}"></i>
-                            </div>
 
-                            <div class="flex-1">
-                                <h4 class="text-lg font-black text-slate-800 leading-tight mb-1" th:text="${s.actividad.titulo}">Título de la Actividad</h4>
-                                <div class="flex flex-wrap gap-x-4 gap-y-1">
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                        <i class="fa-solid fa-users mr-1"></i> Grupo: <span class="text-slate-600" th:text="${s.grupo.nombreGrupo}">1A</span>
-                                    </p>
-                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                                        <i class="fa-solid fa-chalkboard-user mr-1"></i> Tutor: <span class="text-slate-600" th:text="${s.grupo.tutor.usuario.nombre}">Nombre</span>
-                                    </p>
+                    <div th:each="s : ${resultados}" class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="flex flex-col md:flex-row justify-between gap-6">
+                            <div class="flex items-start gap-6 w-full">
+                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0"
+                                     th:classappend="${s.estatusRegistro == 'COMPLETADO' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
+                                    <i th:class="${s.estatusRegistro == 'COMPLETADO' ? 'fa-solid fa-calendar-check' : 'fa-solid fa-calendar-day'}"></i>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2 mb-2">
+                                        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase" th:text="'Semana ' + ${s.semanaNumero}">Semana</span>
+                                        <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase border"
+                                              th:classappend="${s.estatusRegistro == 'COMPLETADO' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200'}"
+                                              th:text="${s.estatusRegistro}">Estado</span>
+                                    </div>
+                                    <h4 class="text-lg font-black text-slate-800 leading-tight mb-2" th:text="${s.actividad.titulo}">Título de la Actividad</h4>
+                                    <p class="text-sm text-slate-500 font-medium mb-4" th:if="${s.actividad.descripcion != null && !#strings.isEmpty(s.actividad.descripcion)}" th:text="${s.actividad.descripcion}">Descripción</p>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            <i class="fa-solid fa-users mr-1"></i> Grupo:
+                                            <span class="text-slate-600" th:text="${s.grupo.nombreGrupo}">1A</span>
+                                        </p>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            <i class="fa-solid fa-calendar-days mr-1"></i> Periodo:
+                                            <span class="text-slate-600" th:text="${s.grupo.periodo.nombrePeriodo}">Periodo</span>
+                                        </p>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            <i class="fa-solid fa-graduation-cap mr-1"></i> Carrera:
+                                            <span class="text-slate-600" th:text="${s.grupo.carrera.nombreCarrera}">Carrera</span>
+                                        </p>
+                                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                            <i class="fa-solid fa-chalkboard-user mr-1"></i> Tutor:
+                                            <span class="text-slate-600" th:text="${s.grupo.tutor.usuario.nombre + ' ' + s.grupo.tutor.usuario.apellidos}">Nombre</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-                            <span class="px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border"
-                                  th:classappend="${s.estatusRegistro == 'COMPLETADO' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200'}"
-                                  th:text="${s.estatusRegistro}">ESTADO</span>
-                            
-                            <a th:href="@{/coordinador/grupo/{id}/detalle(id=${s.grupo.idGrupo})}" class="p-3 bg-slate-100 text-slate-400 rounded-xl hover:bg-[#0B172A] hover:text-white transition-all">
-                                <i class="fa-solid fa-arrow-right text-xs"></i>
-                            </a>
+                            <div class="flex items-center md:items-start justify-end">
+                                <a th:href="@{/coordinador/grupo/{id}/detalle(id=${s.grupo.idGrupo})}" class="p-3 bg-slate-100 text-slate-400 rounded-xl hover:bg-[#0B172A] hover:text-white transition-all" title="Ver grupo">
+                                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -74,7 +89,7 @@
                             <i class="fa-solid fa-calendar-xmark text-4xl"></i>
                         </div>
                         <h3 class="text-slate-400 font-black uppercase tracking-widest text-sm">Sin registros para esta fecha</h3>
-                        <p class="text-slate-400 text-xs mt-1 italic font-medium">No se registraron sesiones de tutoría en el sistema.</p>
+                        <p class="text-slate-400 text-xs mt-1 italic font-medium">No se registraron actividades de tutoría en el sistema.</p>
                     </div>
 
                 </div>

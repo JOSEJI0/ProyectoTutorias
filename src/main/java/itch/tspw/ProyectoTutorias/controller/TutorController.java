@@ -130,6 +130,11 @@ public class TutorController {
             @RequestParam(value = "fotoEvidencia", required = false) MultipartFile fotoEvidencia) {
         
         try {
+        	
+        	if (idEstudiantesPresentes == null) {
+                idEstudiantesPresentes = new ArrayList<>();
+            }
+        	
             if (fotoEvidencia == null || fotoEvidencia.isEmpty()) {
                 return "redirect:/tutor/panel?error=falta_evidencia";
             }
@@ -169,16 +174,21 @@ public class TutorController {
         return "tutor/reportes";
     }
 
-    @GetMapping("/reportes/lista-asistencia/pdf")
-    public ResponseEntity<byte[]> descargarListaAsistencia(@RequestParam Integer idGrupo) {
-        GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo).orElseThrow();
-        Map<String, Object> variables = Map.of(
-            "grupo", grupo,
-            "estudiantes", grupo.getEstudiantes(),
-            "fechaImpresion", LocalDate.now()
-        );
-        byte[] pdf = reporteService.generarPdfDesdeHtml("pdf/tutor-lista-asistencia", variables);
-        return crearPdfResponse(pdf, "Lista_Asistencia_" + grupo.getNombreGrupo() + ".pdf");
+    @GetMapping("/sesion/{id}/pdf")
+    public ResponseEntity<byte[]> descargarPdfAsistenciaSesion(@PathVariable Integer id) {
+        Sesion sesion = sesionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sesión no encontrada"));
+        
+        List<Asistencia> listaAsistencia = asistenciaRepository.findBySesion_IdSesion(id);
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("sesion", sesion);
+        variables.put("grupo", sesion.getGrupo());
+        variables.put("listaAsistencia", listaAsistencia);
+        variables.put("fechaImpresion", LocalDate.now());
+
+        byte[] pdf = reporteService.generarPdfDesdeHtml("documentos/tutor-lista-asistencia", variables);
+        return crearPdfResponse(pdf, "Asistencia_Semana_" + sesion.getSemanaNumero() + "_" + sesion.getGrupo().getNombreGrupo() + ".pdf");
     }
 
     @GetMapping("/reportes/reporte-final/pdf")
@@ -195,7 +205,6 @@ public class TutorController {
     }
 
 
-    // Método auxiliar para limpiar la creación de respuestas PDF
     private ResponseEntity<byte[]> crearPdfResponse(byte[] content, String filename) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
@@ -227,6 +236,4 @@ public class TutorController {
             return "redirect:/tutor/perfil?error=subida_fallida";
         }
     }
-    
-
 }

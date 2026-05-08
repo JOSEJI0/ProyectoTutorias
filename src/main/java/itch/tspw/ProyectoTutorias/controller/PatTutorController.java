@@ -89,6 +89,16 @@ public class PatTutorController {
         }
     }
 
+    @PostMapping("/grupo/{idGrupo}/sincronizar")
+    public String sincronizarPat(@PathVariable Integer idGrupo) {
+        try {
+            patGrupoService.sincronizarPatInstitucional(idGrupo);
+            return "redirect:/tutor/pat/grupo/" + idGrupo + "?exito=sincronizado";
+        } catch (Exception e) {
+            return "redirect:/tutor/pat/grupo/" + idGrupo + "?error=sin_pat_base";
+        }
+    }
+
     @GetMapping("/actividad/{id}/editar")
     public String prepararModificacionActividad(@PathVariable("id") Integer idActividad, Model model) {
         ActividadPatGrupo actividad = patGrupoService.obtenerActividadPorId(idActividad);

@@ -1,162 +1,211 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/layout :: encabezado('Pase de Lista')}"></th:block>
+<th:block
+	th:replace="~{fragments/layout :: encabezado('Pase de Lista')}"></th:block>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
-    <div class="flex min-h-screen">
-        <div th:replace="~{fragments/layout :: sidebarTutor}"></div>
+	<div class="flex min-h-screen">
+		<div th:replace="~{fragments/layout :: sidebarTutor}"></div>
 
-        <main class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+		<main
+			class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+
+			<header
+				class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
+				<div class="flex items-center justify-between">
+					<div
+						class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+						<a th:href="@{/tutor/panel}"
+							class="hover:text-blue-600 transition-colors">Panel</a> <i
+							class="fa-solid fa-chevron-right text-[8px]"></i> <span
+							class="text-[#0B172A]">Registro de Asistencia</span>
+					</div>
+					<div class="text-right">
+						<h2 class="text-sm font-black text-[#0B172A]"
+							th:text="${grupo.nombreGrupo}">1A-SISC</h2>
+						<p class="text-[10px] text-slate-400 font-bold uppercase"
+							th:text="${grupo.carrera.nombreCarrera}">Ingeniería</p>
+					</div>
+				</div>
+			</header>
+
+			<div class="p-10 max-w-6xl mx-auto w-full space-y-10">
+
+				<div
+					class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+					<div class="bg-[#0B172A] p-8 text-white">
+						<h1 class="text-2xl font-black tracking-tight">Nueva Sesión
+							de Tutoría</h1>
+						<p class="text-slate-400 text-sm">Registra la actividad del
+							PAT y el pase de lista actual.</p>
+					</div>
+
+					<form th:action="@{/tutor/guardar-asistencia}" method="POST"
+						enctype="multipart/form-data" class="p-8 space-y-10">
+						<input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
+
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+							<div>
+								<label
+									class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 px-1">Semana
+									de Trabajo</label> <select name="semana"
+									class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 appearance-none cursor-pointer">
+									<option th:each="i : ${#numbers.sequence(1, 16)}"
+										th:value="${i}" th:text="'Semana ' + ${i}"></option>
+								</select>
+							</div>
+							<div>
+								<label
+									class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 px-1">Actividad
+									Programada (PAT)</label> <select name="idActividad" required
+									th:disabled="${#lists.isEmpty(actividadesPat)}"
+									class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+									<option value="" disabled selected>Selecciona una
+										actividad</option>
+									<option th:each="actividad : ${actividadesPat}"
+										th:value="${actividad.idActividad}"
+										th:text="'Semana ' + ${actividad.semanaProgramada} + ' - ' + ${actividad.titulo}">
+										Semana 1 - Integracion Grupal</option>
+								</select>
+								<p th:if="${#lists.isEmpty(actividadesPat)}"
+									class="text-[10px] text-rose-500 font-bold mt-3 px-1">No
+									hay actividades PAT activas para este grupo. Solicita que se
+									registre el PAT del periodo antes de pasar lista.</p>
+							</div>
+						</div>
+
+						<div>
+							<div class="flex items-center justify-between mb-6 px-1">
+								<h3
+									class="text-xs font-black text-[#0B172A] uppercase tracking-widest">Lista
+									de Estudiantes</h3>
+								<span
+									class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black"
+									th:text="${#lists.size(estudiantes)} + ' ALUMNOS'"></span>
+							</div>
+
+							<div
+								class="border border-slate-100 rounded-[2rem] overflow-hidden">
+								<table class="w-full text-left">
+									<thead>
+										<tr
+											class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+											<th class="px-8 py-4">No. Control</th>
+											<th class="px-6 py-4">Nombre Completo</th>
+											<th class="px-8 py-4 text-center">¿Asistió?</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-slate-100 bg-white">
+    <tr th:each="sesion : ${historialSesiones}" class="group hover:bg-blue-50/30 transition-colors">
+        <td class="px-8 py-5 font-bold text-[#0B172A]" th:text="'#' + ${sesion.idSesion}"></td>
+        <td class="px-6 py-5 text-xs font-bold text-slate-500" th:text="'Semana ' + ${sesion.semanaNumero}"></td>
+        <td class="px-6 py-5 text-xs font-bold text-slate-700" th:text="${sesion.actividad.titulo}"></td>
+        <td class="px-6 py-5 text-center">
+            <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+                  th:classappend="${sesion.estatusRegistro == 'VALIDADO' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}"
+                  th:text="${sesion.estatusRegistro}"></span>
+        </td>
+        <td class="px-8 py-5 text-right flex justify-end gap-4">
+            <a th:href="@{/tutor/sesion/{id}/pdf(id=${sesion.idSesion})}" 
+               class="flex items-center gap-1 text-red-600 hover:text-red-800 text-[10px] font-black uppercase transition-colors"
+               title="Descargar Lista de Asistencia">
+                <i class="fa-solid fa-file-pdf text-sm"></i> PDF
+            </a>
             
-            <header class="bg-white border-b border-slate-200 p-4 px-10 sticky top-0 z-30">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                        <a th:href="@{/tutor/panel}" class="hover:text-blue-600 transition-colors">Panel</a>
-                        <i class="fa-solid fa-chevron-right text-[8px]"></i>
-                        <span class="text-[#0B172A]">Registro de Asistencia</span>
-                    </div>
-                    <div class="text-right">
-                        <h2 class="text-sm font-black text-[#0B172A]" th:text="${grupo.nombreGrupo}">1A-SISC</h2>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase" th:text="${grupo.carrera.nombreCarrera}">Ingeniería</p>
-                    </div>
-                </div>
-            </header>
+            <a th:href="@{/tutor/sesion/{id}(id=${sesion.idSesion})}" 
+               class="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase transition-colors">
+                Ver <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+        </td>
+    </tr>
+</tbody>
+								</table>
+							</div>
+						</div>
 
-            <div class="p-10 max-w-6xl mx-auto w-full space-y-10">
+						<div
+							class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-50 p-8 rounded-[2.5rem] border border-dashed border-slate-200">
+							<div>
+								<h3
+									class="text-xs font-black text-[#0B172A] uppercase tracking-widest mb-2">Evidencia
+									Fotográfica</h3>
+								<p
+									class="text-[10px] text-slate-400 font-medium mb-4 italic leading-relaxed">Sube
+									una fotografía de la sesión grupal como respaldo para la
+									validación de la coordinación.</p>
+								<input type="file" name="fotoEvidencia" accept="image/*"
+									required
+									class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-white file:text-blue-700 hover:file:bg-blue-50 cursor-pointer">
+							</div>
+							<div class="text-right">
+								<button type="submit"
+									th:disabled="${#lists.isEmpty(actividadesPat) or #lists.isEmpty(estudiantes)}"
+									class="bg-amber-400 text-[#0B172A] px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-200 hover:bg-amber-500 hover:-translate-y-1 transition-all inline-flex items-center gap-3 disabled:opacity-60 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed">
+									Finalizar y Registrar <i class="fa-solid fa-cloud-arrow-up"></i>
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
 
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="bg-[#0B172A] p-8 text-white">
-                        <h1 class="text-2xl font-black tracking-tight">Nueva Sesión de Tutoría</h1>
-                        <p class="text-slate-400 text-sm">Registra la actividad del PAT y el pase de lista actual.</p>
-                    </div>
+				<div
+					class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
+					<div
+						class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+						<h2
+							class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Historial
+							de Sesiones Registradas</h2>
+						<i class="fa-solid fa-clock-rotate-left text-slate-300"></i>
+					</div>
 
-                    <form th:action="@{/tutor/guardar-asistencia}" method="POST" enctype="multipart/form-data" class="p-8 space-y-10">
-                        <input type="hidden" name="idGrupo" th:value="${grupo.idGrupo}">
+					<div class="overflow-x-auto">
+						<table class="w-full text-left">
+							<thead>
+								<tr
+									class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+									<th class="px-8 py-5">Folio</th>
+									<th class="px-6 py-5">Semana</th>
+									<th class="px-6 py-5">Actividad PAT</th>
+									<th class="px-6 py-5 text-center">Estatus</th>
+									<th class="px-8 py-5 text-right">Detalle</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-slate-50">
+								<tr th:each="sesion : ${historialSesiones}"
+									class="group hover:bg-blue-50/30 transition-colors">
+									<td class="px-8 py-5 font-bold text-[#0B172A]"
+										th:text="'#' + ${sesion.idSesion}"></td>
+									<td class="px-6 py-5 text-xs font-bold text-slate-500"
+										th:text="'Semana ' + ${sesion.semanaNumero}"></td>
+									<td class="px-6 py-5 text-xs font-bold text-slate-700"
+										th:text="${sesion.actividad.titulo}"></td>
+									<td class="px-6 py-5 text-center"><span
+										class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
+										th:classappend="${sesion.estatusRegistro == 'VALIDADO' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}"
+										th:text="${sesion.estatusRegistro}"></span></td>
+									<td class="px-8 py-5 text-right"><a
+										th:href="@{/tutor/sesion/{id}(id=${sesion.idSesion})}"
+										class="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase transition-colors">
+											Ver <i class="fa-solid fa-arrow-right ml-1"></i>
+									</a></td>
+								</tr>
+								<tr th:if="${#lists.isEmpty(historialSesiones)}">
+									<td colspan="5" class="px-8 py-20 text-center">
+										<p class="text-slate-400 font-bold italic text-sm text-center">No
+											hay sesiones registradas todavía.</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 px-1">Semana de Trabajo</label>
-                                <select name="semana" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 appearance-none cursor-pointer">
-                                    <option th:each="i : ${#numbers.sequence(1, 16)}" th:value="${i}" th:text="'Semana ' + ${i}"></option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-3 px-1">Actividad Programada (PAT)</label>
-                                <select name="idActividad" required th:disabled="${#lists.isEmpty(actividadesPat)}"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 appearance-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
-                                    <option value="" disabled selected>Selecciona una actividad</option>
-                                    <option th:each="actividad : ${actividadesPat}"
-                                            th:value="${actividad.idActividad}"
-                                            th:text="'Semana ' + ${actividad.semanaProgramada} + ' - ' + ${actividad.titulo}">
-                                        Semana 1 - Integracion Grupal
-                                    </option>
-                                </select>
-                                <p th:if="${#lists.isEmpty(actividadesPat)}" class="text-[10px] text-rose-500 font-bold mt-3 px-1">
-                                    No hay actividades PAT activas para este grupo. Solicita que se registre el PAT del periodo antes de pasar lista.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <div class="flex items-center justify-between mb-6 px-1">
-                                <h3 class="text-xs font-black text-[#0B172A] uppercase tracking-widest">Lista de Estudiantes</h3>
-                                <span class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-black" th:text="${#lists.size(estudiantes)} + ' ALUMNOS'"></span>
-                            </div>
-                            
-                            <div class="border border-slate-100 rounded-[2rem] overflow-hidden">
-                                <table class="w-full text-left">
-                                    <thead>
-                                        <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                            <th class="px-8 py-4">No. Control</th>
-                                            <th class="px-6 py-4">Nombre Completo</th>
-                                            <th class="px-8 py-4 text-center">¿Asistió?</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-50">
-                                        <tr th:each="estudiante : ${estudiantes}" class="hover:bg-blue-50/30 transition-colors group">
-                                            <td class="px-8 py-4 font-mono text-xs font-bold text-slate-500" th:text="${estudiante.numeroControl}"></td>
-                                            <td class="px-6 py-4 font-bold text-slate-700" th:text="${estudiante.usuario.nombre} + ' ' + ${estudiante.usuario.apellidos}"></td>
-                                            <td class="px-8 py-4 text-center">
-                                                <input type="checkbox" name="asistencias" th:value="${estudiante.idEstudiante}" checked
-                                                       class="w-5 h-5 rounded-lg border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
-                                            </td>
-                                        </tr>
-                                        <tr th:if="${#lists.isEmpty(estudiantes)}">
-                                            <td colspan="3" class="px-8 py-16 text-center">
-                                                <p class="text-slate-400 font-bold italic text-sm text-center">No hay estudiantes activos en este grupo.</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-50 p-8 rounded-[2.5rem] border border-dashed border-slate-200">
-                            <div>
-                                <h3 class="text-xs font-black text-[#0B172A] uppercase tracking-widest mb-2">Evidencia Fotográfica</h3>
-                                <p class="text-[10px] text-slate-400 font-medium mb-4 italic leading-relaxed">Sube una fotografía de la sesión grupal como respaldo para la validación de la coordinación.</p>
-                                <input type="file" name="fotoEvidencia" accept="image/*" required 
-                                       class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-white file:text-blue-700 hover:file:bg-blue-50 cursor-pointer">
-                            </div>
-                            <div class="text-right">
-                                <button type="submit" th:disabled="${#lists.isEmpty(actividadesPat) or #lists.isEmpty(estudiantes)}"
-                                        class="bg-amber-400 text-[#0B172A] px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-amber-200 hover:bg-amber-500 hover:-translate-y-1 transition-all inline-flex items-center gap-3 disabled:opacity-60 disabled:shadow-none disabled:hover:translate-y-0 disabled:cursor-not-allowed">
-                                    Finalizar y Registrar <i class="fa-solid fa-cloud-arrow-up"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                        <h2 class="font-black text-[#0B172A] uppercase tracking-widest text-xs">Historial de Sesiones Registradas</h2>
-                        <i class="fa-solid fa-clock-rotate-left text-slate-300"></i>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead>
-                                <tr class="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
-                                    <th class="px-8 py-5">Folio</th>
-                                    <th class="px-6 py-5">Semana</th>
-                                    <th class="px-6 py-5">Actividad PAT</th>
-                                    <th class="px-6 py-5 text-center">Estatus</th>
-                                    <th class="px-8 py-5 text-right">Detalle</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                <tr th:each="sesion : ${historialSesiones}" class="group hover:bg-blue-50/30 transition-colors">
-                                    <td class="px-8 py-5 font-bold text-[#0B172A]" th:text="'#' + ${sesion.idSesion}"></td>
-                                    <td class="px-6 py-5 text-xs font-bold text-slate-500" th:text="'Semana ' + ${sesion.semanaNumero}"></td>
-                                    <td class="px-6 py-5 text-xs font-bold text-slate-700" th:text="${sesion.actividad.titulo}"></td>
-                                    <td class="px-6 py-5 text-center">
-                                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest"
-                                              th:classappend="${sesion.estatusRegistro == 'VALIDADO' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}"
-                                              th:text="${sesion.estatusRegistro}"></span>
-                                    </td>
-                                    <td class="px-8 py-5 text-right">
-                                        <a th:href="@{/tutor/sesion/{id}(id=${sesion.idSesion})}" class="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase transition-colors">
-                                            Ver <i class="fa-solid fa-arrow-right ml-1"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                <tr th:if="${#lists.isEmpty(historialSesiones)}">
-                                    <td colspan="5" class="px-8 py-20 text-center">
-                                        <p class="text-slate-400 font-bold italic text-sm text-center">No hay sesiones registradas todavía.</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div th:replace="~{fragments/layout :: footer}"></div>
-            </div>
-        </main>
-    </div>
+				<div th:replace="~{fragments/layout :: footer}"></div>
+			</div>
+		</main>
+	</div>
 
 </body>
 </html>

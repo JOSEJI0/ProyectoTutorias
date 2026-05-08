@@ -2,6 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/layout :: encabezado('Gestión de Estudiantes')}"></th:block>
+    <style>
+        /* Estilo para que el asterisco se vea rojo y resalte */
+        .required-mark { color: #ef4444; margin-left: 2px; font-size: 12px; }
+    </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800">
 
@@ -59,27 +63,27 @@
                     
                     <form th:action="@{/coordinador/estudiantes/guardar}" method="POST" class="p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end">
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">No. Control</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">No. Control<span class="required-mark">*</span></label>
                             <input type="text" name="numControl" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Nombre</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Nombre<span class="required-mark">*</span></label>
                             <input type="text" name="nombre" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold">
                         </div>
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Apellidos</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Apellidos<span class="required-mark">*</span></label>
                             <input type="text" name="apellidos" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold">
                         </div>
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Correo</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Correo<span class="required-mark">*</span></label>
                             <input type="email" name="correo" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold">
                         </div>
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Semestre</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Semestre<span class="required-mark">*</span></label>
                             <input type="number" min="1" max="12" name="semestre" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold">
                         </div>
                         <div class="lg:col-span-1">
-                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Carrera</label>
+                            <label class="text-[10px] font-black text-slate-400 uppercase block mb-1">Carrera<span class="required-mark">*</span></label>
                             <select name="idCarrera" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-[11px] font-bold outline-none">
                                 <option value="" disabled selected>Elegir...</option>
                                 <option th:each="c : ${carreras}" th:value="${c.idCarrera}" th:text="${c.nombreCarrera}"></option>
