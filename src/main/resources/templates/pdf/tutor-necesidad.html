@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Formato de Canalización</title>
+    <style>
+        @page { size: letter portrait; margin: 2.5cm; }
+        body { font-family: sans-serif; color: #333; line-height: 1.5; }
+        .header { text-align: center; border-bottom: 2px solid #2A4F73; padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { color: #2A4F73; margin: 0; font-size: 18pt; text-transform: uppercase; }
+        .fecha { text-align: right; font-weight: bold; margin-bottom: 30px; }
+        .contenido { font-size: 11pt; text-align: justify; }
+        .dato-box { border: 1px solid #2A4F73; padding: 15px; background: #f4f7fa; margin-top: 20px; margin-bottom: 20px; border-radius: 5px; }
+        .label { font-weight: bold; color: #2A4F73; }
+        .area-badge { display: inline-block; background-color: #2A4F73; color: white; padding: 3px 10px; border-radius: 10px; font-size: 10pt; font-weight: bold; }
+        .firmas { width: 100%; margin-top: 80px; text-align: center; }
+        .firmas td { width: 50%; }
+        .linea { border-top: 1px solid #333; width: 80%; margin: 0 auto; padding-top: 5px; font-weight: bold; font-size: 10pt;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Formato Institucional de Canalización</h1>
+        <p style="margin: 5px 0 0 0; color: #666; font-size: 10pt;">Detección de Necesidades del Estudiante</p>
+    </div>
+
+    <div class="fecha">
+        Fecha de emisión: <span th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}"></span>
+    </div>
+
+    <div class="contenido">
+        <p>A quien corresponda:</p>
+        <p>Por medio de la presente, el docente tutor solicita la intervención y/o seguimiento correspondiente para el siguiente estudiante, derivado del proceso de acción tutorial:</p>
+
+        <div class="dato-box">
+            <p><span class="label">Nombre del Estudiante:</span> <span th:text="${necesidad.estudiante.usuario.nombre + ' ' + necesidad.estudiante.usuario.apellidos}"></span></p>
+            <p><span class="label">Número de Control:</span> <span th:text="${necesidad.estudiante.numeroControl}"></span></p>
+            <p><span class="label">Grupo de Tutoría:</span> <span th:text="${necesidad.estudiante.grupo.nombreGrupo}"></span></p>
+            <p><span class="label">Área de Atención Solicitada:</span> <span class="area-badge" th:text="${necesidad.area}"></span></p>
+        </div>
+
+        <p class="label">Descripción de la Situación / Observaciones del Tutor:</p>
+        <div style="border: 1px solid #ccc; padding: 15px; min-height: 100px; border-radius: 5px;">
+            <span th:text="${necesidad.descripcion}"></span>
+        </div>
+    </div>
+
+    <table class="firmas">
+        <tr>
+            <td>
+                <div class="linea" th:text="${necesidad.estudiante.grupo.tutor.usuario.nombre + ' ' + necesidad.estudiante.grupo.tutor.usuario.apellidos}"></div>
+                <div style="font-size: 9pt; color: #666;">Docente Tutor</div>
+            </td>
+            <td>
+                <div class="linea">Sello y Firma de Recepción</div>
+                <div style="font-size: 9pt; color: #666;">Área Solicitada</div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

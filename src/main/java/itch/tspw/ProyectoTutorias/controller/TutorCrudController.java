@@ -1,7 +1,10 @@
 package itch.tspw.ProyectoTutorias.controller;
 
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.service.*;
+import itch.tspw.ProyectoTutorias.model.Tutor;
+import itch.tspw.ProyectoTutorias.model.Usuario;
+import itch.tspw.ProyectoTutorias.service.GrupoTutoriaService;
+import itch.tspw.ProyectoTutorias.service.TutorService;
+import itch.tspw.ProyectoTutorias.service.UploadFileService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +19,7 @@ public class TutorCrudController {
     private final GrupoTutoriaService grupoTutoriaService;
 
     public TutorCrudController(TutorService tutorService, 
-                               UploadFileService uploadFileService, 
+                               UploadFileService uploadFileService,
                                GrupoTutoriaService grupoTutoriaService) {
         this.tutorService = tutorService;
         this.uploadFileService = uploadFileService;
@@ -30,67 +33,81 @@ public class TutorCrudController {
     }
 
     @PostMapping("/guardar")
-    public String guardarTutor(@ModelAttribute Tutor tutor, 
+    public String guardarTutor(@RequestParam("nombre") String nombre,
+                               @RequestParam("apellidos") String apellidos,
+                               @RequestParam("correo") String correo,
+                               @RequestParam("rfc") String rfc,
                                @RequestParam(value = "foto", required = false) MultipartFile foto) { 
         try {
-            if (tutor.getUsuario() == null) {
-                tutor.setUsuario(new Usuario());
-            }
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombre(nombre.trim());
+            nuevoUsuario.setApellidos(apellidos.trim());
+            nuevoUsuario.setCorreoInstitucional(correo.trim());
+            nuevoUsuario.setActivo(true);
 
             if (foto != null && !foto.isEmpty()) {
                 String nombreFoto = uploadFileService.guardarImagen(foto);
-                tutor.getUsuario().setFotoPerfil(nombreFoto);
+                nuevoUsuario.setFotoPerfil(nombreFoto);
             } else {
-                tutor.getUsuario().setFotoPerfil("default.png"); 
+                nuevoUsuario.setFotoPerfil("default.png"); 
             }
 
-            tutorService.guardarTutor(tutor);
-            
+            Tutor nuevoTutor = new Tutor();
+            nuevoTutor.setRfcEmpleado(rfc.trim());
+            nuevoTutor.setUsuario(nuevoUsuario);
+
+            tutorService.guardarTutor(nuevoTutor);
             return "redirect:/coordinador/tutores?exito=guardado";
         } catch (Exception e) {
-            e.printStackTrace(); 
             return "redirect:/coordinador/tutores?error=duplicado";
         }
     }
 
     @PostMapping("/actualizar")
-    public String actualizarTutor(@ModelAttribute Tutor tutor,
+    public String actualizarTutor(@RequestParam("idTutor") Integer idTutor,
+                                  @RequestParam("rfc") String rfc,
+                                  @RequestParam("nombre") String nombre,
+                                  @RequestParam("apellidos") String apellidos,
+                                  @RequestParam("correo") String correo,
                                   @RequestParam(value = "foto", required = false) MultipartFile foto) {
         try {
-            Tutor tutorExistente = tutorService.obtenerPorId(tutor.getIdTutor());
+            Tutor tutorExistente = tutorService.obtenerPorId(idTutor);
+            tutorExistente.setRfcEmpleado(rfc.trim());
             
-            tutorExistente.setRfcEmpleado(tutor.getRfcEmpleado());
-            tutorExistente.getUsuario().setNombre(tutor.getUsuario().getNombre());
-            tutorExistente.getUsuario().setApellidos(tutor.getUsuario().getApellidos());
-            tutorExistente.getUsuario().setCorreoInstitucional(tutor.getUsuario().getCorreoInstitucional());
+            Usuario usuario = tutorExistente.getUsuario();
+            usuario.setNombre(nombre.trim());
+            usuario.setApellidos(apellidos.trim());
+            usuario.setCorreoInstitucional(correo.trim());
 
             if (foto != null && !foto.isEmpty()) {
-                tutorExistente.getUsuario().setFotoPerfil(uploadFileService.guardarImagen(foto));
+                String nombreFoto = uploadFileService.guardarImagen(foto);
+                usuario.setFotoPerfil(nombreFoto);
             }
             
             tutorService.guardarTutor(tutorExistente);
             return "redirect:/coordinador/tutores?exito=actualizado";
             
         } catch (Exception e) {
-            return "redirect:/coordinador/tutores/editar/" + tutor.getIdTutor() + "?error=duplicado";
+            return "redirect:/coordinador/tutores/editar/" + idTutor + "?error=duplicado";
         }
     }
 
     @GetMapping("/eliminar/{id}")
-    public String eliminarTutor(@PathVariable Integer id) {
+    public String eliminarTutor(@PathVariable("id") Integer id) {
         tutorService.eliminarTutor(id);
         return "redirect:/coordinador/tutores?exito=eliminado";
     }
 
     @GetMapping("/editar/{id}")
-    public String mostrarFormularioEditar(@PathVariable Integer id, Model model) {
+    public String mostrarFormularioEditar(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("tutor", tutorService.obtenerPorId(id));
         return "coordinador/tutores-editar";
     }
 
     @GetMapping("/detalle/{id}")
-    public String verDetalleTutor(@PathVariable Integer id, Model model) {
-        model.addAttribute("tutor", tutorService.obtenerPorId(id));
+    public String verDetalleTutor(@PathVariable("id") Integer id, Model model) {
+        Tutor tutor = tutorService.obtenerPorId(id);
+        model.addAttribute("tutor", tutor);
         model.addAttribute("grupos", grupoTutoriaService.obtenerGruposActivosPorTutor(id));
         return "coordinador/tutores-detalle";
     }

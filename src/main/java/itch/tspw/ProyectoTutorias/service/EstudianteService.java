@@ -44,6 +44,11 @@ public class EstudianteService {
         return estudianteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Estudiante no encontrado con ID: " + id));
     }
+    
+    @Transactional(readOnly = true)
+    public Estudiante buscarPorNumeroControl(String numeroControl) {
+        return estudianteRepository.findByNumeroControl(numeroControl).orElse(null);
+    }
 
     @Transactional
     public void guardarEstudiante(Estudiante estudiante) {
@@ -75,7 +80,7 @@ public class EstudianteService {
     public void eliminarEstudianteLogico(Integer idEstudiante) {
         Estudiante estudiante = obtenerPorId(idEstudiante);
         
-        estudiante.setGrupo(null);
+        estudiante.setGrupo(null); 
         estudiante.setActivo(false);
         
         if (estudiante.getUsuario() != null) {

@@ -1,6 +1,5 @@
 package itch.tspw.ProyectoTutorias.controller;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -31,14 +30,15 @@ public class TutorController {
     private final ReporteService reporteService;
     private final PatRepository patRepository;
     private final ActividadPatRepository actividadPatRepository;
+    private final NecesidadesRepository necesidadRepository;
 
     public TutorController(GrupoTutoriaService grupoTutoriaService, SesionService sesionService,
                            UsuarioRepository usuarioRepository, UploadFileService uploadFileService,
                            TutorRepository tutorRepository, EvidenciaSesionRepository evidenciaRepository,
                            SesionRepository sesionRepository, AsistenciaRepository asistenciaRepository,
-                           GrupoTutoriaRepository grupoTutoriaRepository,
-                           ReporteService reporteService, PatRepository patRepository,
-                           ActividadPatRepository actividadPatRepository) {
+                           GrupoTutoriaRepository grupoTutoriaRepository, ReporteService reporteService,
+                           PatRepository patRepository, ActividadPatRepository actividadPatRepository,
+                           NecesidadesRepository necesidadRepository) {
         this.grupoTutoriaService = grupoTutoriaService;
         this.sesionService = sesionService;
         this.usuarioRepository = usuarioRepository;
@@ -51,6 +51,7 @@ public class TutorController {
         this.reporteService = reporteService;
         this.patRepository = patRepository;
         this.actividadPatRepository = actividadPatRepository;
+        this.necesidadRepository = necesidadRepository;
     }
 
     private Tutor obtenerTutorLogueado(Authentication authentication) {
@@ -82,10 +83,10 @@ public class TutorController {
     }
 
     @GetMapping("/grupo/{id}/detalle")
-    public String verDetalleGrupo(@PathVariable Integer id, Model model) {
-        GrupoTutoria grupo = grupoTutoriaService.obtenerPorId(id);
+    public String verDetalleGrupo(@PathVariable("id") Integer idGrupo, Model model) {
+        GrupoTutoria grupo = grupoTutoriaService.obtenerPorId(idGrupo);
         model.addAttribute("grupo", grupo);
-        model.addAttribute("estudiantes", grupo.getEstudiantes()); 
+        model.addAttribute("estudiantes", grupo.getEstudiantes());
         return "tutor/grupo-detalle";
     }
 
@@ -97,7 +98,7 @@ public class TutorController {
     }
 
     @PostMapping("/asistencia")
-    public String prepararAsistencia(@RequestParam Integer idGrupo, Model model) {
+    public String prepararAsistencia(@RequestParam("idGrupo") Integer idGrupo, Model model) {
         cargarModeloAsistencia(idGrupo, model);
         return "tutor/asistencia";
     }
@@ -105,13 +106,12 @@ public class TutorController {
     private void cargarModeloAsistencia(Integer idGrupo, Model model) {
         GrupoTutoria grupo = grupoTutoriaService.obtenerPorId(idGrupo);
         List<Estudiante> estudiantesActivos = grupo.getEstudiantes().stream()
-                .filter(estudiante -> Boolean.TRUE.equals(estudiante.getActivo()))
+                .filter(Estudiante::getActivo)
                 .toList();
         List<ActividadPat> actividadesPat = patRepository
                 .findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
                         grupo.getPeriodo().getIdPeriodo(),
-                        grupo.getCarrera().getIdCarrera()
-                )
+                        grupo.getCarrera().getIdCarrera())
                 .map(pat -> actividadPatRepository.findByPat_IdPatAndActivoTrueOrderBySemanaProgramadaAsc(pat.getIdPat()))
                 .orElseGet(Collections::emptyList);
 
@@ -130,14 +130,8 @@ public class TutorController {
             @RequestParam(value = "fotoEvidencia", required = false) MultipartFile fotoEvidencia) {
         
         try {
-        	
-        	if (idEstudiantesPresentes == null) {
-                idEstudiantesPresentes = new ArrayList<>();
-            }
-        	
-            if (fotoEvidencia == null || fotoEvidencia.isEmpty()) {
-                return "redirect:/tutor/panel?error=falta_evidencia";
-            }
+            if (idEstudiantesPresentes == null) idEstudiantesPresentes = new ArrayList<>();
+            if (fotoEvidencia == null || fotoEvidencia.isEmpty()) return "redirect:/tutor/panel?error=falta_evidencia";
 
             String nombreFoto = uploadFileService.guardarImagen(fotoEvidencia);
             Sesion sesionGuardada = sesionService.registrarAsistenciaCompleta(idGrupo, semana, idActividad, idEstudiantesPresentes);
@@ -146,64 +140,102 @@ public class TutorController {
             evidencia.setSesion(sesionGuardada);
             evidencia.setUrlArchivo(nombreFoto);
             evidencia.setEstatusValidacion("PENDIENTE");
-
             evidenciaRepository.save(evidencia);
 
             return "redirect:/tutor/panel?exito=asistencia_guardada";
-
-        } catch (IOException e) {
-            return "redirect:/tutor/panel?error=subida_fallida";
         } catch (Exception e) {
-            e.printStackTrace();
             return "redirect:/tutor/panel?error=error_registro";
         }
     }
 
     @GetMapping("/sesion/{id}")
-    public String verDetalleSesion(@PathVariable Integer id, Model model) {
-        Sesion sesion = sesionRepository.findById(id).orElseThrow(() -> new RuntimeException("Sesión no encontrada"));
+    public String verDetalleSesion(@PathVariable("id") Integer idSesion, Model model) {
+        Sesion sesion = sesionRepository.findById(idSesion)
+                .orElseThrow(() -> new RuntimeException("Sesion no encontrada"));
         model.addAttribute("sesion", sesion);
-        model.addAttribute("listaAsistencia", asistenciaRepository.findBySesion_IdSesion(id));
+        model.addAttribute("listaAsistencia", asistenciaRepository.findBySesion_IdSesion(idSesion));
         return "tutor/sesion-detalle";
-    }
-    
-    @GetMapping("/reportes")
-    public String verReportesTutor(Model model, Authentication authentication) {
-        Tutor tutor = obtenerTutorLogueado(authentication);
-        model.addAttribute("grupos", grupoTutoriaRepository.findByTutor_IdTutor(tutor.getIdTutor()));
-        return "tutor/reportes";
     }
 
     @GetMapping("/sesion/{id}/pdf")
-    public ResponseEntity<byte[]> descargarPdfAsistenciaSesion(@PathVariable Integer id) {
-        Sesion sesion = sesionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Sesión no encontrada"));
-        
-        List<Asistencia> listaAsistencia = asistenciaRepository.findBySesion_IdSesion(id);
+    public ResponseEntity<byte[]> descargarPdfAsistenciaSesion(@PathVariable("id") Integer idSesion) {
+        Sesion sesion = sesionRepository.findById(idSesion)
+                .orElseThrow(() -> new RuntimeException("Sesion no encontrada"));
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("sesion", sesion);
         variables.put("grupo", sesion.getGrupo());
-        variables.put("listaAsistencia", listaAsistencia);
+        variables.put("listaAsistencia", asistenciaRepository.findBySesion_IdSesion(idSesion));
         variables.put("fechaImpresion", LocalDate.now());
+        variables.put("logoTecNM", reporteService.obtenerImagenComoDataUri("templates/logos/logoTecNM.jpg"));
+        variables.put("logoITCH", reporteService.obtenerImagenComoDataUri("templates/logos/logotecnmchilpancingo.png"));
 
         byte[] pdf = reporteService.generarPdfDesdeHtml("documentos/tutor-lista-asistencia", variables);
         return crearPdfResponse(pdf, "Asistencia_Semana_" + sesion.getSemanaNumero() + "_" + sesion.getGrupo().getNombreGrupo() + ".pdf");
     }
 
-    @GetMapping("/reportes/reporte-final/pdf")
-    public ResponseEntity<byte[]> descargarReporteFinal(@RequestParam Integer idGrupo) {
+    @GetMapping("/reportes")
+    public String verReportesTutor(Model model, Authentication authentication) {
+        Tutor tutor = obtenerTutorLogueado(authentication);
+        model.addAttribute("grupos", grupoTutoriaRepository.findByTutor_IdTutor(tutor.getIdTutor()));
+        model.addAttribute("necesidades", necesidadRepository.findByEstudiante_Grupo_Tutor_IdTutorOrderByFechaSolicitudDesc(tutor.getIdTutor()));
+        return "tutor/reportes";
+    }
+
+    @GetMapping("/reportes/lista-asistencia/pdf")
+    public ResponseEntity<byte[]> descargarListaAsistencia(@RequestParam("idGrupo") Integer idGrupo) {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo).orElseThrow();
-        Map<String, Object> variables = Map.of(
-            "grupo", grupo,
-            "estudiantes", grupo.getEstudiantes(),
-            "totalSesiones", sesionRepository.findByGrupo_IdGrupo(idGrupo).size(),
-            "fechaImpresion", LocalDate.now()
-        );
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("grupo", grupo);
+        variables.put("estudiantes", grupo.getEstudiantes());
+        variables.put("fechaImpresion", LocalDate.now());
+
+        byte[] pdf = reporteService.generarPdfDesdeHtml("pdf/tutor-lista-asistencia", variables);
+        return crearPdfResponse(pdf, "Lista_Asistencia_" + grupo.getNombreGrupo() + ".pdf");
+    }
+
+    @GetMapping("/reportes/reporte-final/pdf")
+    public ResponseEntity<byte[]> descargarReporteFinal(@RequestParam("idGrupo") Integer idGrupo) {
+        GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo).orElseThrow();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("grupo", grupo);
+        variables.put("estudiantes", grupo.getEstudiantes());
+        variables.put("totalSesiones", sesionRepository.findByGrupo_IdGrupo(idGrupo).size());
+        variables.put("fechaImpresion", LocalDate.now());
+
         byte[] pdf = reporteService.generarPdfDesdeHtml("pdf/tutor-reporte-final", variables);
         return crearPdfResponse(pdf, "Reporte_Final_" + grupo.getNombreGrupo() + ".pdf");
     }
 
+    @GetMapping("/necesidades")
+    public String verNecesidadesAlumnos(Model model, Authentication authentication) {
+        Tutor tutor = obtenerTutorLogueado(authentication);
+        model.addAttribute("necesidades", necesidadRepository.findByEstudiante_Grupo_Tutor_IdTutorOrderByFechaSolicitudDesc(tutor.getIdTutor()));
+        return "tutor/necesidades-lista";
+    }
+
+    @PostMapping("/necesidades/{id}/atender")
+    public String marcarNecesidadComoAtendida(@PathVariable Integer id) {
+        NecesidadEstudiante necesidad = necesidadRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("No encontrada"));
+        necesidad.setEstatus("Atendida");
+        necesidadRepository.save(necesidad);
+        return "redirect:/tutor/necesidades?exito=atendida";
+    }
+
+    @GetMapping("/reportes/necesidad/pdf/{id}")
+    public ResponseEntity<byte[]> descargarNecesidadPdf(@PathVariable("id") Integer idNecesidad) {
+        NecesidadEstudiante necesidad = necesidadRepository.findById(idNecesidad).orElseThrow();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("necesidad", necesidad);
+        variables.put("fechaImpresion", LocalDate.now());
+
+        byte[] pdf = reporteService.generarPdfDesdeHtml("pdf/tutor-necesidad", variables);
+        return crearPdfResponse(pdf, "Derivacion_" + necesidad.getEstudiante().getNumeroControl() + ".pdf");
+    }
 
     private ResponseEntity<byte[]> crearPdfResponse(byte[] content, String filename) {
         HttpHeaders headers = new HttpHeaders();
@@ -221,7 +253,7 @@ public class TutorController {
     }
 
     @PostMapping("/perfil/actualizar-foto")
-    public String actualizarFoto(@RequestParam MultipartFile foto, Authentication authentication) {
+    public String actualizarFoto(@RequestParam("foto") MultipartFile foto, Authentication authentication) {
         try {
             Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName()).orElseThrow();
             if (foto != null && !foto.isEmpty()) {

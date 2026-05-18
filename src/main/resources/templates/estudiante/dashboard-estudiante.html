@@ -27,6 +27,10 @@
             </header>
 
             <div class="p-8 max-w-6xl mx-auto w-full space-y-8">
+                <div th:if="${param.exito != null && param.exito[0] == 'necesidades_enviadas'}" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-6 py-4 rounded-2xl flex items-center gap-3 font-bold">
+                    <i class="fa-solid fa-circle-check text-xl"></i>
+                    <span>Tu formato de deteccion de necesidades se ha enviado a tu tutor exitosamente.</span>
+                </div>
 
                 <div th:if="${grupo == null}" class="bg-white p-10 rounded-[3rem] border border-slate-200 text-center shadow-sm">
                     <div class="w-20 h-20 bg-amber-50 text-amber-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6">
@@ -83,6 +87,14 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Formatos</h3>
+                                <a th:href="@{/estudiante/deteccion-necesidades}" class="w-full bg-[#0B172A] text-white px-5 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-blue-700 transition-colors">
+                                    <i class="fa-solid fa-clipboard-user"></i>
+                                    Emitir Deteccion de Necesidades
+                                </a>
                             </div>
 
                             <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Información General</h3>

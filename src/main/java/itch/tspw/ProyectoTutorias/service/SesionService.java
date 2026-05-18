@@ -29,14 +29,16 @@ public class SesionService {
         this.actividadPatRepository = actividadPatRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Sesion> obtenerSesionesPorGrupo(Integer idGrupo) {
         return sesionRepository.findByGrupo_IdGrupo(idGrupo);
     }
-    
+    @Transactional(readOnly = true)
     public List<Sesion> obtenerSesionesPorTutor(Integer idTutor) {
         return sesionRepository.findByGrupo_Tutor_IdTutor(idTutor);
     }
 
+    @Transactional(readOnly = true)
     public List<Sesion> buscarActividadesPorFecha(LocalDate fecha) {
         return sesionRepository.findByFechaImparticion(fecha);
     }
@@ -44,10 +46,11 @@ public class SesionService {
     @Transactional
     public Sesion registrarAsistenciaCompleta(Integer idGrupo, Integer semana, Integer idActividad, List<Integer> idEstudiantesPresentes) {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado con ID: " + idGrupo));
                 
         ActividadPat actividad = actividadPatRepository.findById(idActividad)
-                .orElseThrow(() -> new RuntimeException("Actividad no encontrada"));
+                .orElseThrow(() -> new RuntimeException("Actividad no encontrada con ID: " + idActividad));
+        
         Set<Integer> presentes = idEstudiantesPresentes == null ? Set.of() : new HashSet<>(idEstudiantesPresentes);
 
         Sesion nuevaSesion = new Sesion();
@@ -56,12 +59,12 @@ public class SesionService {
         nuevaSesion.setEstatusRegistro("COMPLETADO");
         nuevaSesion.setGrupo(grupo);
         nuevaSesion.setActividad(actividad);
-        
         final Sesion sesionGuardada = sesionRepository.save(nuevaSesion);
 
         List<Asistencia> listaAsistencia = new ArrayList<>();
         
         for (Estudiante estudiante : grupo.getEstudiantes()) {
+            // SEGURIDAD: Se ignora y omite el pase de lista para alumnos que no se encuentran activos en el sistema
             if (!Boolean.TRUE.equals(estudiante.getActivo())) {
                 continue;
             }
@@ -71,16 +74,18 @@ public class SesionService {
             registro.setEstudiante(estudiante);
             
             boolean asistio = presentes.contains(estudiante.getIdEstudiante());
-            registro.setPresente(asistio);
-            
+            registro.setPresente(asistio);            
             listaAsistencia.add(registro);
         }
         
-        asistenciaRepository.saveAll(listaAsistencia);
+        if (!listaAsistencia.isEmpty()) {
+            asistenciaRepository.saveAll(listaAsistencia);
+        }
         
         return sesionGuardada;
     }
 
+    @Transactional(readOnly = true)
     public long contarSesionesPorTutor(Integer idTutor) {
         if (idTutor == null) return 0;
         return sesionRepository.countByGrupo_Tutor_IdTutor(idTutor);

@@ -16,10 +16,13 @@ public class PatInstitucional {
     @JoinColumn(name = "id_periodo", nullable = false)
     private PeriodoEscolar periodo;
 
-    // NUEVO: Relación con Carrera
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_carrera", nullable = false)
+    @JoinColumn(name = "id_carrera", nullable = true)
     private Carrera carrera;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_pat_base")
+    private PatInstitucional patBase;
 
     @Column(length = 20)
     private String version;
@@ -39,6 +42,9 @@ public class PatInstitucional {
     
     public Carrera getCarrera() { return carrera; }
     public void setCarrera(Carrera carrera) { this.carrera = carrera; }
+
+    public PatInstitucional getPatBase() { return patBase; }
+    public void setPatBase(PatInstitucional patBase) { this.patBase = patBase; }
     
     public String getVersion() { return version; }
     public void setVersion(String version) { this.version = version; }

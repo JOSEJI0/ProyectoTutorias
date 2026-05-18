@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reporte Final de Grupo</title>
+    <style>
+        @page { size: letter portrait; margin: 2cm; }
+        body { font-family: sans-serif; color: #333; }
+        .header { text-align: center; border-bottom: 2px solid #2A4F73; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { color: #2A4F73; margin: 0; font-size: 18pt; }
+        .info { border: 1px solid #ddd; padding: 15px; background: #f9f9f9; margin-bottom: 20px; font-size: 10pt; }
+        .label { font-weight: bold; color: #2A4F73; }
+        .resumen { text-align: center; margin-bottom: 30px; }
+        .box { display: inline-block; padding: 15px 30px; border: 2px solid #059669; border-radius: 8px; font-size: 14pt; font-weight: bold; color: #059669; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background-color: #2A4F73; color: white; font-size: 10pt; padding: 8px; border: 1px solid #2A4F73; }
+        td { font-size: 10pt; padding: 6px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Reporte Final de Acción Tutorial</h1>
+    </div>
+    <div class="info">
+        <p><span class="label">Docente Tutor:</span> <span th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}"></span></p>
+        <p><span class="label">Programa Educativo:</span> <span th:text="${grupo.carrera.nombreCarrera}"></span></p>
+       <p><span class="label">Grupo Asignado:</span> <span th:text="${grupo.nombreGrupo}"></span> &#160;&#160;|&#160;&#160; <span class="label">Periodo:</span> <span th:text="${grupo.periodo.nombrePeriodo}"></span></p>
+    </div>
+    
+    <div class="resumen">
+        <div class="box">
+            Total de Sesiones Impartidas: <span th:text="${totalSesiones}">0</span>
+        </div>
+    </div>
+
+    <h3 style="color: #2A4F73; font-size: 12pt;">Estudiantes Tutorados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 10%;">No.</th>
+                <th style="width: 25%;">Control</th>
+                <th style="width: 65%; text-align: left;">Nombre del Estudiante</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="est, iter : ${estudiantes}">
+                <td style="text-align: center;" th:text="${iter.count}"></td>
+                <td style="text-align: center;" th:text="${est.numeroControl}"></td>
+                <td th:text="${est.usuario.apellidos + ' ' + est.usuario.nombre}"></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="margin-top: 60px; text-align: center;">
+        <div style="border-top: 1px solid #333; width: 50%; margin: 0 auto; padding-top: 5px; font-weight: bold;">Firma del Docente Tutor</div>
+    </div>
+</body>
+</html>

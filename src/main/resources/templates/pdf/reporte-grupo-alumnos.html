@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Lista de Alumnos</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2cm;
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #888888;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2A4F73;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #2A4F73;
+            margin: 0;
+            font-size: 20pt;
+        }
+        .header p {
+            color: #689BBE;
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .info-grupo {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .info-grupo td {
+            padding: 5px;
+            font-size: 10pt;
+            border: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #2A4F73;
+            width: 15%;
+        }
+        table.tabla-alumnos {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tabla-alumnos th {
+            background-color: #2A4F73;
+            color: #ffffff;
+            font-size: 10pt;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #2A4F73;
+        }
+        .tabla-alumnos td {
+            font-size: 10pt;
+            padding: 8px 10px;
+            border: 1px solid #dddddd;
+        }
+        .tabla-alumnos tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9pt;
+            color: #888888;
+            border-top: 1px solid #dddddd;
+            padding-top: 10px;
+        }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Coordinación Institucional de Tutorías</h1>
+        <p>Instituto Tecnológico de Chilpancingo</p>
+    </div>
+
+    <!-- Bloque de Información del Grupo -->
+    <table class="info-grupo">
+        <tr>
+            <td class="label">Tutor:</td>
+            <td th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre del Tutor</td>
+            <td class="label">Fecha:</td>
+            <td th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">01/01/2026</td>
+        </tr>
+        <tr>
+            <td class="label">Grupo:</td>
+            <td th:text="${grupo.nombreGrupo}">1A</td>
+            <td class="label">Carrera:</td>
+            <td th:text="${grupo.carrera.nombreCarrera}">Ingeniería</td>
+        </tr>
+        <tr>
+            <td class="label">Horario:</td>
+            <td th:text="${grupo.horario}">Lunes 10:00</td>
+            <td class="label">Total:</td>
+            <td th:text="${estudiantes.size()} + ' Alumnos'">0 Alumnos</td>
+        </tr>
+    </table>
+
+    <h2 style="font-size: 12pt; color: #2A4F73; margin-bottom: 10px; margin-top: 20px; border-bottom: 1px solid #dddddd; padding-bottom: 5px;">
+        Lista Oficial de Estudiantes Asignados
+    </h2>
+
+    <!-- Tabla de Estudiantes -->
+    <table class="tabla-alumnos">
+        <thead>
+            <tr>
+                <th style="width: 5%;" class="text-center">No.</th>
+                <th style="width: 20%;" class="text-center">No. Control</th>
+                <th style="width: 55%;">Nombre del Estudiante</th>
+                <th style="width: 20%;" class="text-center">Semestre</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Usamos iterStat para la numeración automática -->
+            <tr th:each="estudiante, iterStat : ${estudiantes}">
+                <td class="text-center" th:text="${iterStat.count}">1</td>
+                <td class="text-center" style="font-family: monospace;" th:text="${estudiante.numeroControl}">12345678</td>
+                <td th:text="${estudiante.usuario.apellidos + ' ' + estudiante.usuario.nombre}">Apellidos, Nombre</td>
+                <td class="text-center" th:text="${estudiante.semestreActual + '°'}">1°</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(estudiantes)}">
+                <td colspan="4" style="text-align: center; font-style: italic; color: #888888; padding: 20px;">
+                    Este grupo aún no tiene estudiantes asignados.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Documento generado automáticamente por el Sistema de Tutorías ITCH.
+    </div>
+
+</body>
+</html>

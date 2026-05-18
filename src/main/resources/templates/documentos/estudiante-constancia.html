@@ -1,83 +1,280 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Constancia de Liberación</title>
-    <style>
-        @page { size: letter landscape; margin: 0; }
-        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333333; margin: 0; padding: 0; }
-        .constancia-page { width: 100%; height: 100%; padding: 1.5cm 2cm; box-sizing: border-box; position: relative; }
-        .marco-exterior { border: 4px double #2A4F73; height: 100%; padding: 15px; text-align: center; position: relative; }
-        .marco-interior { border: 1px solid #689BBE; height: 100%; padding: 30px; box-sizing: border-box; position: relative; }
-        
-        /* Contenedor de logos en las esquinas superiores */
-        .logos-header {
-            width: 100%;
-            height: 100px;
-            position: relative;
-            margin-bottom: 20px;
-        }
-        .logo-izquierdo { position: absolute; left: 0; top: 0; height: 80px; }
-        .logo-derecho { position: absolute; right: 0; top: 0; height: 80px; }
+<meta charset="UTF-8"/>
+<title>Constancia de Liberación</title>
 
-        .encabezado h1 { color: #2A4F73; font-size: 22pt; margin: 0; text-transform: uppercase; }
-        .encabezado h2 { color: #689BBE; font-size: 14pt; margin: 5px 0 30px 0; font-weight: normal; }
-        
-        .texto-otorga { font-size: 13pt; margin-bottom: 15px; }
-        .nombre-estudiante { font-size: 26pt; font-weight: bold; color: #1a3a5a; border-bottom: 2px solid #1a3a5a; display: inline-block; padding: 0 30px 5px 30px; margin-bottom: 20px; }
-        .texto-motivo { font-size: 13pt; line-height: 1.5; margin: 0 40px 30px 40px; text-align: justify; }
-        
-        .firmas { width: 100%; margin-top: 40px; border-collapse: collapse; }
-        .firmas td { width: 50%; text-align: center; vertical-align: top; padding: 0 30px; }
-        .linea-firma { border-top: 1px solid #333333; padding-top: 5px; font-weight: bold; font-size: 10pt; color: #2A4F73; }
-        .cargo-firma { font-size: 8pt; color: #666666; }
-        
-        .folio-fecha { position: absolute; bottom: 15px; right: 30px; font-size: 8pt; color: #888888; text-align: right; }
-    </style>
+<style>
+
+    @page{
+        size: letter landscape;
+        margin: 0;
+    }
+
+    body{
+        margin:0;
+        padding:0;
+        font-family: "Times New Roman", serif;
+        color:#1f1f1f;
+    }
+
+    .page{
+        width:100%;
+        height:100%;
+        padding:1.2cm;
+        box-sizing:border-box;
+    }
+
+    .marco{
+        width:100%;
+        height:100%;
+        border:4px double #1F4E79;
+        padding:18px;
+        box-sizing:border-box;
+    }
+
+    .contenido{
+        width:100%;
+        height:100%;
+        border:1px solid #7FA6C9;
+        padding:35px 45px;
+        box-sizing:border-box;
+        position:relative;
+        text-align:center;
+    }
+
+    /* =========================
+       LOGOS
+    ========================== */
+
+    .logos{
+        width:100%;
+        position:relative;
+        height:90px;
+    }
+
+    .logo-left{
+        position:absolute;
+        left:0;
+        top:0;
+        height:75px;
+    }
+
+    .logo-right{
+        position:absolute;
+        right:0;
+        top:0;
+        height:75px;
+    }
+
+    /* =========================
+       TITULOS
+    ========================== */
+
+    .titulo{
+        margin-top:10px;
+        color:#1F4E79;
+        font-size:30pt;
+        font-weight:bold;
+        text-transform:uppercase;
+        letter-spacing:1px;
+    }
+
+    .subtitulo{
+        margin-top:5px;
+        color:#5C87B2;
+        font-size:16pt;
+    }
+
+    /* =========================
+       CONTENIDO
+    ========================== */
+
+    .otorga{
+        margin-top:40px;
+        font-size:16pt;
+    }
+
+    .nombre{
+        margin-top:18px;
+        font-size:28pt;
+        font-weight:bold;
+        color:#163A5F;
+        border-bottom:2px solid #163A5F;
+        display:inline-block;
+        padding:0 35px 8px 35px;
+    }
+
+    .texto{
+        margin-top:35px;
+        font-size:15pt;
+        line-height:1.8;
+        text-align:justify;
+    }
+
+    .texto b{
+        color:#163A5F;
+    }
+
+    /* =========================
+       FIRMAS
+    ========================== */
+
+    .firmas{
+        width:100%;
+        margin-top:60px;
+        table-layout:fixed;
+    }
+
+    .firmas td{
+        width:50%;
+        text-align:center;
+        vertical-align:top;
+        padding:0 35px;
+    }
+
+    .firma-linea{
+        border-top:1px solid #333;
+        width:80%;
+        margin:0 auto;
+        padding-top:8px;
+        font-weight:bold;
+        color:#1F4E79;
+        font-size:12pt;
+    }
+
+    .firma-cargo{
+        font-size:10pt;
+        color:#666;
+    }
+
+    /* =========================
+       FECHA
+    ========================== */
+
+    .footer{
+        position:absolute;
+        bottom:18px;
+        right:35px;
+        text-align:right;
+        font-size:9pt;
+        color:#666;
+        line-height:1.5;
+    }
+
+</style>
 </head>
+
 <body>
-    <div class="constancia-page">
-        <div class="marco-exterior">
-            <div class="marco-interior">
-                <div class="logos-header">
-                    <img th:src="${logoTecNM}" class="logo-izquierdo" alt="TecNM"/>
-                    <img th:src="${logoITCH}" class="logo-derecho" alt="ITCH"/> </div>
 
-                <div class="encabezado">
-                    <h1>Instituto Tecnológico de Chilpancingo</h1>
-                    <h2>Coordinación Institucional de Tutorías</h2>
-                </div>
+<div class="page">
 
-                <div class="texto-otorga">Otorga la presente constancia a:</div>
+    <div class="marco">
 
-                <div class="nombre-estudiante" th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">
-                    NOMBRE DEL ALUMNO
-                </div>
+        <div class="contenido">
 
-                <div class="texto-motivo">
-                    Por haber acreditado satisfactoriamente el <b>Programa Institucional de Tutorías</b> correspondiente al periodo 
-                    <span th:text="${grupo.periodo.nombrePeriodo}">PERIODO</span>, cumpliendo con el requisito reglamentario de 
-                    más del 80% de asistencia en el grupo <b><span th:text="${grupo.nombreGrupo}">GRUPO</span></b> de la carrera de 
-                    <b><span th:text="${grupo.carrera.nombreCarrera}">CARRERA</span></b>.
-                </div>
-                <table class="firmas">
-                    <tr>
-                        <td>
-                            <div class="linea-firma" th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">FIRMA TUTOR</div>
-                            <div class="cargo-firma">Docente Tutor del Grupo</div>
-                        </td>
-                        <td>
-                            <div class="linea-firma">Firma del Coordinador(a)</div>
-                            <div class="cargo-firma">Coordinación Institucional de Tutorías</div>
-                        </td>
-                    </tr>
-                </table>
-                <div class="folio-fecha">
-                    Chilpancingo, Guerrero a <span th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">FECHA</span>.<br/>
-                    No. Control: <span th:text="${estudiante.numeroControl}">00000000</span>
-                </div>
+            <!-- LOGOS -->
+            <div class="logos">
+                <img th:src="${logoTecNM}" class="logo-left" alt="TecNM"/>
+
+                <img th:src="${logoITCH}" class="logo-right" alt="ITCH"/>
             </div>
+
+            <!-- TITULOS -->
+            <div class="titulo">
+                Instituto Tecnológico de Chilpancingo
+            </div>
+
+            <div class="subtitulo">
+                Coordinación Institucional de Tutorías
+            </div>
+
+            <!-- TEXTO -->
+            <div class="otorga">
+                Otorga la presente constancia a:
+            </div>
+
+            <div class="nombre"
+                 th:text="${estudiante.usuario.nombre + ' ' + estudiante.usuario.apellidos}">
+                NOMBRE DEL ESTUDIANTE
+            </div>
+
+            <div class="texto">
+
+                Por haber acreditado satisfactoriamente el
+                <b>Programa Institucional de Tutorías</b>
+                correspondiente al periodo
+                <span th:text="${grupo.periodo.nombrePeriodo}">
+                    PERIODO
+                </span>,
+                cumpliendo con el requisito reglamentario de más del
+                80% de asistencia en el grupo
+                <b>
+                    <span th:text="${grupo.nombreGrupo}">GRUPO</span>
+                </b>
+                de la carrera de
+                <b>
+                    <span th:text="${grupo.carrera.nombreCarrera}">
+                        CARRERA
+                    </span>
+                </b>.
+
+            </div>
+
+            <!-- FIRMAS -->
+            <table class="firmas">
+
+                <tr>
+
+                    <td>
+                        <div class="firma-linea"
+                             th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">
+                            NOMBRE TUTOR
+                        </div>
+
+                        <div class="firma-cargo">
+                            Docente Tutor del Grupo
+                        </div>
+                    </td>
+
+                    <td>
+
+                        <div class="firma-linea">
+                            Firma del Coordinador(a)
+                        </div>
+
+                        <div class="firma-cargo">
+                            Coordinación Institucional de Tutorías
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+            <!-- FOOTER -->
+            <div class="footer">
+
+                Chilpancingo, Guerrero a
+                <span th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">
+                    FECHA
+                </span>
+
+                <br/>
+
+                No. Control:
+                <span th:text="${estudiante.numeroControl}">
+                    00000000
+                </span>
+
+            </div>
+
         </div>
+
     </div>
+
+</div>
+
 </body>
 </html>

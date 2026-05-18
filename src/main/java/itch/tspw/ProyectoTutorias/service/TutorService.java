@@ -4,6 +4,7 @@ import itch.tspw.ProyectoTutorias.model.*;
 import itch.tspw.ProyectoTutorias.repository.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -27,22 +28,32 @@ public class TutorService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional(readOnly = true)
     public Tutor obtenerPorId(Integer idTutor) {
         return tutorRepository.findById(idTutor)
                 .orElseThrow(() -> new RuntimeException("Tutor no encontrado con ID: " + idTutor));
     }
+    
+    @Transactional(readOnly = true)
+    public Tutor obtenerPorRfc(String rfcEmpleado) {
+        return tutorRepository.findByRfcEmpleado(rfcEmpleado).orElse(null);
+    }
 
+    @Transactional(readOnly = true)
     public List<Tutor> listarTodos() {
         return tutorRepository.findAll().stream()
                 .filter(t -> t.getUsuario() != null && Boolean.TRUE.equals(t.getUsuario().getActivo()))
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void guardarTutor(Tutor tutor) {
         Usuario usuario = tutor.getUsuario();
+        
         if (usuario.getIdUsuario() == null) {
             configurarNuevoUsuario(usuario, tutor.getRfcEmpleado());
         }
+        
         tutor.setUsuario(usuarioRepository.save(usuario));
         tutorRepository.save(tutor);
     }
@@ -59,10 +70,13 @@ public class TutorService {
         usuario.getPerfiles().add(perfilTutor);
     }
 
+    @Transactional
     public void eliminarTutor(Integer idTutor) {
         Tutor tutor = obtenerPorId(idTutor);
         Usuario usuario = tutor.getUsuario();        
-        usuario.setActivo(false);
-        usuarioRepository.save(usuario);
+        if (usuario != null) {
+            usuario.setActivo(false);
+            usuarioRepository.save(usuario);
+        }
     }
 }

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class PatGrupoService {
@@ -45,11 +46,14 @@ public class PatGrupoService {
 
         GrupoTutoria grupo = grupoService.obtenerPorId(idGrupo);
         PatInstitucional patInst = patService.obtenerPorId(idPatInstitucional);
+        
         PatGrupo nuevoPatGrupo = new PatGrupo();
         nuevoPatGrupo.setGrupo(grupo);
         nuevoPatGrupo.setPatInstitucionalOrigen(patInst);
         nuevoPatGrupo.setFechaAdaptacion(LocalDate.now());        
+        
         PatGrupo patGuardado = patGrupoRepository.save(nuevoPatGrupo);
+        
         List<ActividadPat> actividadesBase = actividadPatService.listarPorPat(idPatInstitucional);
         List<ActividadPatGrupo> actividadesClonadas = new ArrayList<>();
 
@@ -62,7 +66,11 @@ public class PatGrupoService {
             actGrupo.setEstatus("Pendiente"); 
             actividadesClonadas.add(actGrupo);
         }
-        actividadPatGrupoRepository.saveAll(actividadesClonadas);
+        
+        if (!actividadesClonadas.isEmpty()) {
+            actividadPatGrupoRepository.saveAll(actividadesClonadas);
+        }
+        
         return patGuardado;
     }
 
@@ -113,7 +121,44 @@ public class PatGrupoService {
 
         return patGuardado;
     }
+    
+    @Transactional
+    public void asignarMoldeAGrupo(Integer idGrupo, Integer idPat) {
+        if (patGrupoRepository.findByGrupo_IdGrupo(idGrupo).isPresent()) {
+            throw new RuntimeException("Este grupo ya cuenta con un PAT asignado.");
+        }
 
+        GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo)
+            .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+        
+        PatInstitucional molde = patRepository.findById(idPat)
+            .orElseThrow(() -> new RuntimeException("Molde no encontrado"));
+
+        PatGrupo nuevoPatGrupo = new PatGrupo();
+        nuevoPatGrupo.setGrupo(grupo);
+        nuevoPatGrupo.setPatInstitucionalOrigen(molde);
+        nuevoPatGrupo.setFechaAdaptacion(LocalDate.now());
+
+        PatGrupo patGuardado = patGrupoRepository.save(nuevoPatGrupo);
+
+        List<ActividadPat> actividadesBase = actividadPatService.listarPorPat(idPat);
+        List<ActividadPatGrupo> actividadesClonadas = new ArrayList<>();
+
+        for (ActividadPat actInst : actividadesBase) {
+            ActividadPatGrupo actGrupo = new ActividadPatGrupo();
+            actGrupo.setPatGrupo(patGuardado);
+            actGrupo.setTitulo(actInst.getTitulo());
+            actGrupo.setDescripcion(actInst.getDescripcion());
+            actGrupo.setSemanaProgramada(actInst.getSemanaProgramada());
+            actGrupo.setEstatus("Pendiente");
+            actividadesClonadas.add(actGrupo);
+        }
+
+        if (!actividadesClonadas.isEmpty()) {
+            actividadPatGrupoRepository.saveAll(actividadesClonadas);
+        }
+    }
+    
     @Transactional(readOnly = true)
     public PatGrupo obtenerPatDeGrupo(Integer idGrupo) {
         return patGrupoRepository.findByGrupo_IdGrupo(idGrupo).orElse(null);
@@ -156,24 +201,109 @@ public class PatGrupoService {
 
     @Transactional
     public void asignarPatAutomatico(GrupoTutoria grupo) {
-        patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
+        Optional<PatInstitucional> patInstOpt = patRepository.findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(
                 grupo.getPeriodo().getIdPeriodo(), 
                 grupo.getCarrera().getIdCarrera()
-        ).ifPresent(patInst -> {
+        );
+
+        if (patInstOpt.isPresent()) {
             if (patGrupoRepository.findByGrupo_IdGrupo(grupo.getIdGrupo()).isEmpty()) {
-                clonarPatParaGrupo(grupo.getIdGrupo(), patInst.getIdPat());
+                clonarPatParaGrupo(grupo.getIdGrupo(), patInstOpt.get().getIdPat());
             }
-        });
+        }
     }
 
     @Transactional
     public void asignarPatAGruposExistentes(PatInstitucional patInst) {
+        if (patInst.getCarrera() == null) {
+            return;
+        }
+
         List<GrupoTutoria> grupos = grupoTutoriaRepository.findByPeriodo_EstatusActivoAndActivoTrue(true);
-        
+
         for (GrupoTutoria grupo : grupos) {
-            if (grupo.getCarrera().getIdCarrera().equals(patInst.getCarrera().getIdCarrera())) {
+            boolean mismoPeriodo = grupo.getPeriodo().getIdPeriodo().equals(patInst.getPeriodo().getIdPeriodo());
+            boolean mismaCarrera = grupo.getCarrera().getIdCarrera().equals(patInst.getCarrera().getIdCarrera());
+            if (mismoPeriodo && mismaCarrera) {
                 if (patGrupoRepository.findByGrupo_IdGrupo(grupo.getIdGrupo()).isEmpty()) {
                     clonarPatParaGrupo(grupo.getIdGrupo(), patInst.getIdPat());
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public void sincronizarPatConGruposExistentes(PatInstitucional patInst) {
+        if (patInst.getCarrera() == null) {
+            return;
+        }
+
+        List<GrupoTutoria> grupos = grupoTutoriaRepository.findByPeriodo_EstatusActivoAndActivoTrue(true);
+
+        for (GrupoTutoria grupo : grupos) {
+            boolean mismoPeriodo = grupo.getPeriodo().getIdPeriodo().equals(patInst.getPeriodo().getIdPeriodo());
+            boolean mismaCarrera = grupo.getCarrera().getIdCarrera().equals(patInst.getCarrera().getIdCarrera());
+
+            if (!mismoPeriodo || !mismaCarrera) {
+                continue;
+            }
+
+            Optional<PatGrupo> patGrupoOpt = patGrupoRepository.findByGrupo_IdGrupo(grupo.getIdGrupo());
+            if (patGrupoOpt.isEmpty()) {
+                clonarPatParaGrupo(grupo.getIdGrupo(), patInst.getIdPat());
+                continue;
+            }
+
+            PatGrupo patGrupo = patGrupoOpt.get();
+            if (patGrupo.getPatInstitucionalOrigen() != null
+                    && !patGrupo.getPatInstitucionalOrigen().getIdPat().equals(patInst.getIdPat())) {
+                continue;
+            }
+
+            patGrupo.setPatInstitucionalOrigen(patInst);
+            patGrupoRepository.save(patGrupo);
+
+            List<ActividadPatGrupo> actividadesGrupo = actividadPatGrupoRepository
+                    .findByPatGrupo_IdPatGrupoOrderBySemanaProgramadaAsc(patGrupo.getIdPatGrupo());
+            List<ActividadPatGrupo> nuevasActividades = new ArrayList<>();
+
+            for (ActividadPat actividadPat : actividadPatService.listarPorPat(patInst.getIdPat())) {
+                boolean yaExiste = actividadesGrupo.stream().anyMatch(actividadGrupo ->
+                        Objects.equals(actividadPat.getSemanaProgramada(), actividadGrupo.getSemanaProgramada())
+                                || actividadPat.getTitulo().equalsIgnoreCase(actividadGrupo.getTitulo())
+                );
+
+                if (!yaExiste) {
+                    ActividadPatGrupo actividadGrupo = new ActividadPatGrupo();
+                    actividadGrupo.setPatGrupo(patGrupo);
+                    actividadGrupo.setTitulo(actividadPat.getTitulo());
+                    actividadGrupo.setDescripcion(actividadPat.getDescripcion());
+                    actividadGrupo.setSemanaProgramada(actividadPat.getSemanaProgramada());
+                    actividadGrupo.setEstatus("Pendiente");
+                    nuevasActividades.add(actividadGrupo);
+                }
+            }
+
+            if (!nuevasActividades.isEmpty()) {
+                actividadPatGrupoRepository.saveAll(nuevasActividades);
+            }
+        }
+    }
+
+    @Transactional
+    public void asignarPatMoldeAGruposDelPeriodo(PatInstitucional patInst) {
+        if (patInst.getCarrera() == null) {
+            return;
+        }
+
+        List<GrupoTutoria> grupos = grupoTutoriaRepository.findByPeriodo_EstatusActivoAndActivoTrue(true);
+
+        for (GrupoTutoria grupo : grupos) {
+            boolean mismoPeriodo = grupo.getPeriodo().getIdPeriodo().equals(patInst.getPeriodo().getIdPeriodo());
+            boolean mismaCarrera = grupo.getCarrera().getIdCarrera().equals(patInst.getCarrera().getIdCarrera());
+            if (mismoPeriodo && mismaCarrera) {
+                if (patGrupoRepository.findByGrupo_IdGrupo(grupo.getIdGrupo()).isEmpty()) {
+                    asignarMoldeAGrupo(grupo.getIdGrupo(), patInst.getIdPat());
                 }
             }
         }

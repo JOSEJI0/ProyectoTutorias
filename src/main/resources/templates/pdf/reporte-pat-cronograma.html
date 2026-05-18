@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Cronograma del PAT</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2cm;
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #888888;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2A4F73;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #2A4F73;
+            margin: 0;
+            font-size: 20pt;
+        }
+        .header p {
+            color: #689BBE;
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .info-pat {
+            width: 100%;
+            margin-bottom: 20px;
+            border-collapse: collapse;
+        }
+        .info-pat td {
+            padding: 5px;
+            font-size: 10pt;
+            border: none;
+        }
+        .label {
+            font-weight: bold;
+            color: #2A4F73;
+            width: 18%;
+        }
+        table.tabla-actividades {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tabla-actividades th {
+            background-color: #2A4F73;
+            color: #ffffff;
+            font-size: 10pt;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #2A4F73;
+        }
+        .tabla-actividades td {
+            font-size: 10pt;
+            padding: 8px 10px;
+            border: 1px solid #dddddd;
+            vertical-align: top;
+        }
+        .tabla-actividades tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9pt;
+            color: #888888;
+            border-top: 1px solid #dddddd;
+            padding-top: 10px;
+        }
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Coordinación Institucional de Tutorías</h1>
+        <p>Instituto Tecnológico de Chilpancingo</p>
+    </div>
+
+    <!-- Bloque de Información del PAT -->
+    <table class="info-pat">
+        <tr>
+            <td class="label">Documento:</td>
+            <td style="font-weight: bold; color: #2A4F73;" th:text="${pat.version}">Versión del PAT</td>
+            <td class="label">Fecha de Impresión:</td>
+            <td th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">01/01/2026</td>
+        </tr>
+        <tr>
+            <td class="label">Programa:</td>
+            <td th:text="${pat.carrera != null ? pat.carrera.nombreCarrera : 'Molde general'}">Ingeniería</td>
+            <td class="label">Periodo Escolar:</td>
+            <td th:text="${pat.periodo != null ? pat.periodo.nombrePeriodo : 'N/A'}">Ene-Jun</td>
+        </tr>
+    </table>
+
+    <h2 style="font-size: 12pt; color: #2A4F73; margin-bottom: 10px; margin-top: 20px; border-bottom: 1px solid #dddddd; padding-bottom: 5px;">
+        Cronograma Oficial de Actividades
+    </h2>
+
+    <!-- Tabla de Actividades -->
+    <table class="tabla-actividades">
+        <thead>
+            <tr>
+                <th style="width: 10%;" class="text-center">Semana</th>
+                <th style="width: 30%;">Tema / Título</th>
+                <th style="width: 60%;">Descripción de la Actividad</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Ordenamos por semana si es posible, asumiendo que tu entidad tiene 'semanaProgramada' y 'titulo' -->
+            <tr th:each="actividad : ${actividades}">
+                <td class="text-center" style="font-weight: bold;" th:text="'Semana ' + ${actividad.semanaProgramada}">Semana 1</td>
+                <td style="font-weight: bold; color: #2A4F73;" th:text="${actividad.titulo}">Título del Tema</td>
+                <td th:text="${actividad.descripcion}">Descripción detallada...</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(actividades)}">
+                <td colspan="3" style="text-align: center; font-style: italic; color: #888888; padding: 20px;">
+                    Este Plan de Acción Tutorial aún no tiene actividades registradas.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Documento generado automáticamente por el Sistema de Tutorías ITCH.
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Reporte de Grupos</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2cm;
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #888888;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2A4F73;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2A4F73;
+            margin: 0;
+            font-size: 20pt;
+        }
+        .header p {
+            color: #689BBE;
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .fecha {
+            text-align: right;
+            font-size: 10pt;
+            margin-bottom: 20px;
+            color: #555555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #2A4F73;
+            color: #ffffff;
+            font-size: 10pt;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #2A4F73;
+        }
+        td {
+            font-size: 10pt;
+            padding: 8px 10px;
+            border: 1px solid #dddddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9pt;
+            color: #888888;
+            border-top: 1px solid #dddddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Coordinación Institucional de Tutorías</h1>
+        <p>Instituto Tecnológico de Chilpancingo</p>
+    </div>
+
+    <div class="fecha">
+        Fecha de emisión: <span th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">01/01/2026</span>
+    </div>
+
+    <h2 style="font-size: 14pt; color: #2A4F73; margin-bottom: 10px;">Listado Oficial de Grupos Activos</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">Grupo</th>
+                <th style="width: 35%;">Carrera</th>
+                <th style="width: 25%;">Docente Tutor</th>
+                <th style="width: 25%;">Horario</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="grupo : ${grupos}">
+                <td th:text="${grupo.nombreGrupo}" style="font-weight: bold; text-align: center;">1A</td>
+                <td th:text="${grupo.carrera.nombreCarrera}">Ingeniería</td>
+                <td th:text="${grupo.tutor.usuario.nombre + ' ' + grupo.tutor.usuario.apellidos}">Nombre Tutor</td>
+                <td th:text="${grupo.horario}">Lunes 10:00 - 12:00</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(grupos)}">
+                <td colspan="4" style="text-align: center; font-style: italic; color: #888888; padding: 20px;">
+                    No hay grupos de tutoría registrados en el sistema.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Documento generado automáticamente por el Sistema de Tutorías ITCH.
+    </div>
+
+</body>
+</html>

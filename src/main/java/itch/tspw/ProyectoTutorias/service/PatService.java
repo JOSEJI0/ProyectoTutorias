@@ -25,6 +25,14 @@ public class PatService {
     public List<PatInstitucional> listarTodos() {
         return patRepository.findByActivoTrueOrderByIdPatDesc();
     }
+
+    public List<PatInstitucional> listarMoldesGenerales() {
+        return patRepository.findByCarreraIsNullAndActivoTrueOrderByIdPatDesc();
+    }
+
+    public List<PatInstitucional> listarPatsPorCarrera() {
+        return patRepository.findByCarreraIsNotNullAndActivoTrueOrderByIdPatDesc();
+    }
     
     public PatInstitucional obtenerPorId(Integer idPat) {
         return patRepository.findById(idPat).orElseThrow(() -> new RuntimeException("PAT no encontrado"));
@@ -32,6 +40,10 @@ public class PatService {
 
     public boolean existePatParaCarreraEnPeriodo(Integer idPeriodo, Integer idCarrera) {
         return patRepository.findByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrue(idPeriodo, idCarrera).isPresent();
+    }
+
+    public boolean existeMoldeGeneral(Integer idPeriodo, String version) {
+        return patRepository.findByPeriodo_IdPeriodoAndVersionIgnoreCaseAndCarreraIsNullAndActivoTrue(idPeriodo, version).isPresent();
     }
 
     public void eliminarLogico(Integer idPat) {

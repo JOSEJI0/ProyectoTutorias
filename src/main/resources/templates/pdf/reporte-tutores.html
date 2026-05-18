@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Plantilla Docente</title>
+    <style>
+        @page {
+            size: letter portrait;
+            margin: 2cm;
+            @top-right {
+                content: "Página " counter(page) " de " counter(pages);
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 9pt;
+                color: #888888;
+            }
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #333333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2A4F73;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2A4F73;
+            margin: 0;
+            font-size: 20pt;
+        }
+        .header p {
+            color: #689BBE;
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .fecha {
+            text-align: right;
+            font-size: 10pt;
+            margin-bottom: 20px;
+            color: #555555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th {
+            background-color: #2A4F73;
+            color: #ffffff;
+            font-size: 10pt;
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #2A4F73;
+        }
+        td {
+            font-size: 10pt;
+            padding: 8px 10px;
+            border: 1px solid #dddddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 9pt;
+            color: #888888;
+            border-top: 1px solid #dddddd;
+            padding-top: 10px;
+        }
+        .text-center { text-align: center; }
+        .activo { color: #059669; font-weight: bold; }
+        .inactivo { color: #dc2626; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Coordinación Institucional de Tutorías</h1>
+        <p>Instituto Tecnológico de Chilpancingo</p>
+    </div>
+
+    <div class="fecha">
+        Fecha de emisión: <span th:text="${#temporals.format(fechaImpresion, 'dd/MM/yyyy')}">01/01/2026</span>
+    </div>
+
+    <h2 style="font-size: 14pt; color: #2A4F73; margin-bottom: 10px;">Plantilla Docente - Directorio de Tutores</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%;" class="text-center">No.</th>
+                <th style="width: 40%;">Nombre del Docente</th>
+                <th style="width: 40%;">Correo Institucional</th>
+                <th style="width: 15%;" class="text-center">Estatus</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="tutor, iterStat : ${tutores}">
+                <td class="text-center" th:text="${iterStat.count}">1</td>
+                <td th:text="${tutor.usuario.apellidos + ' ' + tutor.usuario.nombre}">Apellidos, Nombre</td>
+                <td style="font-family: monospace; font-size: 9pt;" th:text="${tutor.usuario.correoInstitucional}">correo@itch.edu.mx</td>
+                
+                <td class="text-center">
+                    <span th:if="${tutor.usuario.activo}" class="activo">Activo</span>
+                    <span th:unless="${tutor.usuario.activo}" class="inactivo">Inactivo</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tutores)}">
+                <td colspan="4" style="text-align: center; font-style: italic; color: #888888; padding: 20px;">
+                    No hay tutores registrados en el sistema.
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        Documento generado automáticamente por el Sistema de Tutorías ITCH.
+    </div>
+
+</body>
+</html>

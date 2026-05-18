@@ -1,7 +1,7 @@
 package itch.tspw.ProyectoTutorias.controller;
 
-import itch.tspw.ProyectoTutorias.model.*;
-import itch.tspw.ProyectoTutorias.repository.*;
+import itch.tspw.ProyectoTutorias.model.GrupoTutoria;
+import itch.tspw.ProyectoTutorias.repository.GrupoTutoriaRepository;
 import itch.tspw.ProyectoTutorias.service.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -33,21 +33,21 @@ public class GrupoController {
     }
 
     @GetMapping
-    public String obtenerListaGrupos(@RequestParam(defaultValue = "true") boolean activos, Model model) {
+    public String listarGrupos(@RequestParam(value = "activos", defaultValue = "true") boolean activos, Model model) {
         model.addAttribute("grupos", grupoRepository.findByPeriodo_EstatusActivoAndActivoTrue(activos));
         model.addAttribute("mostrandoActivos", activos);
         return "coordinador/grupos-lista";
     }
 
     @GetMapping("/nuevo")
-    public String prepararFormularioCreacion(Model model) {
+    public String mostrarFormularioCreacion(Model model) {
         model.addAttribute("nuevoGrupo", new GrupoTutoria());
         cargarCatalogos(model);
         return "coordinador/grupos-crear";
     }
 
     @GetMapping("/editar/{id}")
-    public String prepararFormularioEdicion(@PathVariable Integer id, Model model) {
+    public String mostrarFormularioEdicion(@PathVariable Integer id, Model model) {
         GrupoTutoria grupo = grupoRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado: " + id));
         
@@ -59,38 +59,38 @@ public class GrupoController {
     }
 
     @PostMapping("/guardar")
-    public String almacenarGrupo(@ModelAttribute GrupoTutoria grupo) {
+    public String guardarGrupo(@ModelAttribute GrupoTutoria grupo) {
         
         if (grupo.getIdGrupo() == null) {
             grupo.setPeriodo(periodoService.obtenerActivo());
             grupo.setActivo(true); 
+        
         } else {
-            grupoRepository.findById(grupo.getIdGrupo()).ifPresent(grupoDb -> {
-                grupo.setPeriodo(grupoDb.getPeriodo());
-                grupo.setActivo(grupoDb.getActivo()); 
-                
-                if (grupo.getSemestre() == null || grupo.getSemestre() == 0) {
-                    grupo.setSemestre(grupoDb.getSemestre());
-                }
-                if (grupo.getHorario() == null || grupo.getHorario().isEmpty()) {
-                    grupo.setHorario(grupoDb.getHorario());
-                }
-            });
+
+        	GrupoTutoria grupoDb = grupoRepository.findById(grupo.getIdGrupo()).orElseThrow();
+            grupo.setPeriodo(grupoDb.getPeriodo());
+            grupo.setActivo(grupoDb.getActivo()); 
+            
+            if(grupo.getSemestre() == null || grupo.getSemestre() == 0) {
+                 grupo.setSemestre(grupoDb.getSemestre());
+            }
+            if(grupo.getHorario() == null || grupo.getHorario().isEmpty()) {
+                 grupo.setHorario(grupoDb.getHorario());
+            }
         }
         
         GrupoTutoria grupoGuardado = grupoTutoriaService.asignarGrupo(grupo, null);
         patGrupoService.asignarPatAutomatico(grupoGuardado);
-        
         return "redirect:/coordinador/grupos?exito=grupo_actualizado";
     }
 
     @GetMapping("/eliminar/{id}")
-    public String removerGrupo(@PathVariable Integer id) {
+    public String eliminarGrupo(@PathVariable Integer id) {
         try {
             grupoTutoriaService.eliminarGrupoSeguro(id);
             return "redirect:/coordinador/grupos?exito=grupo_eliminado";
         } catch (Exception e) {
-            return "redirect:/coordinador/grupos?error=No_se_pudo_eliminar_el_grupo";
+            return "redirect:/coordinador/grupos?error=No se pudo eliminar el grupo";
         }
     }
 

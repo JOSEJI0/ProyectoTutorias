@@ -29,30 +29,45 @@ public class GrupoTutoriaService {
 
     @Transactional
     public GrupoTutoria asignarGrupo(GrupoTutoria grupo, List<Integer> idEstudiantes) {
-        final GrupoTutoria grupoGuardado = grupoTutoriaRepository.save(grupo);
+        final GrupoTutoria grupoGuardado;
+
+        if (grupo.getIdGrupo() != null) {
+            grupoGuardado = grupoTutoriaRepository.findById(grupo.getIdGrupo())
+                    .orElseThrow(() -> new IllegalArgumentException("El grupo a actualizar no existe."));
+            
+            grupoGuardado.setNombreGrupo(grupo.getNombreGrupo());
+            grupoGuardado.setCarrera(grupo.getCarrera());
+            grupoGuardado.setSemestre(grupo.getSemestre());
+            grupoGuardado.setHorario(grupo.getHorario());
+            grupoGuardado.setTutor(grupo.getTutor());
+            
+            grupoTutoriaRepository.save(grupoGuardado);
+        } else {
+            grupoGuardado = grupoTutoriaRepository.save(grupo);
+        }
 
         if (idEstudiantes != null && !idEstudiantes.isEmpty()) {
-            List<Estudiante> estudiantes = estudianteRepository.findAllById(idEstudiantes);
-            estudiantes.forEach(e -> e.setGrupo(grupoGuardado));
-            estudianteRepository.saveAll(estudiantes);
+            List<Estudiante> estudiantesSeleccionados = estudianteRepository.findAllById(idEstudiantes);
+            estudiantesSeleccionados.forEach(estudiante -> estudiante.setGrupo(grupoGuardado));
+            estudianteRepository.saveAll(estudiantesSeleccionados);
         }
         
-        return grupoGuardado;
-    }
+        return grupoGuardado; 
+        }
     
     @Transactional
     public void eliminarGrupoSeguro(Integer idGrupo) {
         GrupoTutoria grupo = grupoTutoriaRepository.findById(idGrupo)
                 .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado"));
 
-        if (grupo.getEstudiantes() != null) {
-            grupo.getEstudiantes().forEach(e -> e.setGrupo(null));
+        if (grupo.getEstudiantes() != null && !grupo.getEstudiantes().isEmpty()) {
+            grupo.getEstudiantes().forEach(estudiante -> estudiante.setGrupo(null));
             estudianteRepository.saveAll(grupo.getEstudiantes());
         }
 
         List<Sesion> sesiones = sesionRepository.findByGrupo_IdGrupo(idGrupo);
         if (!sesiones.isEmpty()) {
-            sesiones.forEach(s -> s.setEstatusRegistro("Cancelada"));
+            sesiones.forEach(sesion -> sesion.setEstatusRegistro("Cancelada"));
             sesionRepository.saveAll(sesiones);
         }
 

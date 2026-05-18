@@ -2,6 +2,7 @@ package itch.tspw.ProyectoTutorias.controller;
 
 import java.time.LocalDate;
 import java.util.*;
+
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -21,16 +22,22 @@ public class EstudianteController {
     private final PatGrupoService patGrupoService;
     private final AsistenciaRepository asistenciaRepository;
     private final ReporteService reporteService;
+    private final NecesidadesRepository necesidadRepository;
 
-    public EstudianteController(UsuarioRepository usuarioRepository, EstudianteRepository estudianteRepository,
-                                PatGrupoService patGrupoService, AsistenciaRepository asistenciaRepository,
-                                ReporteService reporteService) {
+    public EstudianteController(UsuarioRepository usuarioRepository,
+                                EstudianteRepository estudianteRepository,
+                                PatGrupoService patGrupoService,
+                                AsistenciaRepository asistenciaRepository,
+                                ReporteService reporteService,
+                                NecesidadesRepository necesidadRepository) {
         this.usuarioRepository = usuarioRepository;
         this.estudianteRepository = estudianteRepository;
         this.patGrupoService = patGrupoService;
         this.asistenciaRepository = asistenciaRepository;
         this.reporteService = reporteService;
+        this.necesidadRepository = necesidadRepository;
     }
+
 
     private Estudiante obtenerEstudianteLogueado(Authentication authentication) {
         Usuario usuario = usuarioRepository.findByCorreoInstitucional(authentication.getName())
@@ -44,6 +51,7 @@ public class EstudianteController {
         long presentes = historial.stream().filter(a -> Boolean.TRUE.equals(a.getPresente())).count();
         return (int) ((presentes * 100) / historial.size());
     }
+
 
     @GetMapping("/panel")
     public String cargarDashboardEstudiante(Model model, Authentication authentication) {
@@ -69,7 +77,27 @@ public class EstudianteController {
         return "estudiante/dashboard-estudiante";
     }
 
+    @GetMapping("/deteccion-necesidades")
+    public String mostrarFormularioNecesidades(Model model, Authentication authentication) {
+        model.addAttribute("estudiante", obtenerEstudianteLogueado(authentication));
+        return "estudiante/formulario-necesidades";
+    }
 
+    @PostMapping("/deteccion-necesidades/enviar")
+    public String enviarNecesidades(@RequestParam("area") String area,
+                                    @RequestParam("descripcion") String descripcion,
+                                    Authentication authentication) {
+
+        Estudiante estudiante = obtenerEstudianteLogueado(authentication);
+
+        NecesidadEstudiante necesidad = new NecesidadEstudiante();
+        necesidad.setEstudiante(estudiante);
+        necesidad.setArea(area);
+        necesidad.setDescripcion(descripcion);
+        necesidadRepository.save(necesidad);
+
+        return "redirect:/estudiante/panel?exito=necesidades_enviadas";
+    }
 
     @GetMapping("/historial")
     public String obtenerHistorialAsistencias(Model model, Authentication authentication) {
@@ -89,20 +117,22 @@ public class EstudianteController {
     public String obtenerPerfilEstudiante(Model model, Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
         List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
-        
+
         model.addAttribute("estudiante", estudiante);
         model.addAttribute("porcentajeAsistencia", calcularPorcentajeAsistencia(historial));
         model.addAttribute("totalSesiones", historial.size());
         return "estudiante/perfil";
     }
 
+    // --- REPORTES PDF ---
+
     @GetMapping("/historial/pdf")
     public ResponseEntity<byte[]> descargarHistorialPdf(Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
         List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
         historial.sort((a1, a2) -> a1.getSesion().getFechaImparticion().compareTo(a2.getSesion().getFechaImparticion()));
-
         long faltas = historial.stream().filter(a -> Boolean.FALSE.equals(a.getPresente())).count();
+
         Map<String, Object> variables = new HashMap<>();
         variables.put("estudiante", estudiante);
         variables.put("historial", historial);
@@ -111,31 +141,26 @@ public class EstudianteController {
         variables.put("fechaImpresion", LocalDate.now());
 
         byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/estudiante-historial", variables);
-        return crearPdfResponse(pdfBytes, "Kardex_Tutorias_" + estudiante.getNumeroControl() + ".pdf");
+        return crearPdfResponse(pdfBytes, "Kardex_" + estudiante.getNumeroControl() + ".pdf");
     }
 
     @GetMapping("/constancia/pdf")
     public ResponseEntity<byte[]> descargarConstanciaPdf(Authentication authentication) {
         Estudiante estudiante = obtenerEstudianteLogueado(authentication);
-        
-        // 1. Obtener historial para validar el 80% (Lógica existente)
         List<Asistencia> historial = asistenciaRepository.findByEstudiante_IdEstudiante(estudiante.getIdEstudiante());
+
         if (calcularPorcentajeAsistencia(historial) < 80) {
-            throw new RuntimeException("Acceso denegado: Aún no cumples con el 80% de asistencia requerido.");
+            throw new RuntimeException("Acceso denegado: aun no cumples con el 80% de asistencia requerido.");
         }
 
-        // 2. Preparar el mapa de variables para Thymeleaf
         Map<String, Object> variables = new HashMap<>();
         variables.put("estudiante", estudiante);
-        // IMPORTANTE: Aseguramos que el grupo vaya al contexto para acceder a tutor, carrera y periodo
-        variables.put("grupo", estudiante.getGrupo()); 
+        variables.put("grupo", estudiante.getGrupo());
         variables.put("fechaImpresion", LocalDate.now());
         variables.put("logoTecNM", reporteService.obtenerImagenComoDataUri("templates/logos/logoTecNM.jpg"));
         variables.put("logoITCH", reporteService.obtenerImagenComoDataUri("templates/logos/logotecnmchilpancingo.png"));
 
-        // 3. Generar el PDF (Asegúrate de que la ruta coincida con la ubicación del HTML)
-        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("documentos/estudiante-constancia", variables);
-        
+        byte[] pdfBytes = reporteService.generarPdfDesdeHtml("pdf/estudiante-constancia", variables);
         return crearPdfResponse(pdfBytes, "Constancia_Liberacion_" + estudiante.getNumeroControl() + ".pdf");
     }
 

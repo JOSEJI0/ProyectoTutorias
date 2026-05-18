@@ -18,4 +18,7 @@ public interface PatRepository extends JpaRepository<PatInstitucional, Integer> 
     Optional<PatInstitucional> findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraOrderByIdPatDesc(Integer idPeriodo, Integer idCarrera);
     Optional<PatInstitucional> findFirstByPeriodo_IdPeriodoAndCarrera_IdCarreraAndActivoTrueOrderByIdPatDesc(Integer idPeriodo, Integer idCarrera);
     List<PatInstitucional> findByActivoTrueOrderByIdPatDesc();
+    List<PatInstitucional> findByCarreraIsNullAndActivoTrueOrderByIdPatDesc();
+    List<PatInstitucional> findByCarreraIsNotNullAndActivoTrueOrderByIdPatDesc();
+    Optional<PatInstitucional> findByPeriodo_IdPeriodoAndVersionIgnoreCaseAndCarreraIsNullAndActivoTrue(Integer idPeriodo, String version);
 }
